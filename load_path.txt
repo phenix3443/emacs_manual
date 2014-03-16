@@ -1,0 +1,113 @@
+http://www.emacswiki.org/emacs/LoadPath
+
+The variable ‘load-path’ lists all the directories where Emacs should look for Elisp files. The first file found is used, therefore the order of the directories is relevant.
+变量‘load-path’列出了Emacs在寻找的elisp文件时查找的所有目录。Emacs使用第一个找到的文件，因而目录的顺序是有关系的。
+
+Preference is given to byte-compiled files (*.elc) when both a byte-compiled file and a source file (*.el) are found. Therefore, make sure to recompile files after making changes to them (or don’t compile the files at all).
+如果字节编译的文件(*.elc)和源文件（*.el）同时发现，优先考虑字节编译的文件。因此，要重新编译改变后的文件（或干脆不编译所有文件）。
+
+Code shown here can be run by EvaluatingExpressions in Emacs or by adding it to your InitFile.
+此处所示的代码可以由Emacs中的EvaluatingExpressions或将它添加到您的InitFile运行 。
+
+Contents内容
+Adding a directory添加目录
+Adding subdirectories添加子目录
+Default value默认值
+Debugging调试
+
+Adding a directory
+添加目录
+
+To add a single directory to the front of your ‘load-path’ (the final slash is needed for a directory):
+添加一个单独的目录到您的‘load-path’前面（目录最后的斜杠是必不可少的）
+
+    (add-to-list 'load-path "~/.emacs.d/lisp/")
+
+Adding subdirectories
+添加子目录
+
+Adding a directory to the variable ‘load-path’ does not also add its subdirectories. The current directory is the directory containing the currently visited file, or if the current buffer does not visit a file the directory from which Emacs was started. To add a directory to the ‘load-path’ the current directory has to be temporarily changed by binding ‘default-directory’. To recursively add the sub-directories of the current directory to the end of the ‘load-path’ do this:
+添加目录到‘load-path’不会将其子目录也加入其中。当前目录是指正在访问的文件所在的目录，如果当前缓冲区没有访问文件，当前目录就是Emacs启动时的目录。
+
+    (let ((default-directory "~/.emacs.d/lisp/"))
+      (normal-top-level-add-subdirs-to-load-path))
+
+This avoids subdirectories not starting with letters or digits, those named RCS or CVS, and those containing a file named .nosearch.
+这不会添加不是以字母或数字开头的子目录，如那些名RCS或CVS的文件，或名为.nosearch的目录。
+
+To add only some subdirectories, pass the list as a second argument. For example:
+只加载某些子目录，将它们作为第二个参数传递给列表，例如：
+
+    (let ((default-directory "~/.emacs.d/lisp/"))
+      (normal-top-level-add-to-load-path '("emms" "erc" "planner" "w3")))
+
+To have libraries in particular paths take precedence over other libraries elsewhere with the same name, put those paths at the beginning of ‘load-path’.
+为使指定路径的库接优先于其他地方同名的库，应该把该路径放在‘load-path’的开始。
+
+    (let ((default-directory "~/.emacs.d/lisp/"))
+      (setq load-path
+            (append
+             (let ((load-path (copy-sequence load-path))) ;; Shadow
+               (normal-top-level-add-subdirs-to-load-path))
+             load-path)))
+
+Assuming that you install packages in ~/.emacs.d/lisp/ and that some of the installed packages are single libraries while others are placed inside their own sub-directories you need to combine the steps from above.
+假设你将包安装在~/.emacs.d/lisp/ ，一些已安装的包是单库，而其他的库都放在自己的子目录里，你需要组合上面的步骤。
+
+    (let ((default-directory "~/.emacs.d/lisp/"))
+      (normal-top-level-add-to-load-path '("."))
+      (normal-top-level-add-subdirs-to-load-path))
+
+Since various packages store information in ~/.emacs.d/, it is unwise to add all of its sub-directories to ‘load-path’. Above we only added the sub-directory lisp to avoid loading files that aren’t libraries.
+由于各种包将信息存储在 ~/.emacs.d/，因而将它所有的子目录添加到‘load-path’是不明智的 。上面我们我们只将它们添加到lisp子目录，以避免加载不是库的文件。
+
+To install all directories to the beginning of the ‘load-path’ use:
+将所有的目录安装在‘load-path’的前面。使用：
+
+    (let ((default-directory "~/.emacs.d/lisp/"))
+      (setq load-path
+            (append
+             (let ((load-path (copy-sequence load-path))) ;; Shadow
+               (append 
+                (copy-sequence (normal-top-level-add-to-load-path '(".")))
+                (normal-top-level-add-subdirs-to-load-path)))
+             load-path)))
+
+If you are using Emacs 23 you can use ‘user-emacs-directory’ to construct a path to one of its sub-directories.
+如果你在使用Emacs23 你可以使用‘user-emacs-directory’来构造一个它子目录的路径
+
+    (concat user-emacs-directory
+            (convert-standard-filename "lisp/"))
+
+Note how we use ‘convert-standard-file-name’ to construct a path which is valid on all supported platforms.
+现在我们如何使用 ‘convert-standard-file-name’来构造一个对于所有支持的平台都有效的路径。
+
+If you use an older versions of Emacs you can backport this useful variable.
+如果你使用一个旧版本的Emacs，你可以backport这个有用的变量。
+
+    (unless (boundp 'user-emacs-directory)
+      (defvar user-emacs-directory "~/.emacs.d/"
+        "Directory beneath which additional per-user Emacs-specificfiles are placed. Various programs in Emacs store information in this directory. Note that this should end with a directory separator. See also ‘locate-user-emacs-file’.”))
+
+Default value
+默认值
+
+The default value of ‘load-path’ includes two special directories recursively: /usr/local/share/emacs/VERSION/site-lisp and /usr/local/share/emacs/site-lisp. (On Windows, the equivalent location is C:\Program Files\emacs-VERSION\site-lisp.) The first directory contains packages for a particular Emacs version; the second contains packages for all installed versions of Emacs. These directories contain files for the current site, for use by the system administrator when installing software locally[1].
+‘load-path’的默认值递归包括两个特殊的目录： /usr/local/share/emacs/VERSION/site-lisp 和/usr/local/share/emacs/site-lisp。 (Windows上，同等位置是C:\Program Files\emacs-VERSION\site-lisp.)第一目录包含Emacs一个特定的版本的软件包，第二个包含Emacs所有已安装的版本的软件包。这些目录中包含当前站点的文件，由系统管理员本地安装软件时使用[1]。
+
+
+~/.emacs.d/ on the other hand contains files for the current user, and is independent of system-wide changes. This makes it the best choice for storing your personal changes. Installing all packages in a sub-directory of ~/.emacs.d/ also makes it very easy to move them along with your configuration to a different machine.
+另一方面~/.emacs.d/包含当前用户的文件，和系统范围更改无关。这使它成为储存您的个人更改的最佳选择。在~/.emacs.d/ 子目录安装的所有包也使得你能够很容易的将它们与您的配置一起移动到别的机器。
+
+
+Debugging
+调试
+
+First, check the value of your ‘load-path’ by asking for help on the variable: ‘C-h v load-path RET’ should give you the documentation for the variable and its current value. If your directory is not listed, you must add it (see above).
+首先查看‘load-path’的值：‘C-h v load-path RET’ 会显示这个变量的文档和它当前的值。如果你的目录没有列在其中，你必须添加它(见上文)。
+
+If your directory is listed, check for ConflictingLibraries.
+如果您的目录列出，检查冲突的库。
+
+To see the path where Emacs finds a library use ‘M-x locate-library’.
+使用‘M-x locate-library’查看Emacs从哪里找到库。

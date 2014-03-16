@@ -1,0 +1,225 @@
+LINK: http://www.gnu.org/software/emacs/windows/Installing-Emacs.html
+
+3 Installing Emacs
+
+3.1 How do I unpack the distributions?
+如何解压分发？
+
+The binary distributions are distributed as zip files, which are handled natively by Windows XP and later. For earlier versions, there are many tools that can handle the zip format, from InfoZip's command line unzip tool, to 7zip's multi-format graphical archive explorer. Although popular, WinZip has caused problems with line-ends in the past, and is not Free software, so we do not recommend it.
+以zip分发的二进制文件可以被Windows XP和更高版本原生处理。对于windows早期版本，有许多工具可以处理ZIP格式，从InfoZip的命令行解压缩工具到7zip的多格式的图形归档浏览器。WinZip虽然流行， 但在曾经犹豫line-ends导致问题，另外它不是免费的软件，所以我们不推荐它。
+
+Source distributions are distributed as gzipped tar files. 7zip and similar multi-format graphical tools can handle these, or you can get Windows ports of the command line gzip and tar tools from multiple sources. See Other useful ports.
+源码分发是gzip压缩的tar文件。 7zip的和类似的多格式的图形工具可以处理这些格式，或者你可以从多个来源获得命令行模式的gzip和tar工具提供的Windows端口。
+
+The command to unpack a source distribution from the command line is:
+命令行下解压缩源码分发：
+
+     tar xzf emacs-23.3.tar.gz
+	 
+If this does not work with the versions of tar and gzip that you have, you may need to try a two step process:
+如果这对你的tar和gzip版本不起作用，你可能需要尝试两个步骤：
+
+     gzip -dc emacs-23.3.tar.gz | tar xvf -
+	 
+You may see many messages from tar complaining about being unable to change the modification time on directories, and from gzip complaining about a broken pipe. These messages are usually harmless, caused by incomplete ports that are not fully aware of the limitations of Windows.
+您可能从tar发出许多消息抱怨无法改变目录的修改时间，gzip则抱怨有一个破损的管道。这些消息通常是无害的，是没有充分认识到Windows的不足而导致不完整的端口造成的。
+
+
+3.2 How do I install Emacs after unpacking?
+解压缩后如何安装Emacs
+
+You can run Emacs without any extra steps, but if you want icons in your Start Menu, or for Emacs to detect the image libraries that are already installed on your system as part of GTK, then you should run the program emacs-23.3\bin\addpm.exe.
+无需任何额外的步骤就可以运行Emacs，但如果你想在开始菜单中添加emacs图标，或让Emacs检测您的系统上已安装的GTK的一部分图像库，那么你应该运行程序的install_path\ bin\ addpm.exe。
+
+3.3 How do I get image support?
+如何获得图片支持？
+
+Emacs has built in support for XBM and PBM/PGM/PPM images. This is sufficient to see the monochrome splash screen and tool-bar icons. Since 22.2, the official precompiled binaries for Windows have bundled libXpm, which is required to display the color versions of those images.
+Emacs已经内置支持XBM和PBM/ PGM / PPM的图像。这对于单色闪屏和工具栏图标足够了。从22.2起，Windows官方预编译的二进制版本捆绑已经libxpm ，来满足显示这些图像版本的颜色。
+
+
+Emacs is compiled to recognize JPEG, PNG, GIF and TIFF images also, but displaying these image types require external DLLs which are not bundled with Emacs. See Other useful ports.
+编译的Emacs可以识别JPEG，PNG ，GIF和TIFF图像，但显示这些图像类型需要外部DLL，它们没有捆绑在Emacs中。 参考Other useful ports.
+
+3.4 What is my init file?
+什么是配置文件
+
+When Emacs starts up, it attempts to load and execute the contents of a file commonly called .emacs (though it may have other names, see Where do I put my init file?) which contains any customizations you have made. You can manually add lisp code to your .emacs, or you can use the Customization interface accessible from the Options menu. If the file does not exist, Emacs will start with the default settings.
+当Emacs启动时，它会尝试加载和执行的一个通常被称为.emacs（注意有个小点，尽管它可能有其他名称）文件的内容：其中包含你所做的任何配置。你可以将lisp代码手动添加到你的. emacs，也可以从选项菜单中访问定制界面。如果该文件不存在， Emacs将使用默认设置启动。
+
+3.5 Where do I put my init file?
+如何存放配置文件
+
+On Windows, the .emacs file may be called _emacs for backward compatibility with DOS and FAT filesystems where filenames could not start with a dot. Some users prefer to continue using such a name, because Explorer cannot create a file with a name starting with a dot, even though the filesystem and most other programs can handle it. In Emacs 22 and later, the init file may also be called .emacs.d/init.el. Many of the other files that are created by lisp packages are now stored in the .emacs.d directory too, so this keeps all your Emacs related files in one place.
+在Windows ,的DOS和FAT文件系统中文件名不能以点开始，为了向后兼容性. emacs文件可能被称为_emacs，有些用户则更喜欢继续使用_emacs，因为文件浏览器不能创建以点开始作为文件名称的文件，即使文件系统和其他大多数程序可以处理它。Emacs 22之后，配置文件也可称为.emacs.d / init.el。现在很多lisp包创建的文件也存储在emacs.d目录中，这就让所有和Emacs相关文件在同一个地方。
+
+All the files mentioned above should go in your HOME directory. The HOME directory is determined by following the steps below:
+上面提到的所有文件应该在你的HOME目录。 HOME目录是由以下步骤判定的：
+1.If the environment variable HOME is set, use the directory it indicates.
+如果设置环境变量HOME ，用它指示的目录。
+
+2.If the registry entry HKCU\SOFTWARE\GNU\Emacs\HOME is set, use the directory it indicates.
+如果设置了注册表里的值HKCU\SOFTWARE\GNU\EMACS\HOME，则使用这个值所指定的目录作为home目录。
+
+3.If the registry entry HKLM\SOFTWARE\GNU\Emacs\HOME is set, use the directory it indicates. Not recommended, as it results in users sharing the same HOME directory.
+如果设置了注册表里的值HKLM\SOFTWARE\GNU\EMACS\HOME，则使用这个值所指定的目录作为home目录。并不是太推荐使用这种方法，因为会导致用户共享一个HOME目录。
+
+4.If C:\.emacs exists, then use C:/. This is for backward compatibility, as previous versions defaulted to C:/ if HOME was not set.
+如果 C:\.emacs 文件存在，则使用它。这个是为了向后兼容，因为低版本的Emacs如果Home没有设置就是默认使用C:/。
+
+5.Use the user's AppData directory, usually a directory called Application Data under the user's profile directory, the location of which varies according to Windows version and whether the computer is part of a domain.
+使用用户的Application Data目录，它在用户的配置文件目录下，它的位置和Windows版本和计算机是否是域的一部分有关。（通常来说，就是类似这样的目录 C:/Documents and Settings/<user>/Application Data ）。
+
+Within Emacs, <~> at the beginning of a file name is expanded to your HOME directory, so you can always find your .emacs file with C-x C-f ~/.emacs.
+Emacs中，,文件名称前面的 <~> 将会展开为HOME目录。你可以通过输入【C-x C-f ~/.emacs】找到你自己的.emacs文件。
+
+3.5.1 Troubleshooting init file problems
+调试配置文件故障
+
+If you've set HOME to a directory using one of the above methods, and Emacs still doesn't load your init file, the first thing you should do is check to see what Emacs thinks HOME is set to. You can do this by evaluating the following expression in the *scratch* buffer using C-x C-e:
+如果你使用上面方法之一设置HOME目录，但Emacs仍然不会加载你的init文件，你应该做的第一件事是检查Emacs认为HOME设置为什么。你可以在*scratch* 缓冲区中使用 C-x C-e来计算一下表达式:
+
+     (insert (getenv "HOME"))
+	 
+Look carefully at what is printed and make sure the value is valid. For example, if the value has trailing whitespace, Emacs won't be able to find the directory. Also, be sure that the value isn't a relative drive letter (e.g., d: without a backslash); if it is, then HOME is going to be whatever the current directory on that drive is, which is likely not what you want to happen.
+仔细查看打印内容，并确保该值是有效的。例如，如果该值已尾随空白， Emacs将不能够找到的目录。此外，该值不可以是一个相对的盘符（如D ：没有反斜杠） ，如果是，然后回家去，HOME目录将会是该驱动器上的当前目录，这很可能不是你想要的。
+
+3.6 How do I associate files with Emacs?
+如何使用Emacs关联文件
+
+The recommended way to associate files is to associate them with emacsclientw.exe. In order for this to work when Emacs is not yet started, you will also need to set the environment variable ALTERNATE_EDITOR to runemacs.exe. To open files in a running instance of Emacs, you will need to add the following to your init file:
+推荐方法：将文件与emacsclientw.exe关联。Emacs尚未启动前做到这，你还需要设置runemacs.exe的环境变量ALTERNATE_EDITOR。在Emacs的一个正在运行的实例打开文件，你将需要以下内容添加到您的init文件：
+
+     (server-start)
+	 
+3.6.1 For use with Internet Explorer
+使用IE
+
+You can use Emacs as the editor for composing mail for <mailto:> links, reading usenet for <news:> links, and viewing source. The following registry entries control this:
+你可以使用Emacs的编辑撰写<mailto:>链接的邮件，阅读吧<news:>链接，并查看源码。以下注册表项控制这些：
+
+Mail
+Key: HKCR\mailto\shell\open\command\(Default)
+Value: emacsclientw -e "(message-mail (substring \"%1\" 7))"
+News
+Key: HKCR\news\shell\open\command\(Default)
+Value: emacsclientw -e "(gnus-fetch-group (substring \"%1\" 5)"
+View Source
+Key: HKCR\htmlfile\shell\edit\command\(Default)
+Value: emacsclientw "%1"
+Thanks to Jason Rumney and Sigbjorn Finne for these tips.
+
+3.7 How do I use find-file to open files that are on the Desktop?
+使用find-file打开桌面上的文件
+
+The location of the Desktop varies between different versions of Windows, and in a corporate environment can be moved around by the network administrator. On NT derivatives, you can use the value of the USERPROFILE environment variable to find where the desktop might be:
+桌面的位置变化因Windows版本而异 ，在企业环境中会被网络管理员到处移动。 NT系统中，你可以使用USERPROFILE环境变量的值寻找到桌面：
+
+     C-x C-f $USERPROFILE/Desktop
+	 
+If this doesn't work, then you probably have to forgo the keyboard just this once, and either drag a file onto the Emacs frame from the desktop, or use the file dialog (displayed when you use the toolbar or menu by default). Once you have a file from the Desktop inside Emacs, C-x C-f will quickly reveal where your desktop is kept.
+如果这不起作用，那么你这次可能不得不放弃键盘，或者拖动到桌面文件到Emacs窗口，或使用文件对话框（当你使用默认的工具栏或菜单显示）。一旦你在Emacs中打开一个桌面文件，C-x C-f 将会显示你的桌面位置。
+
+3.8 How can I modify Windows to act more like X?
+如何修改windows使它如X一样
+
+3.8.1 How do it make the active window follow the mouse?
+如何使活动窗口跟随鼠标
+
+Customize the variables focus-follows-mouse and mouse-autoselect-window. The former can be used to mislead Emacs into giving focus to other frames when the mouse is over them, even though Windows has a click to focus policy by default (there is software available to change that though). The latter can be used to make Emacs use a focus-follow-mouse policy within its own frames.
+定制变量focus-follows-mouse 和 mouse-autoselect-window。前者可以用来Emacs聚焦到到鼠标处于窗口之上，即使Windows有默认情况下点击获得焦点（有软件可改变这种情况） 。后者可以用来是的emacs将focus-follow-mouse用于自身窗口。
+
+3.8.2 How do I swap CapsLock and Control?
+如何转换Capslock为Control键
+
+This cannot be done within Emacs, but you can modify the scan code mappings in the registry or define a new keyboard layout to swap the keys on a system wide basis.
+Emacs中不能这么做，但你可以在注册表中修改扫描码映射或定义一个新的键盘布局来交换全系统的基础上键值。
+
+3.8.2.1 Windows NT/2000/XP/Vista?
+
+From Chris McMahon: Download caps-as-ctrl.reg to make CapsLock a Control key (leaving your original control keys as they were), or caps-ctrl-swap.reg to swap CapsLock and the left Control key. Once you've downloaded them, double-click on the .reg files in Explorer or "run" them from a command prompt to have them update your registry.
+Chris McMahon说:下载caps-as-ctrl.reg来使CapsLock成为一个Control键（保留你原来的控制键），或者caps-ctrl-swap.reg来交换CapsLock和左面的Control键。下载他们后，在文件资源管理器中双击l.reg文件或命令提示符“运行”他们，来更新你的注册表。
+
+Chris McMahon gives explicit step-by-step instructions on modifying the registry.
+Chris McMahon给出了精确地步骤来介绍如何修改注册表。
+
+Shane Holder gives some background on how "Scancode Map" is being used by the system.
+Shane Holder 就系统如何使用“扫描码地图”给出了一些背景资料。
+
+Ulfar Erlingsson has provided a registry file caps-and-win.reg that sets the CapsLock key to be a Control key and the Windows key to be an Alt key.
+Ulfar Erlingsson提供caps-and-win.reg用阿里将CapsLock键改为Control键，windows徽标键改为Alt键。
+
+3.8.2.2 Windows 95/98/ME
+
+Microsoft has a tool called keyremap that is part of their Kernel Toys add ons for Windows 95. The tool has also been confirmed to work on Windows 98.
+微软有一个名为keyremap的工具，它是用于Windows 95的内核工具的一部分。该工具也已被证实在Windows 98上也可运行。，。微软有一个叫做keyremap的工具。
+
+3.9 How can I modify Emacs to act more like a Windows app?
+如何修改Emacs使它更像是一个Windows应用程序？
+
+Many beginning users find Emacs difficult to use because its user interface is different in many ways. Emacs predates most UI standards, and experienced Emacs users are used to the way things are, so changing the defaults is difficult. Most of the “standard” behavior can be approximated in Emacs after some configuring though.
+许多新手觉得Emacs很难用，因为它的用户界面在许多方面与我们认知不同。Emacs早于大部分的UI标准，有经验的Emacs用户习惯了它原来的样子，所以改变默认是困难的。在配置Emacs后可以实现大部分“标准”行为，
+
+
+3.9.1 Highlighting the selection
+高亮选择
+Emacs has a concept of a mark and point that is similar to selections in other programs. But the mark in Emacs is used for more than just defining the selected region, it lives on while you continue to edit and move around the buffer so it can also be a kind of bookmark. The history of marks is saved so you can pop previous marks back to the top of the stack to go back to somewhere you were some time ago. Because of this dual purpose, the region between mark and point is not highlighted by default unless you select a region by clicking and dragging the mouse.
+Emacs有一个和其他程序中的选择类似的概念：标记和点。但在Emacs的标志不仅仅是定义所选区域，当你它周围的缓冲区中继续编辑和移动时它仍会继续存在，所以它也可以一种书签。标记的历史会被保存，这样你就可以通过回弹出堆栈的顶部的标记到回到你之前去过的地方。由于这种双重目的，默认情况下标记和点之间的区域并不高亮，除非你通过点击和拖动鼠标选择一个区域。
+
+The minor mode transient-mark-mode changes the behavior of the mark in two ways. First, it distinguishes between an active mark that has just been defined or reactivated, and an inactive mark. When the mark is active, some commands that normally act on lines, words, buffers etc. will instead act on the region. An inactive mark needs to be reactivated to operate on it, unless mark-even-if-inactive is set. Secondly, transient-mark-mode also highlights the region when it is active, providing the same visual clue that you get in other programs.
+辅模式transient-mark-mode以两种方式的标志的行为。首先，它区分一个刚刚被定义或重新启动的活跃标记和一个不活跃标记。活跃的标记说明一些命令作用在行，词或者缓冲区，而不是在选择区域上。操作一个不活跃的标记需要先重新激活，除非设置了mark-even-if-inactive。其次，transient-mark-mode激活的时候也会高亮选择区域，提供你在其他程序中相同的视觉提示。
+
+In addition to seeing the highlighting, new Emacs users often expect editing commands to replace the region when it is active. This behavior can be obtained with delete-selection-mode, but see the following question also.
+除了看到高亮，emacs新手往往期望通过编辑命令替换激活的区域。可以在delete-selection-mode中这么做，但也出现下面的问题。
+
+3.9.2 Standard Windows key bindings
+标准窗口键绑定
+
+The keybindings of Emacs predate modern GUIs, and the keys that were chosen by later GUIs for cut and copy were given important functions as extended keymaps in Emacs. CUA mode attempts to let both bindings co-exist by defining C-x and C-c as kill-region and copy-region-as-kill when the region is active, and letting them have their normal Emacs bindings when the region is not active. Many people find this to be an acceptable compromise. CUA mode also defines a number of other keys (C-v, Shift selection), and can be turned on from the Options menu.
+Emacs键绑定早于现代图形用户界面，后来被GUI选择为剪切和复制后的键绑定在Emacs的扩展键盘布局中有重要职能。CUA mode 试图在区域活跃时让C-x and C-c 作为 kill-region 和 copy-region-as-kill 并存，在区域不活跃时，让他们有他们正常的Emacs绑定。很多人觉得这是一个可以接受的妥协。CUA mode还定义了其他一些键 (C-v, Shift selection)， 可以在“选项”菜单上启用。
+
+
+3.10 Window operations
+窗口操作
+
+The function w32-send-sys-command can be used to simulate choosing commands from the system menu (in the top left corner of the Window) and a few other system wide functions. It takes an integer argument, the value of which should be a valid WM_SYSCOMMAND message as documented in Microsoft's API documentation.
+函数w32-send-sys-command可以用来模拟从系统菜单（在窗口的顶部左上角）选择命令和其他一些系统范围的功能。它需要一个整型参数，其值应该是一个微软的API文档记录的有效的WM_SYSCOMMAND消息。
+
+
+3.11 How do I uninstall Emacs?
+如何卸载Emacs
+
+Emacs does not come with an uninstall program. No files are installed outside of the Emacs base directory, so deleting that directory is sufficient to clean away the files. If you ran addpm, you'll need to delete the Start Menu group too. The registry entries inserted by addpm will not cause any problems if you leave them there, but for the sake of completeness, you can use regedit to remove the keys under HKEY_LOCAL_MACHINE orx HKEY_CURRENT_USER: SOFTWARE\GNU\Emacs, and the key HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\emacs.exe if it exists.
+Emacs的不附带卸载程序。除Emacs的基本目录以外没有任何文件，所以删除该目录已经足够将所有文件清理掉。如果你运行addpm ，还需要删除开始菜单组。如果你把由addpm插入注册表项留在那里不会造成任何问题，但为完整起见，你可以使用regedit删除HKEY_LOCAL_MACHINE ORX HKEY_CURRENT_USER下：SOFTWARE\GNU\Emacs，还有已存在的HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\emacs.exe 。
+
+3.12 When I run Emacs nothing happens
+当运行Emacs没有响应
+
+Emacs could have failed to run for a number of reasons. The most common symptom is that, when Emacs is started, the cursor changes for a second but nothing happens. If this happens to you, it is quite likely that the distribution was unpacked incorrectly.
+一些原因导致Emacs中运行失败。最常见的症状是， Emacs是启动时，第二个光标变化几秒钟但无响应。如果您遇到这种情况，这是很可能是分发没有正确解压。
+
+Check for the following to see if there was a problem during unpacking:
+检查些列情况看是否解压缩出现问题：
+
+Be sure to disable the CR/LF translation or the executables will be unusable. Older versions of WinZipNT would enable this translation by default. If you are using WinZipNT, disable it.
+一定要禁用CR / LF翻译否则可执行文件将无法使用。旧版本WinZipNT的默认启用这个翻译。如果你正在的使用WinZipNT ，禁用它。
+
+Check that filenames were not truncated to 8.3. For example, there should be a file CONTRIBUTE in the top level directory; if this has been truncated to CONTRIBU or CONTRI~1, your distribution has been corrupted while unpacking and Emacs will not start.
+检查文件名没有被截断为8.3 。例如，应该在顶层目录应该有一个文件CONTRIBUTE;如果这已被截断CONTRIBU or CONTRI~1 ，你的分发已损坏，而解压缩和Emacs将无法启动。
+
+If it is still not working, send mail to the list, describing what you've done, and what you are seeing. (The more information you send the more likely it is that you'll receive a helpful response..
+如果仍然不能正常运行，发送邮件到邮件列表，描述你做了什么和你所看到的。 （您发送的信息越多，你越有可能收到一个有用的回应......）
+
+3.13 Does Emacs contain a virus?
+Emacs包含病毒吗？
+
+There have been reports in the past that some virus scanners claim that the Emacs distribution has a virus. This is extremely unlikely if you have downloaded Emacs from the GNU FTP site or one of its mirrors and the GPG signature for it is valid and listed in the GNU keyring, unless perhaps it is a new release made in the last few days, in which case you should exercise more caution and report the problem. Past problems seem to have been caused by virus checkers running into a buffer size limit when unpacking large tar.gz files for scanning, and reporting the failure as an “unknown virus”.
+过去曾有报道，一些病毒扫描工具声称Emacs的分发有病毒。如果你从GNU FTP、它的镜像、或GPG签名有效的、GNU keyring列出的站点 下载，这是极不可能的，除非这也许是过去的几天发布的一个新的版本，在这情况下，你应该更加谨慎的使用和报告问题。过去的问题是这样引起的：由当扫描时大的tar.gz文件需要解压缩，而此时病毒检测工具运行在一个大小受限制的缓冲区，它将操作失败做为“未知病毒”报告。
+
+3.14 What known problems are there with anti-virus software?
+与防病毒软件存在什么已知问题？
+
+Anti-virus and firewall software can block Emacs from starting subprocesses and opening network connections. Most such products have an Advanced mode where they will prompt you rather than silently blocking. In some cases the “scan all files” or “auto protect” option of anti-virus programs has caused failures running shell related commands within Emacs. See Why is nothing happening when I enter shell commands?.
+反病毒和防火墙软件可以阻止Emacs的启动子进程和开放网络连接。大多数这类产品有一个高级模式，他们将给你提示而不是在那里默认地阻断。在某些情况下反病毒程序的“扫描所有文件”或“自动保护”选项会导致运行Emacs shell相关的命令的失败。参考Why is nothing happening when I enter shell commands?
+
+

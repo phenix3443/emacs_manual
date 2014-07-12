@@ -1,0 +1,14 @@
+http://www.emacswiki.org/emacs/DotEmacsDotD
+
+The directory ~/.emacs.d/ is a standard location for additional per-user Emacs-specific files. Various packages store information in this directory. Since it is located in the home directory (~/), it is unique for each user, just like the ~/.emacs init file. Note that as .emacs.d begins with a dot, it is normally hidden on Unix systems and only turns up in directory listings if all files and folders are shown (ls -a).
+目录 ~/.emacs.d/是存放每个用户的特定Emacs文件的标准位置。很多包在此目录中存储信息。它在位于home目录 (~/) ，就像~/.emacs配置文件一样，对于每个用户独一无二的。请注意，由于.emacs.d以一个点.作为开始，在Unix系统它通常被隐藏，只有在显示所有文件和文件夹（ls-a ）的时候才会出现在目录列表中。
+
+Starting with Emacs 22, if ~/.emacs does not exist, Emacs will try ~/.emacs.d/init.el and ~/.emacs.d/init.elc. You can also put the shell init file .emacs_SHELL under ~/.emacs.d.
+从Emacs 22开始，如果~/.emacs不存在 的， Emacs将尝试 ~/.emacs.d/init.el 和 ~/.emacs.d/init.elc。你也可以把shell初始化文件.emacs_SHELL放在~/.emacs.d下。
+
+Starting with Emacs 23, the variable user-emacs-directory holds the location of .emacs.d. On Windows, the location depends on the HOME environment variable: if set to C:\, then .emacs is located at C:\.emacs and .emacs.d at C:\.emacs.d.
+从Emacs 23开始， .emacs.d的位置保存在变量user-emacs-directory中。Windows中，它的位置取决于HOME环境变量：如果设置为C:\,  .emacs就位于C:\.emacs，.emacs.d 位于 C:\.emacs.d.
+
+The user directory itself is not part of load-path, and since it contains other things than libraries, you should leave it at that. Instead, you should install packages in a dedicated sub-directory (e.g., ~/.emacs.d/elisp) and add that to the load-path instead.
+用户目录本身并不是load-path的一部分，因为它除了库还包含了其他的东西，你不应该将它添加到load-path中。相反，你应该将包安装在一个专用的子目录（如 ~/.emacs.d/elisp），并将其添加到load-path。
+

@@ -1,4 +1,4 @@
-Emacs-Manual
+emacs_translation
 ============
 
-Emacs手册翻译工作
+Emacs相关资料翻译 

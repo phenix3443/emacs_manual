@@ -1,0 +1,2 @@
+*
+[[orgmode.org][官网]]上面有[[http://orgmode.org/org.html][manuals]] 和 [[http://orgmode.org/guide/][tutorials]] ，有问题可以查阅相关的章节解决。

@@ -1,0 +1,267 @@
+# -*- coding:utf-8-*-
+#+TITLE: 28 Maintaining Large Programs
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+
+* 28 Maintaining Large Programs
+
+** 28.3 Find Identifier References
+
+   An identifier is a name of a syntactical subunit of the program: a function, a subroutine, a method, a class, a data type, a macro, etc. In a programming language, each identifier is a symbol in the language's syntax. Program development and maintenance requires capabilities to quickly find where each identifier was defined and referenced, to rename identifiers across the entire project, etc.
+
+   标识符（identifier）是程序的语法子单元的名称：函数，子例程，方法，类，数据类型，宏等。在编程语言中，每个标识符是语言语法中的符号。程序开发和维护需要能够快速找到每个标识符的定义和引用位置，重命名整个项目的标识符等。
+
+   These capabilities are also useful for finding references in major modes other than those defined to support programming languages. For example, chapters, sections, appendices, etc. of a text or a TeX document can be treated as subunits as well, and their names can be used as identifiers. In this chapter, we use the term “identifiers” to collectively refer to the names of any kind of subunits, in program source and in other kinds of text alike.
+
+   这些功能有助于在主要模式中查找引用，不仅是支持编程语言的那些主要模式。例如，文本或 TeX 文档的章节，章节，附录等也可以视为子单元，并且它们的名称可以用作标识符。在本章中，我们使用术语 “标识符” 来统一指代程序源和其他类型的文本中任何类型的子单元的名称。
+
+   Emacs provides a unified interface to these capabilities, called ‘xref’.
+
+   Emacs 为这些功能提供了统一的接口，称为 “xref”。
+
+   To do its job, xref needs to make use of information and to employ methods specific to the major mode. What files to search for identifiers, how to find references to identifiers, how to complete on identifiers—all this and more is mode-specific knowledge. xref delegates the mode-specific parts of its job to a backend provided by the mode; it also includes defaults for some of its commands, for those modes that don't provide their own.
+
+   为了完成工作，xref 需要利用信息并采用特定于主要模式的方法。在哪些文件中搜索标识符，如何查找标识符的引用，如何补全标识符 - 所有这些以及更多知识都和模式相关。xref 将其作业中特定于模式的部分委托给模式提供的后端; 它还包括某些命令的默认值，以用于那些不提供自己后端功能的模式。
+
+   A backend can implement its capabilities in a variety of ways. Here are a few examples:
+
+   后端可以通过各种方式实现其功能。这里有一些例子：
+
+   Some major modes provide built-in means for looking up the language symbols. For example, Emacs Lisp symbols can be identified by searching the package load history, maintained by the Emacs Lisp interpreter, and by consulting the built-in documentation strings; the Emacs Lisp mode uses these facilities in its backend to allow finding definitions of symbols. (One disadvantage of this kind of backend is that it only knows about subunits that were loaded into the interpreter.)
+
+   一些主要模式提供了用于查找语言符号的内置方法。例如，可以通过搜索由 Emacs Lisp 解释器维护的包加载历史记录，以及查阅内置文档字符串来识别 Emacs Lisp 符号。Emacs Lisp mode 在其后端使用这些工具来查找符号的定义。 （这种后端的一个缺点是它只知道加载到解释器中的子单元。）
+
+   An external program can extract references by scanning the relevant files, and build a database of these references. A backend can then access this database whenever it needs to list or look up references. The Emacs distribution includes etags, a command for tagging identifier definitions in programs, which supports many programming languages and other major modes, such as HTML, by extracting references into tags tables. See Create Tags Table. Major modes for languages supported by etags can use tags tables as basis for their backend. (One disadvantage of this kind of backend is that tags tables need to be kept reasonably up to date, by rebuilding them from time to time.)
+
+   外部程序可以通过扫描相关文件来提取引用，并构建这些引用的数据库。然后，后端列出或查找引用时只需访问该数据库。Emacs 发行版包括 etags，一种用于在程序中标记标识符定义的命令，它通过将引用提取到标记表来支持许多编程语言和其他主要模式，例如 HTML。请参见[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Create-Tags-Table.html#Create-Tags-Table][Create Tags Table]]。etags 支持的主要语言模式可以使用标签表作为其后端的基础。 （这种后端的一个缺点是标签表需要通过不时地重建它们来合理地保持最新状态。）
+
+*** 28.3.1 Find Identifiers
+    This subsection describes the commands that find references to identifiers and perform various queries about identifiers. Each such reference could define an identifier, e.g., provide the implementation of a program subunit or the text of a document section; or it could use the identifier, e.g., call a function or a method, assign a value to a variable, mention a chapter in a cross-reference, etc.
+
+    本小节描述了查找对标识符的引用并执行有关标识符的各种查询的命令。 每个这样的引用可以定义标识符，例如，提供程序子单元的实现或文档部分的文本;  或者可以使用标识符，例如，调用函数或方法，为变量赋值，在交叉引用中提及章节等。
+
+    + Looking Up Identifiers: Commands to find the definition of an identifier.
+    + Xref Commands: Commands in the *xref* buffer.
+    + Identifier Search: Searching and replacing identifiers.
+    + List Identifiers: Listing identifiers and completing on them.
+
+**** 28.3.1.1 Looking Up Identifiers
+     The most important thing that xref enables you to do is to find the definition of a specific identifier.
+
+     xref 能够做的最重要的事情是找到特定标识符的定义。
+
+     + M-.
+
+       Find definitions of an identifier (xref-find-definitions).
+
+       查找标识符的定义（xref-find-definitions）
+
+     + C-M-. pattern <RET>
+
+       Find all identifiers whose name matches pattern (xref-find-apropos).
+
+       查找名称与 pattern 匹配的所有标识符（xref-find-apropos）。
+
+     + C-x 4 . <RET>
+
+       Find definitions of identifier, but display it in another window (xref-find-definitions-other-window).
+
+       查找标识符的定义，但将其显示在另一个窗口中（xref-find-definitions-other-window）。
+
+     + C-x 5 . <RET>
+
+       Find definition of identifier, and display it in a new frame (xref-find-definitions-other-frame).
+
+       查找标识符的定义，并将其显示在新框架中（xref-find-definitions-other-frame）。
+
+     + M-,
+
+       Go back to where you previously invoked M-. and friends (xref-pop-marker-stack).
+
+       回到之前调用 =M-.= 和同类（xref-pop-marker-stack）的地方。
+
+     + M-x xref-etags-mode
+
+       Switch xref to use the etags backend.
+
+       切换 xref 以使用 etags 后端。
+
+     =M-. (xref-find-definitions)= shows the definitions of the identifier at point. With a prefix argument, or if there's no identifier at point, it prompts for the identifier. (If you want it to always prompt, customize xref-prompt-for-identifier to t.)
+
+     =M-. (xref-find-definitions)= 显示了 point 处标识符的定义。使用前缀参数，或者如果 point 处没有标识符，它会提示输入标识符。 （如果希望它始终提示，请将 xref-prompt-for-identifier 自定义为 t）
+
+     If the specified identifier has only one definition, the command jumps to it. If the identifier has more than one possible definition (e.g., in an object-oriented language, or if there's a function and a variable by the same name), the command shows the candidate definitions in the *xref* buffer, together with the files in which these definitions are found. Selecting one of these candidates by typing <RET> or clicking mouse-2 will pop a buffer showing the corresponding definition.
+
+     如果指定的标识符只有一个定义，则命令跳转到它。如果标识符具有多个可能的定义（例如，在面向对象的语言中，或者如果有一个函数和一个同名的变量），该命令将在 =*xref*= 缓冲区中显示候选定义以及所在文件。在候选项上键入 <RET> 或单击 mouse-2  将弹出一个显示相应定义的缓冲区。
+
+     When entering the identifier argument to M-., the usual minibuffer completion commands can be used (see Completion), with the known identifier names as completion candidates.
+
+     当输入 =M-.= 的标识符参数时，可以使用通常的 minibuffer 补全命令（参见[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Completion.html#Completion][Completion]]），其中已知的标识符名称作为补全候选项。
+
+     Like most commands that can switch buffers, xref-find-definitions has a variant that displays the new buffer in another window, and one that makes a new frame for it. The former is C-x 4 . (xref-find-definitions-other-window), and the latter is C-x 5 . (xref-find-definitions-other-frame).
+
+     像大多数可以切换缓冲区的命令一样，xref-find-definitions 有在另一个窗口中显示新缓冲区的变体，还有在新帧中显示的变体。前者是 =C-x 4 . （xref-find-definitions-other-window）= ，后者是 =C-x 5 . （xref-find-definitions-other-frame）= 。
+
+     The command C-M-. (xref-find-apropos) finds the definitions of one or more identifiers that match a specified regular expression. It is just like M-. except that it does regexp matching of identifiers instead of matching symbol names as fixed strings.
+
+     命令 =C-M- . （xref-find-apropos）= 查找与指定正则表达式匹配的一个或多个标识符的定义。就像 =M-.= 一样，不过它正则匹配标识符，而不是固定字符串匹配。
+
+     When any of the above commands finds more than one definition, it presents the *xref* buffer showing the definition candidates. In that buffer, you have several specialized commands, described in Xref Commands.
+
+     当任何上述命令找到多个定义时，它会在 =*xref*= 缓冲区显示候选定义。该缓冲区中有几个专门的命令，参照 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Xref-Commands.html#Xref-Commands][Xref Commands]]。
+
+     To go back to places from where you found the definition, use M-, (xref-pop-marker-stack). It jumps back to the point of the last invocation of M-.. Thus you can find and examine the definition of something with M-. and then return to where you were with M-,. M-, allows you to retrace your steps to a depth determined by the variable xref-marker-ring-length, which defaults to 16.
+
+     要返回找到之前位置，请使用 =M-, （xref-pop-marker-stack）= 。它跳回到 =M-.= 的最后一次调用的位置。因此， =M-.= 可以找到并检查的定义，使用 =M-,= 返回。 =M-,= 允许回退由变量 xref-marker-ring-length 确定的深度，默认值为 16。
+
+     Some major modes install xref support facilities that might sometimes fail to find certain identifiers. For example, in Emacs Lisp mode (see Lisp Eval) M-. will by default find only functions and variables from Lisp packages which are loaded into the current Emacs session or are auto-loaded (see Autoload). If M-. fails to find some identifiers, you can try forcing xref to use the etags backend (see Xref). To this end, turn on the Xref Etags minor mode with M-x xref-etags-mode, then invoke M-. again. (For this to work, be sure to run etags to create the tags table in the directory tree of the source files, see Create Tags Table.)
+
+     某些主要模式安装 xref 支持工具，有时可能无法找到某些标识符。例如，在 Emacs Lisp 模式下（参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Lisp-Eval.html#Lisp-Eval][Lisp Eval]]）， =M-.= 默认只查找将加载到当前的 Emacs 会话中或自动加载（请参阅[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Autoload.html#Autoload][Autoload]]）的 Lisp 软件包中的函数和变量。如果 =M-.= 无法找到一些标识符，可以尝试强制 xref 使用 etags 后端（请参阅[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Xref-Commands.html#Xref-Commands][xref]]）。为此，使用 =M-x xref-etags-mode= 打开 Xref Etags minor mode，然后再次调用 =M-.= 。（为此，请确保在源文件的目录树中运行 etags 创建 tags 表，请参阅[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Create-Tags-Table.html#Create-Tags-Table][Create Tags Table]] 。）
+
+**** 28.3.1.2 Commands Available in the *xref* Buffer
+     The following commands are provided in the *xref* buffer by the special XREF mode:
+
+     特殊 XREF 模式在 =*xref*= 缓冲区中提供以下命令：
+
+     + <RET>
+     + mouse-2
+
+       Display the reference on the current line.
+
+       在当前行显示引用。
+
+     + n
+     + .
+
+       Move to the next reference and display it in the other window (xref-next-line).
+
+       移动到下一个引用并在另一个窗口中显示它（xref-next-line）。
+
+     + p
+     + ,
+
+       Move to the previous reference and display it in the other window (xref-prev-line).
+
+       移至上一个引用并在另一个窗口中显示（xref-prev-line）。
+
+     + C-o
+
+       Display the reference on the current line in the other window (xref-show-location-at-point).
+
+       在另一个窗口中显示当前行的引用（xref-show-location-at-point）。
+
+     + <TAB>
+
+       Display the reference on the current line and bury the *xref* buffer (xref-quit-and-goto-xref).
+
+       在当前行上显示引用并隐藏 =*xref*= 缓冲区（xref-quit-and-goto-xref）。
+
+
+     + r pattern <RET> replacement <RET>
+
+       Perform interactive query-replace on references that match pattern (xref-query-replace-in-results), replacing the match with replacement. See Identifier Search.
+
+       对匹配模式的引用执行交互式查询替换（xref-query-replace-in-results），将匹配替换为替换。 请参阅[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Identifier-Search.html#Identifier-Search][Identifier Search]]
+
+     + q
+
+       Quit the window showing the *xref* buffer (xref-quit).
+
+       退出显示 =*xref*= buffer（xref-quit）的窗口。
+
+
+     In addition, the usual navigation commands, such as the arrow keys, C-n, and C-p are available for moving around the buffer without displaying the references.
+
+     此外，常用的导航命令，例如箭头键，C-n 和 C-p 可用于在缓冲区中移动而不显示引用。
+
+**** 28.3.1.3 Searching and Replacing with Identifiers
+     The commands in this section perform various search and replace operations either on identifiers themselves or on files that reference them.
+     + M-?
+       Find all the references for the identifier at point.
+
+     + M-x xref-query-replace-in-results <RET> regexp <RET> replacement <RET>
+       Interactively replace regexp with replacement in the names of all the identifiers shown in the *xref* buffer.
+
+     + M-x tags-search <RET> regexp <RET>
+       Search for regexp through the files in the selected tags table.
+
+     + M-x tags-query-replace <RET> regexp <RET> replacement <RET>
+       Perform a query-replace-regexp on each file in the selected tags table.
+
+     + M-x tags-loop-continue
+       Restart one of the last 2 commands above, from the current location of point.
+
+
+     M-? finds all the references for the identifier at point. If there's no identifier at point, or when invoked with a prefix argument, the command prompts for the identifier, with completion. It then presents the *xref* buffer with all the references to the identifier, showing the file name and the line where the identifier is referenced. The XREF mode commands are available in this buffer, see Xref Commands.
+
+     M-x xref-query-replace-in-results reads a regexp to match identifier names and a replacement string, just like ordinary M-x query-replace-regexp. It then performs the specified replacement in the names of the matching identifiers in all the places in all the files where these identifiers are referenced. This is useful when you rename your identifiers as part of refactoring. This command should be invoked in the *xref* buffer generated by M-?.
+
+     M-x tags-search reads a regexp using the minibuffer, then searches for matches in all the files in the selected tags table, one file at a time. It displays the name of the file being searched so you can follow its progress. As soon as it finds an occurrence, tags-search returns. This command requires tags tables to be available (see Tags Tables).
+
+     Having found one match with tags-search, you probably want to find all the rest. M-x tags-loop-continue resumes the tags-search, finding one more match. This searches the rest of the current buffer, followed by the remaining files of the tags table.
+
+     M-x tags-query-replace performs a single query-replace-regexp through all the files in the tags table. It reads a regexp to search for and a string to replace with, just like ordinary M-x query-replace-regexp. It searches much like M-x tags-search, but repeatedly, processing matches according to your input. See Query Replace, for more information on query replace.
+
+     You can control the case-sensitivity of tags search commands by customizing the value of the variable tags-case-fold-search. The default is to use the same setting as the value of case-fold-search (see Lax Search).
+
+     It is possible to get through all the files in the tags table with a single invocation of M-x tags-query-replace. But often it is useful to exit temporarily, which you can do with any input event that has no special query replace meaning. You can resume the query replace subsequently by typing M-x tags-loop-continue; this command resumes the last tags search or replace command that you did. For instance, to skip the rest of the current file, you can type M-> M-x tags-loop-continue.
+
+     Note that the commands described above carry out much broader searches than the xref-find-definitions family. The xref-find-definitions commands search only for definitions of identifiers that match your string or regexp. The commands xref-find-references, tags-search, and tags-query-replace find every occurrence of the identifier or regexp, as ordinary search commands and replace commands do in the current buffer.
+
+     As an alternative to xref-find-references and tags-search, you can run grep as a subprocess and have Emacs show you the matching lines one by one. See Grep Searching.
+
+**** 28.3.1.4 Identifier Inquiries
+     + C-M-i
+     + M-<TAB>
+
+       Perform completion on the text around point, possibly using the selected tags table if one is loaded (completion-at-point).
+
+     + M-x xref-find-apropos <RET> regexp <RET>
+
+       Display a list of all known identifiers matching regexp.
+
+     + M-x list-tags <RET> file <RET>
+
+       Display a list of the identifiers defined in the program file file.
+
+     + M-x next-file
+
+       Visit files recorded in the selected tags table.
+
+     In most programming language modes, you can type C-M-i or M-<TAB> (completion-at-point) to complete the symbol at point. Some modes provide specialized completion for this command tailored to the mode; for those that don't, if there is a tags table loaded, this command can use it to generate completion candidates. See Symbol Completion.
+
+
+     M-x list-tags reads the name of one of the files covered by the selected tags table, and displays a list of tags defined in that file. Do not include a directory as part of the file name unless the file name recorded in the tags table includes a directory. This command works only with the etags backend, and requires a tags table for the project to be available. See Tags Tables.
+
+     M-x next-file visits files covered by the selected tags table. The first time it is called, it visits the first file covered by the table. Each subsequent call visits the next covered file, unless a prefix argument is supplied, in which case it returns to the first file. This command requires a tags table to be selected.
+
+*** 28.3.2 Tags Tables
+    A tags table records the tags1 extracted by scanning the source code of a certain program or a certain document. Tags extracted from generated files reference the original files, rather than the generated files that were scanned during tag extraction. Examples of generated files include C files generated from Cweb source files, from a Yacc parser, or from Lex scanner definitions; .i preprocessed C files; and Fortran files produced by preprocessing .fpp source files.
+
+    To produce a tags table, you run the etags shell command on a document or the source code file. The ‘etags’ program writes the tags to a tags table file, or tags file in short. The conventional name for a tags file is TAGS. See Create Tags Table. (It is also possible to create a tags table by using one of the commands from other packages that can produce such tables in the same format.)
+
+    Emacs uses the tags tables via the etags package as one of the supported backends for xref. Because tags tables are produced by the etags command that is part of an Emacs distribution, we describe tags tables in more detail here.
+
+    The Ebrowse facility is similar to etags but specifically tailored for C++. See Ebrowse. The Semantic package provides another way to generate and use tags, separate from the etags facility. See Semantic.
+
+    + Tag Syntax: Tag syntax for various types of code and text files.
+    + Create Tags Table: Creating a tags table with etags.
+    + Etags Regexps: Create arbitrary tags using regular expressions.
+
+
+*** 28.3.3 Selecting a Tags Table
+    Emacs has at any time at most one selected tags table. All the commands for working with tags tables use the selected one. To select a tags table, type M-x visit-tags-table, which reads the tags table file name as an argument, with TAGS in the default directory as the default.
+
+    Emacs does not actually read in the tags table contents until you try to use them; all visit-tags-table does is store the file name in the variable tags-file-name, and not much more. The variable's initial value is nil; that value tells all the commands for working with tags tables that they must ask for a tags table file name to use.
+
+    Using visit-tags-table when a tags table is already loaded gives you a choice: you can add the new tags table to the current list of tags tables, or start a new list. The tags commands use all the tags tables in the current list. If you start a new list, the new tags table is used instead of others. If you add the new table to the current list, it is used as well as the others.
+
+    You can specify a precise list of tags tables by setting the variable tags-table-list to a list of strings, like this:
+    #+BEGIN_SRC elisp
+(setq tags-table-list
+      '("~/.emacs.d" "/usr/local/lib/emacs/src"))
+    #+END_SRC
+
+    This tells the tags commands to look at the TAGS files in your ~/.emacs.d directory and in the /usr/local/lib/emacs/src directory. The order depends on which file you are in and which tags table mentions that file.
+
+    Do not set both tags-file-name and tags-table-list.

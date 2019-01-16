@@ -1,0 +1,255 @@
+# -*- coding:utf-8 -*-
+#+title:14 Controlling the Display
+#+author:刘尚亮
+#+email：phenix3443@gmail.com
+
+* 14 Controlling the Display
+** 14.5 Narrowing
+
+   Narrowing means focusing in on some portion of the buffer, making the rest temporarily inaccessible. The portion which you can still get to is called the accessible portion. Canceling the narrowing, which makes the entire buffer once again accessible, is called widening. The bounds of narrowing in effect in a buffer are called the buffer’s restriction.
+
+   收缩（Narrowing）意味着只关注 buffer 的一部分，让剩余的部分暂时无法访问。可以使用的部分称为可访问部分。取消 收缩（narrowing），也就是让整个 buffer 再次可访问，叫做 扩张（widening）。buffer 中 收缩（narrowing）的边界叫做 buffer 的限制（restriction）。
+
+   Narrowing can make it easier to concentrate on a single subroutine or paragraph by eliminating clutter. It can also be used to limit the range of operation of a replace command or repeating keyboard macro.
+
+   收缩（narrowing）可以通过消除杂乱更容易的集中在单个子例程或段落。可以用于限制替换命令或执行重复键盘宏的作用范围。
+
+   + C-x n n
+
+	 Narrow down to between point and mark (narrow-to-region).
+
+	 收缩到 point 和 mark 之间的区域（narrow-to-region）
+
+   + C-x n w
+
+	 Widen to make the entire buffer accessible again (widen).
+
+	 扩张让整个 buffer 再次可以访问（widen）。
+
+   + C-x n p
+
+	 Narrow down to the current page (narrow-to-page).
+
+	 收缩到当前 page（narrow-to-page）。
+
+   + C-x n d
+
+	 Narrow down to the current defun (narrow-to-defun).
+
+	 收缩到当前函数定义（narrow-to-defun）。
+
+   When you have narrowed down to a part of the buffer, that part appears to be all there is. You can’t see the rest, you can’t move into it (motion commands won’t go outside the accessible part), you can’t change it in any way. However, it is not gone, and if you save the file all the inaccessible text will be saved. The word ‘Narrow’ appears in the mode line whenever narrowing is in effect.
+
+   当收缩到 buffer 的一部分时，该部分就是全部显示。剩余部分不能被看到，也不能进入（运动命令不能超出可访问部分），也不能以任何方法改变。然而，它并没有消失，如果保存文件，所有不能访问的文本也会保存。生效时单词‘Narrow’将会显示在模式行。
+
+   The primary narrowing command is C-x n n (narrow-to-region). It sets the current buffer’s restrictions so that the text in the current region remains accessible, but all text before the region or after the region is inaccessible. Point and mark do not change.
+
+   主要的收缩命令是 C-x n n (narrow-to-region)。它设置当前 buffer 的受限范围，这样当前选取中的文本仍可访问，但是选区前后的文本不可访问。不会修改 point 和 mark。
+
+   Alternatively, use C-x n p (narrow-to-page) to narrow down to the current page. See Pages, for the definition of a page. C-x n d (narrow-to-defun) narrows down to the defun containing point (see Defuns).
+
+   另外，使用 C-x n p (narrow-to-page)收缩到当前 page。C-x n d (narrow-to-defun)收缩到包含当前 point 的函数定义。
+
+   The way to cancel narrowing is to widen with C-x n w (widen). This makes all text in the buffer accessible again.
+
+   取消收缩的方法是使用 C-x n w (widen)扩展。这使 buffer 中的所有文本再次可访问。
+
+   You can get information on what part of the buffer you are narrowed down to using the C-x = command. See Position Info.
+
+   可以使用 C-x =获得 buffer 中正收缩到的部分的信息。
+
+   Because narrowing can easily confuse users who do not understand it, narrow-to-region is normally a disabled command. Attempting to use this command asks for confirmation and gives you the option of enabling it; if you enable the command, confirmation will no longer be required for it. See Disabling.
+
+   由于收缩很容易让不理解它的用户迷惑，narrow-to-region 通常被禁用。试图使用该命令会要求确认，并给出启用该命令的权限；如果启用该命令，将不再需要确认。
+
+** 14.13 Interactive Highlighting
+
+   Highlight Changes mode is a minor mode that "highlights" the parts of the buffer that were changed most recently, by giving that text a different face.  To enable or disable Highlight Changes mode, use ‘M-x highlight-changes-mode’.
+
+   Highlight Changes mode 是一个副模式，通过让当前 buffer 中最近修改的部分使用不同的 face 来进行高亮。使用‘M-x highlight-changes-mode’启用或禁用 Highlight Changes mode。
+
+   Hi Lock mode is a minor mode that highlights text that matches regular expressions you specify.  For example, you can use it to highlight all the references to a certain variable in a program source file, highlight certain parts in a voluminous output of some program, or highlight certain names in an article.  To enable or disable Hi Lock mode, use the command ‘M-x hi-lock-mode’.  To enable Hi Lock mode for all buffers, use ‘M-x global-hi-lock-mode’ or place ‘(global-hi-lock-mode 1)’ in your ‘.emacs’ file.
+
+   Hi Lock mode 是一个高亮指定正则表达式的副模式。例如，可以使用它高亮程序源码文件中匹配特定变量的所有引用，高亮程序大量输出的特定部分，或者高亮文章中的某些名称。使用‘M-x hi-lock-mode’启用或禁用该模式。使用‘M-x global-hi-lock-mode’或在.emacs 文件中写入‘(global-hi-lock-mode 1)’让所有 buffer 启用该模式。
+
+   Hi Lock mode works like Font Lock mode (*note Font Lock::), except that you specify explicitly the regular expressions to highlight.  You control them with these commands:
+
+   Hi Lock mode 工作类似 Font Lock mode，除了需要显式指定高亮的表达式。使用以下命令进行控制：
+
+   + M-s h r REGEXP <RET> FACE <RET>
+   + C-x w h REGEXP <RET> FACE <RET>
+
+	 Highlight text that matches REGEXP using face FACE (‘highlight-regexp’).  The highlighting will remain as long as the buffer is loaded.  For example, to highlight all occurrences of the word “whim” using the default face (a yellow background) ‘M-s h r whim <RET> <RET>’.  Any face can be used for highlighting, Hi Lock provides several of its own and these are pre-loaded into a list of default values.  While being prompted for a face use ‘M-n’ and‘M-p’ to cycle through them.
+
+	 使用 FACE 高亮匹配 REGEXP 的文本 (‘highlight-regexp’)。buffer 加载过程中会保持高亮。例如，‘M-s h r whim <RET> <RET>’使用默认 face（黄色背景）高亮单词“whim”所有出现的地方。可以用任何 face 进行高亮，Hi Lock 自己提供的几种默认制，提示输入 face 的时候可以使用‘M-n’ and‘M-p’进行选择。
+
+	 Setting the option ‘hi-lock-auto-select-face’ to a non-‘nil’ value causes this command (and other Hi Lock commands that read faces) to automatically choose the next face from the default list without prompting.
+
+	 将选项‘hi-lock-auto-select-face’设置为非 nil 值会使该命令（或者其他读取 face 的 Hi Lock 命令）不经提示自动从列表中选择下一个 face。
+
+     You can use this command multiple times, specifying various regular expressions to highlight in different ways.
+
+	 可以多次使用该命令，以不同的的方式高亮各种变量。
+
+   + M-s h u REGEXP <RET>
+   + C-x w r REGEXP <RET>
+
+     Unhighlight REGEXP (‘unhighlight-regexp’).
+
+	 取消高亮 REGEXP (‘unhighlight-regexp’)。
+
+	 If you invoke this from the menu, you select the expression to unhighlight from a list.  If you invoke this from the keyboard, you use the minibuffer.  It will show the most recently added regular expression; use ‘M-n’ to show the next older expression and ‘M-p’ to select the next newer expression.  (You can also type the expression by hand, with completion.)  When the expression you want to unhighlight appears in the minibuffer, press ‘<RET>’ to exit the minibuffer and unhighlight it.
+
+	 如果从菜单中调用该命令，将会从列表中选中要取消高亮的表达式。如果从键盘上调用，将会使用 minibuffer 进行提示。它将显式最近添加的正则表达式；使用‘M-n’下一个旧的表达式，‘M-p’选择上一个新的表达式。（也可以配合补全手动输入表达式）。当想要取消高亮的表达式出现在 minibuffer 时，按下‘<RET>’退出 minibuffer，并取消高亮该表达式。
+
+   + M-s h l REGEXP <RET> FACE <RET>
+   + C-x w l REGEXP <RET> FACE <RET>
+
+	 Highlight entire lines containing a match for REGEXP, using face FACE (‘highlight-lines-matching-regexp’).
+
+	 使用 FACE 高亮包含表达式匹配项的整行(‘highlight-lines-matching-regexp’)。
+
+   + M-s h p PHRASE <RET> FACE <RET>
+
+   + C-x w p PHRASE <RET> FACE <RET>
+
+	 Highlight matches of PHRASE, using face FACE (‘highlight-phrase’). PHRASE can be any regexp, but spaces will be replaced by matches to whitespace and initial lower-case letters will become case  insensitive.
+
+	 使用 FACE 高亮 PHARSE 匹配项(‘highlight-phrase’)。PHRASE 可以是任何正则表达式，但空格将会匹配到空白符，小写字母将会不去分大小写进行匹配。
+
+   + M-s h .
+   + C-x w .
+
+	 Highlight the symbol found near point, using the next available face (‘highlight-symbol-at-point’).
+
+	 使用下一个可用 face 高亮 point 处的符号(‘highlight-symbol-at-point’)。
+
+   + M-s h w
+   + C-x w b
+
+     Insert all the current highlighting regexp/face pairs into the buffer at point, with comment delimiters to prevent them from changing your program.  (This key binding runs the ‘hi-lock-write-interactive-patterns’ command.)
+
+	 在 buffer 中 point 处插入所有当前高亮的正则/face 对，使用注释分隔符防止它们改变程序（该键绑定运行‘hi-lock-write-interactive-patterns’命令）。
+
+     These patterns are extracted from the comments, if appropriate, if you invoke ‘M-x hi-lock-find-patterns’, or if you visit the file while Hi Lock mode is enabled (since that runs‘hi-lock-find-patterns’).
+
+	 在合适的时候，或者调用‘M-x hi-lock-find-patterns’，或者浏览文件的时候启用 Hi Lock mode（因为运行‘hi-lock-find-patterns’），将会从注释中提取这些模式。
+
+   + M-s h f
+   + C-x w i
+
+     Extract regexp/face pairs from comments in the current buffer (‘hi-lock-find-patterns’).  Thus, you can enter patterns interactively with ‘highlight-regexp’, store them into the file with ‘hi-lock-write-interactive-patterns’, edit them (perhaps including different faces for different parenthesized parts of the match), and finally use this command (‘hi-lock-find-patterns’) to have Hi Lock highlight the edited patterns.
+
+	 在当前 buffer 中，从评论中提取 regexp/face 对(‘hi-lock-find-patterns’)。因而，可以使用‘highlight-regexp’交互输入 pattern，使用‘hi-lock-write-interactive-patterns’存储到文件，编辑它们（可能包括匹配项中不同括号部分使用的 face），最后使用命令(‘hi-lock-find-patterns’) 高亮编辑过的 pattern。
+
+     The variable ‘hi-lock-file-patterns-policy’ controls whether Hi Lock mode should automatically extract and highlight patterns found in a file when it is visited.  Its value can be ‘nil’ (never highlight), ‘ask’ (query the user), or a function.  If it is a function, ‘hi-lock-find-patterns’ calls it with the patterns as argument; if the function returns non-‘nil’, the patterns are used. The default is ‘ask’.  Note that patterns are always highlighted if you call ‘hi-lock-find-patterns’ directly, regardless of the value of this variable.
+
+	 变量‘hi-lock-file-patterns-policy’控制浏览文件的时候 Hi Lock mode 是否自动提取文件中找到的 pattern 并进行高亮。它的值可以是‘nil’（绝不高亮），‘ask’（询问用户），‘funciotn’。如果是 function，function 使用 pattern 作为参数被‘hi-lock-find-patterns’调用；如果函数返回非 nil，使用 pattern。默认是‘ask’。注意，如果直接调用‘hi-lock-find-patterns’，不管该变量为何值，总是高亮 pattern。
+
+     Also, ‘hi-lock-find-patterns’ does nothing if the current major mode’s symbol is a member of the list ‘hi-lock-exclude-modes’.
+
+	 同样，如果当前主模式的符号是列表‘hi-lock-exclude-modes’中一员，‘hi-lock-find-patterns’不作任何事情。
+
+
+** 14.18 Optional Mode Line Features
+
+   The buffer percentage POS indicates the percentage of the buffer above the top of the window.  You can additionally display the size of the buffer by typing ‘M-x size-indication-mode’ to turn on Size Indication mode.  The size will be displayed immediately following the buffer percentage like this:
+
+   POS 指示的 buffer 百分比表示 window 顶部之上所占的百分比。可以键入‘M-x size-indication-mode’另外开启 Size Indication mode 显示 buffer 大小。大小将紧跟 buffer 百分比立刻这样显示：
+
+   #+BEGIN_EXAMPLE
+POS of SIZE
+   #+END_EXAMPLE
+
+   Here SIZE is the human readable representation of the number of characters in the buffer, which means that ‘k’ for 10^3, ‘M’ for 10^6, ‘G’ for 10^9, etc., are used to abbreviate.
+
+   这里 SIZE 是 buffer 中字符数量个人类可读的表示，也就是使用缩写表示的‘k’ for 10^3, ‘M’ for 10^6, ‘G’ for 10^9,等。
+
+   The current line number of point appears in the mode line when Line Number mode is enabled.  Use the command ‘M-x line-number-mode’ to turn this mode on and off; normally it is on.  The line number appears after the buffer percentage POS, with the letter ‘L’ to indicate what it is.
+
+   启用 Line Number Mode 后 point 所在的当前行号显示在模式行中。使用‘M-x line-number-mode’启用或禁用该模式。通常是开启的。行号显示值 buffer 百分比 POS 之后，以字母‘L’表示它是什么。
+
+   Similarly, you can display the current column number by turning on Column number mode with ‘M-x column-number-mode’.  The column number is indicated by the letter ‘C’.  However, when both of these modes are enabled, the line and column numbers are displayed in parentheses, the line number first, rather than with ‘L’ and ‘C’.  For example: ‘(561,2)’.  *Note Minor Modes::, for more information about minor modes and about how to use these commands.
+   类似，使用‘M-x column-number-mode’启用 Column number mode 之后，也可以显示当前列号。列号使用字母‘C’指示。然而，当两种模式都启用后，行号和列号将会显示在口号中，行号在前，而不是‘L’ 和 ‘C’。例如，‘(561,2)’。
+
+   If you have narrowed the buffer (*note Narrowing::), the displayed line number is relative to the accessible portion of the buffer.  Thus, it isn’t suitable as an argument to ‘goto-line’.  (Use ‘what-line’command to see the line number relative to the whole file.)
+
+   如果 narrowed 了 buffer，显示的行号是相对 buffer 可访问部分的。因而，它不适合做‘goto-line’的参数。（使用‘what-line’命令查看相对于整个文件的行号。）
+
+   If the buffer is very large (larger than the value of ‘line-number-display-limit’), Emacs won’t compute the line number, because that would be too slow; therefore, the line number won’t appear on the mode-line.  To remove this limit, set ‘line-number-display-limit’to ‘nil’.
+
+   如果 buffer 非常大（大于‘line-number-display-limit’的值），Emacs 不会计算行号，因为那太慢了；因此，行号不会出现在模式行。将‘line-number-display-limit’设置为‘nil’可以取消该限制。
+
+   Line-number computation can also be slow if the lines in the buffer are too long.  For this reason, Emacs doesn’t display line numbers if the average width, in characters, of lines near point is larger than the value of ‘line-number-display-limit-width’.  The default value is 200 characters.
+
+   如果 buffer 中行太多，行号计算也会很慢。处于这个原因，如果按字符算 point 处行的平均宽度超过了 line-number-display-limit-width 的值也不会显示行号。默认值是 200 个字符。
+
+   Emacs can optionally display the time and system load in all mode lines.  To enable this feature, type ‘M-x display-time’ or customize the option ‘display-time-mode’.  The information added to the mode line looks like this:
+
+   Emacs 可以在所有模式行显示时间和系统负载。键入‘M-x display-time’或设置选项‘display-time-mode’启用该功能。添加到模式行的显示如下：
+
+   #+BEGIN_EXAMPLE
+HH:MMpm L.LL
+   #+END_EXAMPLE
+
+   Here HH and MM are the hour and minute, followed always by ‘am’ or ‘pm’. L.LL is the average number, collected for the last few minutes, of processes in the whole system that were either running or ready to run (i.e., were waiting for an available processor).  (Some fields may be missing if your operating system cannot support them.)  If you prefer time display in 24-hour format, set the variable ‘display-time-24hr-format’ to ‘t’.
+
+   这里，HH 和 MM 表示小时和分钟，后面紧跟‘am’ or ‘pm’，L.LL 是最近几分钟搜集真个系统正在运行或等待运行的进程的平均数。（例如，等待可用的处理器）。（如果操作系统不支持，有些字段可能丢失。）如果更喜欢用 24 小时制显示时间，将变量‘display-time-24hr-format’设置为 t。
+
+   The word ‘Mail’ appears after the load level if there is mail for you that you have not read yet.  On graphical displays, you can use an icon instead of ‘Mail’ by customizing ‘display-time-use-mail-icon’; this may save some space on the mode line.  You can customize ‘display-time-mail-face’ to make the mail indicator prominent.  Use ‘display-time-mail-file’ to specify the mail file to check, or set ‘display-time-mail-directory’ to specify the directory to check for incoming mail (any nonempty regular file in the directory is considered as “newly arrived mail”).
+
+   如果有未读邮件，单词‘Mail’会显示在载入等级之后。在图形界面中，通过订制‘display-time-use-mail-icon’可以使用图标代替‘Mail’。可以订制‘display-time-mail-face’突出显示邮件指示。使用‘display-time-mail-file’指定检查的邮件文件，或设置‘display-time-mail-directory’指定检查的到来邮件的目录（目录中任何非空常规文件被认为是新到达的邮件）。
+
+   When running Emacs on a laptop computer, you can display the battery charge on the mode-line, by using the command ‘display-battery-mode’ or customizing the variable ‘display-battery-mode’.  The variable ‘battery-mode-line-format’ determines the way the battery charge is displayed; the exact mode-line message depends on the operating system, and it usually shows the current battery charge as a percentage of the total charge.
+
+   在笔记本上运行 Emacs，使用命令‘display-battery-mode’ 或订制变量‘display-battery-mode’还可以在模式行显示电池电量。变量‘battery-mode-line-format’指定哪个显示电池电量的方式；确切的模式行信息依赖于操作系统，通常显示当前电池电量的百分比。
+
+   On graphical displays, the mode line is drawn as a 3D box.  If you don’t like ‘mode-line’ face and setting its ‘box’ attribute to ‘nil’.  *Note Face Customization::.
+
+   图形界面上，模式话使用 3D 盒子绘制。如果不喜欢‘mode-line’ face，可以将它的‘box’设置为 nil。
+
+   By default, the mode line of nonselected windows is displayed in a different face, called ‘mode-line-inactive’.  Only the selected window is displayed in the ‘mode-line’ face.  This helps show which window is selected.  When the minibuffer is selected, since it has no mode line, the window from which you activated the minibuffer has its mode line displayed using ‘mode-line’; as a result, ordinary entry to the minibuffer does not change any mode lines.
+
+   默认情况下，非选中窗口的模式行显示为不同的 face，其称作‘mode-line-inactive’。只有选中的 window 使用‘mode-line’face 显示。这有助于凸显选中的 windows。选中 minibuffer 后，因为它没有模式行，从 minibuffer 激活的 buffer 将会使用‘mode-line’显示它的模式行；因此，普通进入 minibuffer 不会修改任何模式行。
+
+   You can disable use of ‘mode-line-inactive’ by setting variable ‘mode-line-in-non-selected-windows’ to ‘nil’; then all mode lines are displayed in the ‘mode-line’ face.
+
+   通过将变量‘mode-line-in-non-selected-windows’ 设置诶‘nil’可以关闭‘mode-line-inactive’的使用；之后所有模式使用‘mode-line’ face 显示。
+
+   You can customize the mode line display for each of the end-of-line formats by setting each of the variables ‘eol-mnemonic-unix’, ‘eol-mnemonic-dos’, ‘eol-mnemonic-mac’, and ‘eol-mnemonic-undecided’ to the strings you prefer.
+
+   通过将变量变量‘eol-mnemonic-unix’, ‘eol-mnemonic-dos’, ‘eol-mnemonic-mac’, and ‘eol-mnemonic-undecided’设置为你喜欢的字符串，可以为每个行尾格式定制模式行显示。
+
+** 14.20 Displaying the Cursor
+
+   On a text terminal, the cursor’s appearance is controlled by the terminal, largely out of the control of Emacs.  Some terminals offer two different cursors: a “visible” static cursor, and a “very visible” blinking cursor.  By default, Emacs uses the very visible cursor, and switches to it when you start or resume Emacs.  If the variable ‘visible-cursor’ is ‘nil’ when Emacs starts or resumes, it uses the normal cursor.
+
+   文本终端中，光标的形状由终端而不是 Emacs 控制。一些终端提供两种不同的光标：可见的静态光标和非常显眼的闪烁光标。Emacs 默认使用显眼的光标，当启动或恢复 Emacs 时切换到它。如果 Emacs 启动或恢复时变量‘visible-cursor’是 nil，使用常用正常的光标。
+
+   On a graphical display, many more properties of the text cursor can be altered.  To customize its color, change the ‘:background’ attribute of the face named ‘cursor’ (*note Face Customization::).  (The other attributes of this face have no effect; the text shown under the cursor is drawn using the frame’s background color.)  To change its shape, customize the buffer-local variable ‘cursor-type’; possible values are ‘box’ (the default), ‘hollow’ (a hollow box), ‘bar’ (a vertical bar), ‘(bar . N)’ (a vertical bar N pixels wide), ‘hbar’ (a horizontal bar), ‘(hbar . N)’ (a horizontal bar N pixels tall), or ‘nil’ (no cursor at all).
+
+   在图形界面中，可以改变很多文本光标的属性。定制演示需要改变名为‘cursor’的 face 的“:background”属性 (*note Face Customization::)。（该 face 的其他属性没有效果，光标下显式的文字使用 frame 的背景色进行绘制。）。订制 buffer-local 变量‘cursor-type’修改形状；可选的值有‘box’（默认值），“hollow”（一个空盒子），“bar”（竖线），“(bar . N)”（N 像素宽的竖线），“hbar”（横线），“(hbar . N)”（N 像素高的横线），或者 nil（压根没有光标）。
+
+   By default, the cursor stops blinking after 10 blinks, if Emacs does not get any input during that time; any input event restarts the count. You can customize the variable ‘blink-cursor-blinks’ to control that: its value says how many times to blink without input before stopping. Setting that variable to a zero or negative value will make the cursor blink forever.  To disable cursor blinking altogether, change the variable ‘blink-cursor-mode’ to ‘nil’ (*note Easy Customization::), or add the line
+
+   默认情况下，光标在闪烁十次期间，如果 Emacs 没有获得任何输入，就停止闪烁；任何输入将会重启计数。可以自定义变量‘blink-cursor-blinks’进行控制：该值表示在没有输入时闪烁多少次后停止闪烁。将其设置为 0 或负数将使光标一直闪烁。完全禁用光标闪烁需将‘blink-cursor-mode’设置为 nil(*note Easy Customization::), 或者将下面代码
+
+   #+BEGIN_SRC emacs-lisp
+(blink-cursor-mode 0)
+   #+END_SRC
+
+   to your init file.  Alternatively, you can change how the cursor looks when it “blinks off” by customizing the list variable ‘blink-cursor-alist’.  Each element in the list should have the form ‘(ON-TYPE . OFF-TYPE)’; this means that if the cursor is displayed as ON-TYPE when it blinks on (where ON-TYPE is one of the cursor types described above), then it is displayed as OFF-TYPE when it blinks off.
+
+   添加到初始化文件。或者，通过自定义列表变量‘blink-cursor-alist’改变光标停止闪烁时候的样子。列表的每个元素形式都是‘(ON-TYPE . OFF-TYPE)’；当光标开始闪烁的时候显式为 ON-TYPE（ON-TYPE 是上面描述的光标类型之一），停止闪烁的时候显式为 OFF_TYPE。
+
+   Some characters, such as tab characters, are “extra wide”.  When the cursor is positioned over such a character, it is normally drawn with the default character width.  You can make the cursor stretch to cover wide characters, by changing the variable ‘x-stretch-cursor’ to a non-‘nil’ value.
+
+   一些字符，比如制表符，额外宽。当光标的定位其上时，通常使用默认宽度显示。将变量‘x-stretch-cursor’设置为非 nil 值，让光标扩展到整个字符宽度。
+
+   The cursor normally appears in non-selected windows as a non-blinking hollow box.  (For a bar cursor, it instead appears as a thinner bar.) To turn off cursors in non-selected windows, change the variable ‘cursor-in-non-selected-windows’ to ‘nil’.
+
+   未选中的 windows 中光标通常显式为不闪烁的空盒子。（对于竖线光标，显示为薄条。）将变量‘cursor-in-non-selected-windows’设置为 nil 关闭未选中 windows 中的光标。
+
+   To make the cursor even more visible, you can use HL Line mode, a minor mode that highlights the line containing point.  Use ‘M-x hl-line-mode’ to enable or disable it in the current buffer.  ‘M-x global-hl-line-mode’ enables or disables the same mode globally.
+
+   为使光标更明显，可以使用 HL line mode，该副模式高亮 point 所在行。使用‘M-x hl-line-mode’在当前 buffer 中启用或禁用该模式。‘M-x global-hl-line-mode’全局启用或禁用。

@@ -1,0 +1,369 @@
+# -*- coding:utf-8; -*-
+
+#+title:22 International character set support
+* 22 International character set support
+** 22.5 Coding Systems
+   Users of various languages have established many more-or-less standard coding systems for representing them. Emacs does not use these coding systems internally; instead, it converts from various coding systems to its own system when reading data, and converts the internal coding system to other coding systems when writing data. Conversion is possible in reading or writing files, in sending or receiving from the terminal, and in exchanging data with subprocesses.
+
+   各种语言的用户为其建立了许多接近标准的编码系统。Emacs 内部不适用这些编码系统；相反它读写数据时在各种编码系统和它自己的系统建进行转换。转换可能发生在读写文件，从终端收发数据，和与子进程交换数据。
+
+   Emacs assigns a name to each coding system. Most coding systems are used for one language, and the name of the coding system starts with the language name. Some coding systems are used for several languages; their names usually start with ‘iso’. There are also special coding systems, such as no-conversion, raw-text, and emacs-internal.
+
+   Emacs 为每个编码系统分配了名字。大多数编码系统只用与一种语言，并且编码系统的名字用该语言名字开头。有一些系统用于多总语言，它们的名字通常用 iso 开通。还有几种特殊的编码系统，比如 no-conversion，raw-test,以及 emacs-internal。
+
+   A special class of coding systems, collectively known as codepages, is designed to support text encoded by MS-Windows and MS-DOS software. The names of these coding systems are cpnnnn, where nnnn is a 3- or 4-digit number of the codepage. You can use these encodings just like any other coding system; for example, to visit a file encoded in codepage 850, type C-x RET c cp850 RET C-x C-f filename RET.
+
+   编码系统有一种特殊的分类，统称为代码页，MS-Windows and MS-DOS 软件设计其用来支持文本编码。这些编码系统的名字时 cpnnn，nnn 是代码页的 3 位或 4 位编号。这些编码的使用方法和其他编码系统没有什么不同；例如，查看使用代码页 850 编码的文档，输入 C-x RET c cp850 RET C-x C-f filename RET。
+
+   In addition to converting various representations of non-ASCII characters, a coding system can perform end-of-line conversion. Emacs handles three different conventions for how to separate lines in a file: newline (“unix”), carriage-return linefeed (“dos”), and just carriage-return (“mac”).
+
+   除了转换各种非 ASCII 字符外，编码系统还可以进行行尾转换。Emacs 进行三种不同的转换来决定如何在文件中分割行：newline (“unix”), carriage-return linefeed (“dos”), and just carriage-return (“mac”)。
+
+   + C-h C coding RET
+
+	 Describe coding system coding (describe-coding-system).
+
+	 描述编码系统的编码。
+
+   + C-h C RET
+
+	 Describe the coding systems currently in use.
+
+	 描述当前正在使用的编码系统。
+
+   + M-x list-coding-systems
+
+	 Display a list of all the supported coding systems.
+
+	 显示当前所有支持的编码系统的列表。
+
+	 The command C-h C (describe-coding-system) displays information about particular coding systems, including the end-of-line conversion specified by those coding systems. You can specify a coding system name as the argument; alternatively, with an empty argument, it describes the coding systems currently selected for various purposes, both in the current buffer and as the defaults, and the priority list for recognizing coding systems (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Recognize-Coding][Recognize Coding]]).
+
+	 命令 C-h C (describe-coding-system)显示特定编码系统的信息，包括这些编码系统指定的行尾转换。可以指定编码系统的名字作为参数；也可以没有参数，它命数用于各种目的的编码系统，包括当前 buffer 和默认设置，以及用于识别编码系统的优先级列表。(see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Recognize-Coding][Recognize Coding]])
+
+   To display a list of all the supported coding systems, type M-x list-coding-systems. The list gives information about each coding system, including the letter that stands for it in the mode line (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Mode-Line][Mode Line]]).
+
+   输入 M-x list-coding-systems 显示所有支持的编码系统的列表。该列表显示每个编码系统的信息，包括在 mode line 显示的字符。(see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Mode-Line][Mode Line]])
+
+   Each of the coding systems that appear in this list—except for no-conversion, which means no conversion of any kind—specifies how and whether to convert printing characters, but leaves the choice of end-of-line conversion to be decided based on the contents of each file. For example, if the file appears to use the sequence carriage-return linefeed to separate lines, DOS end-of-line conversion will be used.
+
+   除了 no-conversion 之外（它意味着没有任何类型的抓环），列表中的每个编码系统都指出如何以及是否转换打印字符，但是如何转换行尾是由每个文件的内容决定的。例如，如果文件使用回车换行的键序列分割行，就会使用 DOS 格式的行尾转换。
+
+   Each of the listed coding systems has three variants, which specify exactly what to do for end-of-line conversion:
+
+   每个列出的编码系统都有三个变种，明确指定了如何转换行尾：
+
+   + …-unix
+
+	 Don’t do any end-of-line conversion; assume the file uses newline to separate lines. (This is the convention normally used on Unix and GNU systems, and Mac OS X.)
+
+	 不做行尾转换；假定使用换行来分割行。（通常用于 Unix GNU system 和 Mac OS）
+
+   + …-dos
+
+	 Assume the file uses carriage-return linefeed to separate lines, and do the appropriate conversion. (This is the convention normally used on Microsoft systems.)
+
+	 假设文件使用换行回车分割行，并进行合适的转换。（通常用于 Microsoft systems 进行转换。）
+
+   + …-mac
+
+	 Assume the file uses carriage-return to separate lines, and do the appropriate conversion. (This was the convention used on the Macintosh system prior to OS X.)
+
+	 假设文件使用回车分割行，并进行合适的转换。（转换用于 OS X 之前的 Macintosh 系统。）
+
+   These variant coding systems are omitted from the list-coding-systems display for brevity, since they are entirely predictable. For example, the coding system iso-latin-1 has variants iso-latin-1-unix, iso-latin-1-dos and iso-latin-1-mac.
+
+   为了简便起见，list-coding-systems 不显示这些变种编码系统，因为它时完全可预期的。例如，iso-latin-1 编码系统有三个变种：iso-latin-1-unix, iso-latin-1-dos and iso-latin-1-mac。
+
+   The coding systems unix, dos, and mac are aliases for undecided-unix, undecided-dos, and undecided-mac, respectively. These coding systems specify only the end-of-line conversion, and leave the character code conversion to be deduced from the text itself.
+
+   编码系统 unix,dos 和 mac 分别是 undecided-unix，undecided-dos 和 undecided-mac 的别称。这些编码系统仅指定了行尾转换，字符代码转换则由文本自身推导。
+
+   The coding system raw-text is good for a file which is mainly ASCII text, but may contain byte values above 127 that are not meant to encode non-ASCII characters. With raw-text, Emacs copies those byte values unchanged, and sets enable-multibyte-characters to nil in the current buffer so that they will be interpreted properly. raw-text handles end-of-line conversion in the usual way, based on the data encountered, and has the usual three variants to specify the kind of end-of-line conversion to use.
+
+   rawtext 编码系统对于这类文件很有用：基本上都是 ASCII 文本，但可能含有字节值超过 127，也就是说不能使用 ASCII 编码的字符。使用 raw-text，Emacs 毫无变化的赋值这些字节值，在当前 buffer 中设置 enable-multibyte-characters 为 nil 以便将它们正确的解释。raw-text 处理行尾方式和平常一样：根据遇到的数据，也有常见的三个变种来指定行尾转换使用的类型。
+
+   In contrast, the coding system no-conversion specifies no character code conversion at all—none for non-ASCII byte values and none for end of line. This is useful for reading or writing binary files, tar files, and other files that must be examined verbatim. It, too, sets enable-multibyte-characters to nil.
+
+   相反，no-conversion 编码系统根本不指定字符代码转换，不管是非 ASCII 字节值还是行尾。这用于读写二进制文件，tar 文件，以及其他必须逐字检查的文件。它也将 enable-multibyte-characters 设置位 nil。
+
+   The easiest way to edit a file with no conversion of any kind is with the M-x find-file-literally command. This uses no-conversion, and also suppresses other Emacs features that might convert the file contents before you see them. See Visiting.
+
+   不进行任何形转换直接编辑文件最简单的方式是使用 M-x find-file-literally 命令。它不进行转换，而且也会抑制其他访问之前可能会转换文件内容的 Emacs 特性。
+
+   The coding system emacs-internal (or utf-8-emacs, which is equivalent) means that the file contains non-ASCII characters stored with the internal Emacs encoding. This coding system handles end-of-line conversion based on the data encountered, and has the usual three variants to specify the kind of end-of-line conversion.
+   emacs-internal 编码系统（或者也可以称为 utf-8-emacs）意味着文件中包含的非 ASCII 字符使用 Emacs 内部编码存储。该编码系统基于遇到的文件内容处理行尾，也会有三个变种来指定行尾转换。
+
+** 22.6 Recognizing Coding Systems
+
+   Whenever Emacs reads a given piece of text, it tries to recognize which coding system to use. This applies to files being read, output from subprocesses, text from X selections, etc. Emacs can select the right coding system automatically most of the time—once you have specified your preferences.
+
+   每当 Emacs 读取给定文本时，它试图识别使用哪个编码系统。这适用于正在读取的文件，子程序的输出，以及 X 系统选中的文本等等。只要指定了偏好，·大多数时候 Emacs 都能正确的选择编码系统。
+
+   Some coding systems can be recognized or distinguished by which byte sequences appear in the data. However, there are coding systems that cannot be distinguished, not even potentially. For example, there is no way to distinguish between Latin-1 and Latin-2; they use the same byte values with different meanings.
+
+   一些编码系统可以通过数据中出现的字节序列识别或分辨出来。然而，也有一些编码系统不能这么识别，甚至不可能识别。例如，没法区分 Latin-1 和 Latin-2；它们使用相同的字节值但意义不同。
+
+   Emacs handles this situation by means of a priority list of coding systems. Whenever Emacs reads a file, if you do not specify the coding system to use, Emacs checks the data against each coding system, starting with the first in priority and working down the list, until it finds a coding system that fits the data. Then it converts the file contents assuming that they are represented in this coding system.
+
+   Emacs 通过编码系统的优先级列表处理这种情况。每当 Emacs 读取文件时，如果不指定使用的编码系统，Emacs 使用数据检查每个编码系统，从优先列表中第一项开始，直到找到一个编码系统与数据相吻合。然后假设它们的确使用这种编码系统来转换文件内容。
+
+   The priority list of coding systems depends on the selected language environment (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Language-Environments][Language Environments]]). For example, if you use French, you probably want Emacs to prefer Latin-1 to Latin-2; if you use Czech, you probably want Latin-2 to be preferred. This is one of the reasons to specify a language environment.
+
+   编码系统的优先级依赖于选择的语言环境（see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Language-Environments][Language Environments]]）。例如，如果使用法语，可能希望 Emacs 优先选择 Latin-1 或 Lation-2；如果喜欢捷克语，可能更想要 Latin-2。这也是要指定语言环境的原因之一。
+
+   However, you can alter the coding system priority list in detail with the command M-x prefer-coding-system. This command reads the name of a coding system from the minibuffer, and adds it to the front of the priority list, so that it is preferred to all others. If you use this command several times, each use adds one element to the front of the priority list.
+
+   但是也可以通过命令 M-x prefer-coding-system 更详细的改变编码系统优先级列表。该命令从 minibuffer 中读取编码系统的名字，把它放在优先列表的前面，所以它将更受欢迎，如果使用该命令几次，每次使用都会在优先列表签名添加一个元素。
+
+   If you use a coding system that specifies the end-of-line conversion type, such as iso-8859-1-dos, what this means is that Emacs should attempt to recognize iso-8859-1 with priority, and should use DOS end-of-line conversion when it does recognize iso-8859-1.
+
+   如果使用的编码系统指定了行尾转换，比如 iso-8859-1-dos，那么 Emacs 试图识别 iso-8859-1 作为优先级，如果识别为 iso-8859-1 时将会使用 DOS 行尾转换。
+
+   Sometimes a file name indicates which coding system to use for the file. The variable file-coding-system-alist specifies this correspondence. There is a special function modify-coding-system-alist for adding elements to this list. For example, to read and write all ‘.txt’ files using the coding system chinese-iso-8bit, you can execute this Lisp expression:
+
+   有时候文件名暗示了其应该使用的编码系统。变量 file-coding-system-alist 指定了这种对应关系。有一个特殊的函数 modify-coding-system-alist 用来向该列表添加元素。例如，使用 chinese-iso-8bit 读写所有的的‘.txt’文件，可以执行以下的 lisp 表达式：
+
+   #+BEGIN_SRC elisp
+   (modify-coding-system-alist 'file "\\.txt\\'" 'chinese-iso-8bit)
+   #+END_SRC
+
+   The first argument should be file, the second argument should be a regular expression that determines which files this applies to, and the third argument says which coding system to use for these files.
+
+   第一个参数应该是 file，第二个参数应该是正则表达式，决定该规则适用那些文件，第三个参数说明对于这些文件应该使用哪种编码系统。
+
+   Emacs recognizes which kind of end-of-line conversion to use based on the contents of the file: if it sees only carriage-returns, or only carriage-return linefeed sequences, then it chooses the end-of-line conversion accordingly. You can inhibit the automatic use of end-of-line conversion by setting the variable inhibit-eol-conversion to non-nil. If you do that, DOS-style files will be displayed with the ‘^M’ characters visible in the buffer; some people prefer this to the more subtle ‘(DOS)’ end-of-line type indication near the left edge of the mode line (see eol-mnemonic).
+
+   Emacs 基于文件内容识别应该使用哪种类型的行尾转换：如果只看到回车，或者只看到换行，就选择相应的行尾转换。通过将变量 inhibit-eol-conversion 设置为非 nil 可以禁用自动行尾转换。如果这样做，buffer 中 DOS 风格的文件会出现^M 字符；有些人更喜欢这种，而不是 mode line 左侧边缘显示的‘DOS’提示符。
+
+   By default, the automatic detection of coding system is sensitive to escape sequences. If Emacs sees a sequence of characters that begin with an escape character, and the sequence is valid as an ISO-2022 code, that tells Emacs to use one of the ISO-2022 encodings to decode the file.
+
+   默认情况下，编码系统的自动检测对转义序列是敏感的。如果 Emacs 看到转义字符开始的一系列字符，该序列作为 ISO-2-22 编码是有效的，这就告诉 Emacs 使用一种 ISO-2022 编码对文件进行解码。
+
+   However, there may be cases that you want to read escape sequences in a file as is. In such a case, you can set the variable inhibit-iso-escape-detection to non-nil. Then the code detection ignores any escape sequences, and never uses an ISO-2022 encoding. The result is that all escape sequences become visible in the buffer.
+
+   然而，有时本来就是要读取文件中的转义字符。这时，可以将变量 inhibit-iso-escape-detection 设置为非 nil 值。这样代码检测就会忽略任何转义序列，也不会使用 ISO-2022 编码。结果就是 buffer 中的所有转义字符都会显示。
+
+   The default value of inhibit-iso-escape-detection is nil. We recommend that you not change it permanently, only for one specific operation. That’s because some Emacs Lisp source files in the Emacs distribution contain non-ASCII characters encoded in the coding system iso-2022-7bit, and they won’t be decoded correctly when you visit those files if you suppress the escape sequence detection.
+
+   inhibit-iso-escape-detection 的默认值是 nil。建议只是为特定操作进行修改，而不是永久的改变它。因为 Emacs 发行版中的要有些 Emacs lisp 源码文件包含 iso-2022 编码的非 ASCII 字符，如果不适用转义序列探测的话它们不会正确解码。
+
+   The variables auto-coding-alist and auto-coding-regexp-alist are the strongest way to specify the coding system for certain patterns of file names, or for files containing certain patterns, respectively. These variables even override ‘-*-coding:-*-’ tags in the file itself (see Specify Coding). For example, Emacs uses auto-coding-alist for tar and archive files, to prevent it from being confused by a ‘-*-coding:-*-’ tag in a member of the archive and thinking it applies to the archive file as a whole.
+
+   为特定模式的文件或包含特定模式的文件指明编码系统最好方式是分别使用变量 auto-coding-alist 和 auto-coding-regexp-alist。这些变量甚至会覆盖文件本身内容中的-*-coding-*-标签。例如，Emacs 使用 auto-coding-alist 避免 tar 和归档文件被归档某文件中的-*-coding:-*-迷惑，进而认为它会易用整个打包件。
+
+   Another way to specify a coding system is with the variable auto-coding-functions. For example, one of the builtin auto-coding-functions detects the encoding for XML files. Unlike the previous two, this variable does not override any ‘-*-coding:-*-’ tag.
+
+   另一种指定编码系统的方法是使用变量 auto-coding-functions。例如，auto-coding-functions 中的其中一个可以探测 XML 文件的编码。与前面两个不同，该变量不会覆盖任何-*-coding:-*-标签。
+
+** 22.7 Specifying a File’s Coding System
+
+   [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Specify-Coding][GNU Emacs Manual]]
+
+	 If Emacs recognizes the encoding of a file incorrectly, you can reread the file using the correct coding system with C-x RET r (revert-buffer-with-coding-system). This command prompts for the coding system to use. To see what coding system Emacs actually used to decode the file, look at the coding system mnemonic letter near the left edge of the mode line (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Mode-Line][Mode Line]]), or type C-h C (describe-coding-system).
+
+	 如果 Emacs 不能正确识别文件的编码，可以通过 C-x RET r (revert-buffer-with-coding-system)使用正确的编码系统重读文件。该命令会提示要使用的编码系统。了解 Emacs 到底使用哪种编码系统解码文件，查看模式行左边上的编码系统字符，或者输入 C-h C(describe-coding-system)。
+
+	 You can specify the coding system for a particular file in the file itself, using the ‘-*-…-*-’ construct at the beginning, or a local variables list at the end (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#File-Variables][File Variables]]). You do this by defining a value for the “variable” named coding. Emacs does not really have a variable coding; instead of setting a variable, this uses the specified coding system for the file. For example, ‘-*-mode: C; coding: latin-1;-*-’ specifies use of the Latin-1 coding system, as well as C mode. When you specify the coding explicitly in the file, that overrides file-coding-system-alist.
+
+	 也可以在文件起始处使用-*-…-*-结构，或文件结尾处使用本地变量指定使用的编码系统。这可以通过在文件末给名为 coding 的变量赋值做到。Emacs 并不真正有一个变量编码，，而是设置一个，这将会为文件使用指定的编码系统。例如，‘-*-mode: C; coding: latin-1;-*-’指定使用 Lation-1 编码系统和 C mode。当文件中明确指定了文件系统后将会覆盖 file-coding-system-alist。
+
+** 22.8 Choosing Coding Systems for Output
+
+   Once Emacs has chosen a coding system for a buffer, it stores that coding system in buffer-file-coding-system. That makes it the default for operations that write from this buffer into a file, such as save-buffer and write-region. You can specify a different coding system for further file output from the buffer using set-buffer-file-coding-system (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#%0AText%20Coding][Text Coding]]).
+
+   Emacs 一旦为 buffer 选择了编码系统，它将其存储在 buffer-file-coding-system 中。当将 buffer 写入到文件时，比如 save-buffer 或 write-region，也会使用该编码系统，可以使用 set-buffer-file-coding-system (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#%0AText%20Coding][Text Coding]])为 buffer 的输出的文件指定不同的编码系统。
+
+   You can insert any character Emacs supports into any Emacs buffer, but most coding systems can only handle a subset of these characters. Therefore, it’s possible that the characters you insert cannot be encoded with the coding system that will be used to save the buffer. For example, you could visit a text file in Polish, encoded in iso-8859-2, and add some Russian words to it. When you save that buffer, Emacs cannot use the current value of buffer-file-coding-system, because the characters you added cannot be encoded by that coding system.
+
+   可以在 Emacs buffer 中插入 Emacs 支持的任何字符，但大多数的编码系统只能处理这些字符的子集。因而，插入的字符不能被保存 buffer 的编码系统编码也是可能的。例如，在波兰浏览一个使用 iso-88592 编码的文件，在里面添加一些俄语单词。保存 buffer 时，Emacs 不能使用 buffer-file-coding-system，因为插入的字母不能被改编码系统编码。
+
+   When that happens, Emacs tries the most-preferred coding system (set by M-x prefer-coding-system or M-x set-language-environment). If that coding system can safely encode all of the characters in the buffer, Emacs uses it, and stores its value in buffer-file-coding-system. Otherwise, Emacs displays a list of coding systems suitable for encoding the buffer’s contents, and asks you to choose one of those coding systems.
+
+   发生这种情况时，Emacs 尝试最喜欢的编码系统（通过 M-x prefer-coding-system or M-x set-language-environment 设置）。如果改编码系统能安全的编码 buffer 中的所有字符，Emacs 使用它，并将其值存储在 buffer-file-coding-system 中。否则，Emacs 将显示适合编码 buffer 内容的编码系统列表，让你选择使用哪个。
+
+   If you insert the unsuitable characters in a mail message, Emacs behaves a bit differently. It additionally checks whether the most-preferred coding system is recommended for use in MIME messages; if not, it informs you of this fact and prompts you for another coding system. This is so you won’t inadvertently send a message encoded in a way that your recipient’s mail software will have difficulty decoding. (You can still use an unsuitable coding system if you enter its name at the prompt.)
+
+   如果在邮件消息中插入不合适的字符，Emacs 表现有点不同。它额外检查 MIME 消息中是否推荐最受欢迎的编码系统；如果没有，它会告诉你这个事实，然后提示选择另一个编码系统。这样你就不会送邮件软件不能解码的消息。（如果在提示中输入了不合适的编码系统也是可用的）。
+
+   When you send a mail message (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Sending-Mail][Sending Mail]]), Emacs has four different ways to determine the coding system to use for encoding the message text. It tries the buffer’s own value of buffer-file-coding-system, if that is non-nil. Otherwise, it uses the value of sendmail-coding-system, if that is non-nil. The third way is to use the default coding system for new files, which is controlled by your choice of language environment, if that is non-nil. If all of these three values are nil, Emacs encodes outgoing mail using the Latin-1 coding system.
+
+   发送邮件时 Emacs 有四种不同方式决定使用哪种编码系统来编码消息文本。按序查找并使用非 nil 的以下变量 buffer 自己的 buffer-file-coding-system 值 、sendmail-coding-system 新文件所用的默认编码系统（该值由你选择的语言环境控制）。如果所有这三种变量都为 nil，Emacs 使用 Latin-1 编码系统编码输出的邮件。
+
+** 22.9 Specifying a Coding System for File Text
+
+   In cases where Emacs does not automatically choose the right coding system for a file’s contents, you can use these commands to specify one:
+
+   如果 Emacs 没有为文件内容自动选择正确的编码系统，可以使用下面的命令进行指定：
+
+   + C-x RET f coding RET
+
+	 Use coding system coding to save or revisit the file in the current buffer (set-buffer-file-coding-system).
+
+	 使用编码系统保存或重新浏览当前 buffer 中的文件(set-buffer-file-coding-system)。
+
+	 + C-x RET c coding RET
+
+	   Specify coding system coding for the immediately following command (universal-coding-system-argument).
+
+	   为紧跟的命令指定编码系统(universal-coding-system-argument)。
+
+	 + C-x RET r coding RET
+
+	   Revisit the current file using the coding system coding	    (revert-buffer-with-coding-system).
+
+	   使用指定的编码系统重新浏览当前文件(revert-buffer-with-coding-system)。
+
+	 + M-x recode-region RET right RET wrong RET
+
+	   Convert a region that was decoded using coding system wrong, decoding it using coding system right instead.
+
+	   转换使用错误编码系统解码的区域，将使用正确编码系统进行解码。
+
+   The command C-x RET f (set-buffer-file-coding-system) sets the file coding system for the current buffer (i.e., the coding system to use when saving or reverting the file). You specify which coding system using the minibuffer. You can also invoke this command by clicking with Mouse-3 on the coding system indicator in the mode line (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Mode-Line][Mode Line]]).
+
+   命令 C-x RET f (set-buffer-file-coding-system)为当前 buffer 设置文件编码系统（例如当保存或重载文件时使用的编码系统）。使用 minibuffer 指定使用哪个编码系统。也可以使用鼠标中键单击 mode line 上的编码系统指示符来调用该命令。
+
+   If you specify a coding system that cannot handle all the characters in the buffer, Emacs will warn you about the troublesome characters, and ask you to choose another coding system, when you try to save the buffer (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Output-Coding][Output Coding]]).
+
+   如果指定的编码系统不能处理 buffer 中所有的字符，当尝试保存 buffer 时，Emacs 将会提示引起麻烦的字符，选择其他编码系统。
+
+   You can also use this command to specify the end-of-line conversion (see end-of-line conversion) for encoding the current buffer. For example, C-x RET f dos RET will cause Emacs to save the current buffer’s text with DOS-style carriage-return linefeed line endings.
+
+   还可以使用该命令指定编码当前 buffer 时进行的行尾转换。例如 C-x RET f dos RET 将导致 Emacs 使用 DOS 格式的回车换行来保存当前 buffer 的文本。
+
+   Another way to specify the coding system for a file is when you visit the file. First use the command C-x RET c (universal-coding-system-argument); this command uses the minibuffer to read a coding system name. After you exit the minibuffer, the specified coding system is used for the immediately following command.
+
+   另一种指定文件编码系统的方法是访问的时候。首先使用命令 C-x RET c (universal-coding-system-argument)；该命令使用 minibuffer 读入一个编码系统名字。当退出 minibuffer 后，紧跟的命令就会使用指定过得编码系统。
+
+   So if the immediately following command is C-x C-f, for example, it reads the file using that coding system (and records the coding system for when you later save the file). Or if the immediately following command is C-x C-w, it writes the file using that coding system. When you specify the coding system for saving in this way, instead of with C-x RET f, there is no warning if the buffer contains characters that the coding system cannot handle.
+
+   因此，打个比方说，如果紧跟的命令是 C-x C-f，它将会该编码系统读取文件（并记下该编码系统等保存文件时使用）。如果紧跟的命令是 C-x C-w，就是用该编码系统写文件。如果使用这种方式指定保存时用的编码系统，而不是 C-x RET f，如果 buffer 中有改编码系统不能处理的字符，不会显示警告。
+
+   Other file commands affected by a specified coding system include C-x i and C-x C-v, as well as the other-window variants of C-x C-f. C-x RET c also affects commands that start subprocesses, including M-x shell (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Shell][Shell]]). If the immediately following command does not use the coding system, then C-x RET c ultimately has no effect.
+
+   被指定编码系统影响的其他文件命令包括 C-x i 和 C-x C-v，以及 C-x C-f 的 other-window 变种。C-x RET c 也会影响启动子程序的命令，包括 M-x shell。如果后面紧跟的命令没有使用编码系统。C-x RET c 最后也不会生效。
+
+   An easy way to visit a file with no conversion is with the M-x find-file-literally command. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Visiting][Visiting]].
+
+   一个简单的方法来访问不经转换的文件时使用 M-x find-file-literally 命令。
+
+   The default value of the variable buffer-file-coding-system specifies the choice of coding system to use when you create a new file. It applies when you find a new file, and when you create a buffer and then save it in a file. Selecting a language environment typically sets this variable to a good choice of default coding system for that language environment.
+
+   变量 buffer-file-coding-system 的默认值指定了当创建新文件时使用的编码系统。它适用于当找到新文件，或要将创建的 buffer 保存到文件。选择语言环境通常会将该值设置为适合该语言环境的合适值。
+
+   If you visit a file with a wrong coding system, you can correct this with C-x RET r (revert-buffer-with-coding-system). This visits the current file again, using a coding system you specify.
+
+   如果使用错误的编码系统访问文件，可以通过 C-x RET r(revert-buffer-with-coding-system)进行纠正。这将会使用指定的编码系统重新访问当前文件。
+
+   If a piece of text has already been inserted into a buffer using the wrong coding system, you can redo the decoding of it using M-x recode-region. This prompts you for the proper coding system, then for the wrong coding system that was actually used, and does the conversion. It first encodes the region using the wrong coding system, then decodes it again using the proper coding system.
+
+   如果插入当前 buffer 的一段文本使用了错误的编码系统，可以使用 M-x recode-region 重新解码。这将会提示你输入合适的编码系统，然后针对实际使用的错误的编码系统进行转换。它将会手边使用错误的编码系统编码该区域，然后使用合适的编码系统进行解码。
+
+** 22.10 Coding Systems for Interprocess Communication
+
+   This section explains how to specify coding systems for use in communication with other processes.
+
+   本节解释如何如何指定与其他进程通信时使用的编码系统。
+
+   + C-x RET x coding RET
+
+	 Use coding system coding for transferring selections to and from other graphical applications (set-selection-coding-system).
+
+   + C-x RET X coding RET
+
+	 Use coding system coding for transferring one selection—the next one—to or from another graphical application (set-next-selection-coding-system).
+
+   + C-x RET p input-coding RET output-coding RET
+
+	 Use coding systems input-coding and output-coding for subprocess input and output in the current buffer (set-buffer-process-coding-system).
+
+   The command C-x RET x (set-selection-coding-system) specifies the coding system for sending selected text to other windowing applications, and for receiving the text of selections made in other applications. This command applies to all subsequent selections, until you override it by using the command again. The command C-x RET X (set-next-selection-coding-system) specifies the coding system for the next selection made in Emacs or read by Emacs.
+
+   The variable x-select-request-type specifies the data type to request from the X Window System for receiving text selections from other applications. If the value is nil (the default), Emacs tries UTF8_STRING and COMPOUND_TEXT, in this order, and uses various heuristics to choose the more appropriate of the two results; if none of these succeed, Emacs falls back on STRING. If the value of x-select-request-type is one of the symbols COMPOUND_TEXT, UTF8_STRING, STRING, or TEXT, Emacs uses only that request type. If the value is a list of some of these symbols, Emacs tries only the request types in the list, in order, until one of them succeeds, or until the list is exhausted.
+
+The command C-x RET p (set-buffer-process-coding-system) specifies the coding system for input and output to a subprocess. This command applies to the current buffer; normally, each subprocess has its own buffer, and thus you can use this command to specify translation to and from a particular subprocess by giving the command in the corresponding buffer.
+
+You can also use C-x RET c (universal-coding-system-argument) just before the command that runs or starts a subprocess, to specify the coding system for communicating with that subprocess. See Text Coding.
+
+The default for translation of process input and output depends on the current language environment.
+
+The variable locale-coding-system specifies a coding system to use when encoding and decoding system strings such as system error messages and format-time-string formats and time stamps. That coding system is also used for decoding non-ASCII keyboard input on the X Window System. You should choose a coding system that is compatible with the underlying system’s text representation, which is normally specified by one of the environment variables LC_ALL, LC_CTYPE, and LANG. (The first one, in the order specified above, whose value is nonempty is the one that determines the text representation.)
+
+** 22.11 Coding Systems for File Names
+
+   + C-x RET F coding RET
+
+	 Use coding system coding for encoding and decoding file names (set-file-name-coding-system).
+
+	 使用编码系统编码和解码文件名字(set-file-name-coding-system)。
+
+   The command C-x RET F (set-file-name-coding-system) specifies a coding system to use for encoding file names. It has no effect on reading and writing the contents of files.
+
+   命令 C-x RET F (set-file-name-coding-system)指定编码文件名字的编码系统。它对读写文件内容没有影响。
+
+   In fact, all this command does is set the value of the variable file-name-coding-system. If you set the variable to a coding system name (as a Lisp symbol or a string), Emacs encodes file names using that coding system for all file operations. This makes it possible to use non-ASCII characters in file names—or, at least, those non-ASCII characters that the specified coding system can encode.
+
+   事实上，该命令所做的事情只有设置变量 file-name-coding-system 的值。如果将该变量赋值为编码系统名字（如 Lisp 符号或字符串），emacs 将会为所有的文件操作使用该编码系统。这样在文件名字中也可以使用非 ASCII 自负了，或者至少可以使用那些该编码系统可以编码的非 ASCII 字符。
+
+   If file-name-coding-system is nil, Emacs uses a default coding system determined by the selected language environment, and stored in the default-file-name-coding-system variable. In the default language environment, non-ASCII characters in file names are not encoded specially; they appear in the file system using the internal Emacs representation.
+
+   如果 file-anme-coding-system 为 nil，Emacs 使用由语言环境决定的默认编码系统，其保存在 default-file-name-coding-system 变量中。默认的语言环境中，文件中的非 ASCII 字符不会特殊编码，它们以 Emacs 内部表示出现在文件系统中。
+
+   When Emacs runs on MS-Windows versions that are descendants of the NT family (Windows 2000, XP, Vista, Windows 7, and Windows 8), the value of file-name-coding-system is largely ignored, as Emacs by default uses APIs that allow to pass Unicode file names directly. By contrast, on Windows 9X, file names are encoded using file-name-coding-system, which should be set to the codepage (see codepage) pertinent for the current system locale. The value of the variable w32-unicode-filenames controls whether Emacs uses the Unicode APIs when it calls OS functions that accept file names. This variable is set by the startup code to nil on Windows 9X, and to t on newer versions of MS-Windows.
+
+   当 Emacs 运行在 MS-windows NT 家族的后续版本中时（Windows 2000, XP, Vista, Windows 7, and Windows 8），很大成都上会忽略 file-name-coding-system 的值，因为 Emacs 默认使用的 API 允许直接传递 Unicoode 文件名。相反，在 windows 9x，文件名使用 file-name-coding-system 编码，应该设置为和当前系统相关的代码页。变量 variable w32-unicode-filename 的值控制当 Emacs 调用接受文件的系统函数时是否使用 Unicode API。在 windows 9x 上面该值被启动代码设置为 nil，在更新的 MS-Windows 上面设置为 t。
+
+   Warning: if you change file-name-coding-system (or the language environment) in the middle of an Emacs session, problems can result if you have already visited files whose names were encoded using the earlier coding system and cannot be encoded (or are encoded differently) under the new coding system. If you try to save one of these buffers under the visited file name, saving may use the wrong file name, or it may encounter an error. If such a problem happens, use C-x C-w to specify a new file name for that buffer.
+
+   警告：如果在 Emacs 会话过程中修改了 file-name-coding-system（或语言环境），会导致使用之前编码系统编码文件名的已访问文件出现问题，也就是不能在新的编码系统下编码（或编码不同）。如果尝试保存已访问文件的 buffer，可能会保存为错误的文件名，或者可能会遇到错误。发生这样的情况，请使用 C-x C-w 指定为 buffer 指定新的文件名。
+
+   If a mistake occurs when encoding a file name, use the command M-x recode-file-name to change the file name’s coding system. This prompts for an existing file name, its old coding system, and the coding system to which you wish to convert.
+
+   如果编码文件名时发生错误，使用命令 M-x recode-file-name 来改变文件名的编码系统。这将提示已经存在的文件名，它的旧编码系统，以及想要转换的编码系统。
+
+** 22.12 Coding Systems for Terminal I/O
+   + C-x RET t coding RET
+
+	 Use coding system coding for terminal output (set-terminal-coding-system).
+
+	 为终端输出指定编码系统(set-terminal-coding-system)。
+
+   + C-x RET k coding RET
+
+	 Use coding system coding for keyboard input (set-keyboard-coding-system).
+
+	 为键盘输入指定编码系统(set-keyboard-coding-system)。
+
+   The command C-x RET t (set-terminal-coding-system) specifies the coding system for terminal output. If you specify a character code for terminal output, all characters output to the terminal are translated into that coding system.
+
+   命令 C-x RET t (set-terminal-coding-system)指定终端输出使用的编码系统，如果指定中断输出的字符编码，输出到终端的所有字符都换成该编码系统。
+
+   This feature is useful for certain character-only terminals built to support specific languages or character sets—for example, European terminals that support one of the ISO Latin character sets. You need to specify the terminal coding system when using multibyte text, so that Emacs knows which characters the terminal can actually handle.
+
+   这个功能对于特定字符终端很有用，这些终端被编译为只支持特定语言或字符集---例如，只支持 ISO 拉丁字符集的欧洲终端。当使用多字节文本的时候需要指定终端编码系统，这样 Emacs 知道 哪些字符集终端可以处理。
+
+   By default, output to the terminal is not translated at all, unless Emacs can deduce the proper coding system from your terminal type or your locale specification (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Language-Environments][Language Environments]]).
+
+   默认情况下，到终端的输出根本不进行转换，除非 Emacs 能从终端类型或区域范围中推断出合适的编码系统。
+
+   The command C-x RET k (set-keyboard-coding-system), or the variable keyboard-coding-system, specifies the coding system for keyboard input. Character-code translation of keyboard input is useful for terminals with keys that send non-ASCII graphic characters—for example, some terminals designed for ISO Latin-1 or subsets of it.
+
+   命令 C-x RET k (set-keyboard-coding-system)，或者变量 keyboard-coding-system 指定键盘输入的编码系统。键盘输入的字符编码转换对于那些可以发送非 ASCII 图形字符的终端是有用的，例如，一些终端为 ISO Latin-1 或它的子集设计。
+
+   By default, keyboard input is translated based on your system locale setting. If your terminal does not really support the encoding implied by your locale (for example, if you find it inserts a non-ASCII character if you type M-i), you will need to set keyboard-coding-system to nil to turn off encoding. You can do this by putting
+
+   默认情况下，键盘输入会基于系统趋于设置进行转换。如果终端并不真正支持区域设置隐含的编码系统（例如，如果发现输入 M-i 的时候插入了非 ASCII 字符），需要将 keyboard-coding-system 设置为 nil 来关闭编码。可以将
+
+   #+BEGIN_SRC elisp
+(set-keyboard-coding-system nil)
+   #+END_SRC
+
+
+   in your init file.
+
+   写入到 init 文件。
+
+   There is a similarity between using a coding system translation for keyboard input, and using an input method: both define sequences of keyboard input that translate into single characters. However, input methods are designed to be convenient for interactive use by humans, and the sequences that are translated are typically sequences of ASCII printing characters. Coding systems typically translate sequences of non-graphic characters.
+
+   为键盘输入使用编码转换和使用输入法之间有相似之处：都定义了可以转换为单个字符的键盘输入序列。然而，输入法被设计成方便人类交互使用的，转换的序列通常是 ASCII 打印字符。编码系统通常转换非图形字符。

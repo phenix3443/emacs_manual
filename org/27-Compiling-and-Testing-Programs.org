@@ -1,0 +1,998 @@
+# -*- coding:utf-8-*-
+#+TITLE: 27 Compiling and Testing Programs
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+
+* 27 Compiling and Testing Programs
+
+  The previous chapter discusses the Emacs commands that are useful for making changes in programs. This chapter deals with commands that assist in the process of compiling and testing programs.
+
+之前的章节讨论了用于修改程序的命令。本章讨论协助编译和测试程序的命令。
+
++ Compilation:	  	Compiling programs in languages other than Lisp (C, Pascal, etc.).
+
+  编译： 编译 Lisp 之外的其他语言（C，Pascal 等）编写的程序。
+
++ Compilation Mode:	  	The mode for visiting compiler errors.
+
+  编译模式：查看编译错误的模式。
+
++ Compilation Shell:	  	Customizing your shell properly for use in the compilation buffer.
+
+  编译 shell，正确的定制用于编译 buffer 的 shell。
+
++ Grep Searching:	  	Searching with grep.
+
+  Grep 搜索，使用 Grep 进行搜索。
+
++ Flymake:	  	Finding syntax errors on the fly.
+
+  Flymake：基于 fly 找到语法错误。
+
++ Debuggers:	  	Running symbolic debuggers for non-Lisp programs.
+
+  调试器：针对非 lisp 语言运行符号调试。
+
++ Executing Lisp:	  	Various modes for editing Lisp programs, with different facilities for running the Lisp programs.
+
+  执行 Lisp：用于编辑 Lisp 程序的各种模式，使用不同的机制来运行 Lisp 程序。
+
++ Libraries:	  	How Lisp programs are loaded into Emacs.
+
+  库：Lisp 程序如何加载到 Emacs。
+
++ Eval:	  	Executing a single Lisp expression in Emacs.
+
+  求值：在 Emacs 中执行一个 Lisp 表达式。
+
++ Interaction:	  	Executing Lisp in an Emacs buffer.
+
+  交互：在 Emacs 中执行 Lisp。
+
++ External Lisp:	  	Communicating through Emacs with a separate Lisp.
+
+  外部 Lisp：通过单独的 Lisp 与 Emacs 沟通。
+
+** 27.1 Running Compilations under Emacs
+
+   Emacs can run compilers for languages such as C and Fortran, feeding the compilation log into an Emacs buffer.  It can also parse the error messages and show you where the errors occurred.
+
+   Emacs 能偶编译 C 和 Fortran，将编译记录显示在 Emacs buffer 中。还可以分析错误信息，只是错误发送的位置。
+
+   + ‘M-x compile’
+
+	 Run a compiler asynchronously under Emacs, with error messages going to the ‘*compilation*’ buffer.
+
+	 Emacs 下异步执行编译器，错误信息显示在’*compilation‘ buffer。
+
+   + ‘M-x recompile’
+
+	 Invoke a compiler with the same command as in the last invocation of ‘M-x compile’.
+
+	 使用上次调用‘M-x compile’时候的命令再次调用编译器。
+
+   + ‘M-x kill-compilation’
+
+	 Kill the running compilation subprocess.
+
+	 杀死正在执行的编译子进程。
+
+	 To run ‘make’ or another compilation command, type ‘M-x compile’. This reads a shell command line using the minibuffer, and then executes the command by running a shell as a subprocess (or "inferior process") of Emacs.  The output is inserted in a buffer named ‘*compilation*’. The current buffer’s default directory is used as the working directory for the execution of the command; normally, therefore, compilation takes place in this directory.
+
+	 输入‘M-x compile’执行 make 或其他编译民另。这将会从 minibuffer 中读 shell 命令，然后将改命令作为 Emacs 的子进程执行。输出插入到名为‘*compilation*’的 buffer 中。当前 buffer 的默认目录当作命令执行时候的工作目录；通常，因此，编译发生在该目录中。
+
+	 The default compilation command is ‘make -k’, which is usually correct for programs compiled using the ‘make’ utility (the ‘-k’ flag tells ‘make’ to continue compiling as much as possible after an error). *Note Make: (make)Top.  If you have done ‘M-x compile’ before, the command that you specified is automatically stored in the variable ‘compile-command’; this is used as the default the next time you type ‘M-x compile’.  A file can also specify a file-local value for ‘compile-command’ (*note File Variables::).
+
+	 默认的编译命令是’make -k‘，这通常对于使用 make 编译的程序是正确的（-k 标志用于告诉 make 在发生错误后尽可能继续执行）。如果之前已经执行过 M-x compile，指定的命令会自动存储在变量 ’compile-command‘中；这将会用于下次执行 M-x compile。一个文件也可以为 compile-command 指定文件变量。
+
+	 Starting a compilation displays the ‘*compilation*’ buffer in another window but does not select it.  While the compilation is running, the word ‘run’ is shown in the major mode indicator for the ‘*compilation*’buffer, and the word ‘Compiling’ appears in all mode lines.  You do not have to keep the ‘*compilation*’ buffer visible while compilation is running; it continues in any case.  When the compilation ends, for whatever reason, the mode line of the ‘*compilation*’ buffer changes to say ‘exit’ (followed by the exit code: ‘[0]’ for a normal exit), or ‘signal’ (if a signal terminated the process).
+
+	 开始编译会在另一个 windows 显示’*compilation*‘ buffer，但不会选中它。编译进行中，单词 run 会显示在 ’*compilation*‘ buffer 主模式指示符，单词 compiling 显示在所有模式行上。编译中没有必要保持’*compilation*‘ buffer 可见；任何情况下它都会继续执行。编译结束后，不论是什么原因，’*compilation*‘ buffer 模式行显示改为’exit‘（如果正常退出紧跟退出代码[0]），或者’signal‘（如果一个信号中断了进程）。
+
+	 If you want to watch the compilation transcript as it appears, switch to the ‘*compilation*’ buffer and move point to the end of the buffer. When point is at the end, new compilation output is inserted above point, which remains at the end.  Otherwise, point remains fixed while compilation output is added at the end of the buffer.
+
+	 如果想监视编译记录，切换到’*compilation*‘ buffer 然后将 point 移动到 buffer 结尾。当 point 在末尾，新的编译输出会插入到 point 之上，point 则保留在末尾。否则，当编译输出添加到 ebuffr 结尾的时候 point 还是固定在原来的地方。
+
+	 If you change the variable ‘compilation-scroll-output’ to a non-‘nil’value, the ‘*compilation*’ buffer scrolls automatically to follow the output.  If the value is ‘first-error’, scrolling stops when the first error appears, leaving point at that error.  For any other non-‘nil’value, scrolling continues until there is no more output.
+
+	 如果将变量‘compilation-scroll-output’设置为非 nil 值，‘*compilation*’ buffer 自动滚动去跟踪输出。如果该值是’first-error‘，滚动将停在第一个错误出现的地方，将 opint 留在错误出。对于其他非 nil 值，会持续滚动直到没有更多输出。
+
+	 To rerun the last compilation with the same command, type ‘M-x recompile’.  This reuses the compilation command from the last invocation of ‘M-x compile’.  It also reuses the ‘*compilation*’ buffer and starts the compilation in its default directory, which is the directory in which the previous compilation was started.
+
+	 M-x recompile 使用上次的命令来执行编译。这使用上次调用 M-x compile 时候的编译命令。也会重用’*compilation*‘ buffer，在它的默认目录开始编译，改目录是之前编译开始的目录。
+
+	 Starting a new compilation also kills any compilation already running in ‘*compilation*’, as the buffer can only handle one compilation at any time.  However, ‘M-x compile’ asks for confirmation before actually killing a compilation that is running; to always automatically kill the compilation without asking, change the variable ‘compilation-always-kill’ to ‘t’.  You can also kill a compilation process with the command ‘M-x kill-compilation’.
+
+	 开始新的编译也会杀死'*compilation*' buffer 中已经在运行的编译过程，因为该 buffer 任何时候只能处理一个编译。然而，‘M-x compile’在实际上杀死正在执行的编译之前会要求确认；要想不经确认总是杀死编译过程，将变量’compilation-always-kill‘设置为 t。可以使用‘M-x kill-compilation’结束编译。
+
+	 To run two compilations at once, start the first one, then rename the ‘*compilation*’ buffer (perhaps using ‘rename-uniquely’; *note Misc Buffer::), then switch buffers and start the other compilation.  This will create a new ‘*compilation*’ buffer.
+
+	 为了一次执行两个编译，开始第一个之后重命令‘*compilation*’ buffer，然后切换 buff 并开始另一个编译。这将会创建另一个新的‘*compilation*’ buffer。
+
+	 You can control the environment passed to the compilation command with the variable ‘compilation-environment’.  Its value is a list of environment variable settings; each element should be a string of the form ‘"ENVVARNAME=VALUE"’.  These environment variable settings override the usual ones.
+
+	 可以通过变量‘compilation-environment’控制传递给编译命令的环境变量。它的值环境变量的列表；每个 元素都是形式为‘"ENVVARNAME=VALUE"’的字符串。这些环境变量将会覆盖那些常用的。
+
+** 27.2 Compilation Mode
+
+   The ‘*compilation*’ buffer uses a major mode called Compilation mode. Compilation mode turns each error message in the buffer into a hyperlink; you can move point to it and type <RET>, or click on it with the mouse (*note Mouse References::), to visit the "locus" of the error message in a separate window.  The locus is the specific position in a file where that error occurred.
+
+   ‘*compilation*’使用了名为编译模式的主模式。编译模式将 buffer 中的每个错误信息都转换为一个超链接；可以将 point 移动到其上，然后输入回车，或者使用鼠标点击，在单独的窗口中查新错误信息的轨迹。该轨迹是文件中产生错误的特定位置。
+
+	If you change the variable ‘compilation-auto-jump-to-first-error’ to a non-‘nil’ value, Emacs automatically visits the locus of the first error message that appears in the ‘*compilation*’ buffer.
+
+	如果变量‘compilation-auto-jump-to-first-error’设置为非 nil 值，Emacs 查看‘*compilation*’ buffer 中的第一个错误信息的轨迹。
+
+	Compilation mode provides the following additional commands.  These commands can also be used in ‘*grep*’ buffers, where the hyperlinks are search matches rather than error messages (*note Grep Searching::).
+
+	编译模式提供下面的额外命令。这些命令也能用在‘*grep*’ buffers 中，这些 buffer 用来搜索超链接匹配而不是错误信息。
+	+ ‘M-g M-n’
+	+ ‘M-g n’
+	+ ‘C-x `’
+
+      Visit the locus of the next error message or match (‘next-error’).
+
+	  查看下一个错误消息的轨迹或匹配。
+
+	+ ‘M-g M-p’
+	+ ‘M-g p’
+
+	  Visit the locus of the previous error message or match (‘previous-error’).
+
+	  查看上一个错误消息或匹配。
+
+	+ ‘M-n’
+
+      Move point to the next error message or match, without visiting its locus (‘compilation-next-error’).
+
+	  移动 point 到下一个错误信息或匹配，不显示轨迹。
+
+	+ ‘M-p’
+
+      Move point to the previous error message or match, without visiting its locus (‘compilation-previous-error’).
+
+	  移动 point 到上一个错误信息或匹配，不显示轨迹。
+
+	+ ‘M-}’
+
+      Move point to the next error message or match occurring in a different file (‘compilation-next-file’).
+
+	  移动 point 到出现在不同文件中的下一个错误信息或匹配。
+
+	+ ‘M-{’
+
+	  Move point to the previous error message or match occurring in a different file (‘compilation-previous-file’).
+
+	  移动 point 到出现在不同文件中的上一个错误信息或匹配。
+
+	+ ‘C-c C-f’
+
+      Toggle Next Error Follow minor mode, which makes cursor motion in the compilation buffer produce automatic source display.
+
+	  触发 Next Error Follow 辅助模式，这将会在编译 buffer 中移动 cursor 产生自动源码展示。
+
+	To visit errors sequentially, type ‘C-x `’ (‘next-error’), or equivalently ‘M-g M-n’ or ‘M-g n’.  This command can be invoked from any buffer, not just a Compilation mode buffer.  The first time you invoke it after a compilation, it visits the locus of the first error message. Each subsequent ‘C-x `’ visits the next error, in a similar fashion.  If you visit a specific error with <RET> or a mouse click in the ‘*compilation*’ buffer, subsequent ‘C-x `’ commands advance from there. When ‘C-x `’ finds no more error messages to visit, it signals an error. ‘C-u C-x `’ starts again from the beginning of the compilation buffer, and visits the first locus.
+
+	输入‘C-x `’ (‘next-error’)来顺序查看错误，也可以使用‘M-g M-n’ or ‘M-g n’。该命令可以从任何 buffer 调用，不止是编译模式 buffer。编译之后第一调用将会显示第一个错误信息的轨迹。后面调用‘C-x `’将会以类似的方式显示下一个错误，如果在‘*compilation*’ buffer 中使用回车键或鼠标点击查看一个错误，后续‘C-x `’命令。当‘C-x `’发现没有更多的错误信息可供浏览，它将会引发一个错误，‘C-u C-x ’从编译 buffer 开始再次开始，显示第一个错误的轨迹。
+	‘M-g M-p’ or ‘M-g p’ (‘previous-error’) iterates through errors in the opposite direction.
+
+	‘M-g M-p’ or ‘M-g p’ (‘previous-error’)以相反的方向递归查找错误。
+
+	The ‘next-error’ and ‘previous-error’ commands don’t just act on the errors or matches listed in ‘*compilation*’ and ‘*grep*’ buffers; they also know how to iterate through error or match lists produced by other commands, such as ‘M-x occur’ (*note Other Repeating Search::).  If you are already in a buffer containing error messages or matches, those are the ones that are iterated through; otherwise, Emacs looks for a buffer containing error messages or matches amongst the windows of the selected frame, then for one that ‘next-error’ or ‘previous-error’ previously iterated through, and finally amongst all other buffers.  If the buffer chosen for iterating through is not currently displayed in a window, it will be displayed.
+
+	‘next-error’ and ‘previous-error’命令不仅可以作用在‘*compilation*’ and ‘*grep*’ buffers 的错误和匹配列表上，它们还知道如何递归其他命令产生的错误和匹配列表。如果所在 buffer 已经包含错误信息或匹配信息，遍历将发生在这中间；否则，Emacs 将会在的当前 frame 的 windows 中查看错误信息或匹配，然后使用之前的‘next-error’ or ‘previous-error’在所有的其他 buffero 中递归查找。如果选中递归的 buffer 没有显示在 windows 中，将会显示出来。
+
+	By default, the ‘next-error’ and ‘previous-error’ commands skip less important messages.  The variable ‘compilation-skip-threshold’ controls this.  The default value, 1, means to skip anything less important than a warning.  A value of 2 means to skip anything less important than an error, while 0 means not to skip any messages.
+
+	默认，‘next-error’ and ‘previous-error’命令将会跳过不重要的信息。变量‘compilation-skip-threshold’控制这个。默认值是 1，表示跳过所有重要性低于警告的消息。取值为 2 表示跳过所有重要性低于错误的消息。0 表示跳过任何消息。
+
+	When Emacs visits the locus of an error message, it momentarily highlights the relevant source line.  The duration of this highlight is determined by the variable ‘next-error-highlight’.
+
+	当 Emacs 查看错误信息的轨迹，将会临时显示相关的代码行。高亮的时间由变量‘next-error-highlight’决定。
+
+	If the ‘*compilation*’ buffer is shown in a window with a left fringe (*note Fringes::), the locus-visiting commands put an arrow in the fringe, pointing to the current error message.  If the window has no left fringe, such as on a text terminal, these commands scroll the window so that the current message is at the top of the window.  If you change the variable ‘compilation-context-lines’ to an integer value N, these commands scroll the window so that the current error message is N lines from the top, whether or not there is a fringe; the default value, ‘nil’, gives the behavior described above.
+
+	如果‘*compilation*’buffer 显示的 windows 有左边缘，显示轨迹的命令将会在左边缘显示一个箭头，指明当前的错误信息。如果 window 没有左边缘，比如文本终端，这些命令将会华东 window，这样当前的消息就会显示在 window 的顶部。如果变量‘compilation-context-lines’ 值为整数 N，这些命令将滚动窗口，直到当前的错误信息距离顶部 N 行，不管是否由边缘；该变量默认值是 nil，给出了上述行为。
+
+	To parse messages from the compiler, Compilation mode uses the variable ‘compilation-error-regexp-alist’ which lists various error message formats and tells Emacs how to extract the locus from each.  A similar variable, ‘grep-regexp-alist’, tells Emacs how to parse output from a ‘grep’ command (*note Grep Searching::).
+	编译模式使用变量‘compilation-error-regexp-alist’从编译器分析信息，该变量列出了各种错误消息格式，告诉 Emacs 如何从编译器解析轨迹。类似的变量‘grep-regexp-alist’告诉 Emacs 如何分析 grep 命令的输出。
+
+	Compilation mode also defines the keys <SPC> and <DEL> to scroll by screenfuls; ‘M-n’ (‘compilation-next-error’) and ‘M-p’ (‘compilation-previous-error’) to move to the next or previous error message; and ‘M-{’ (‘compilation-next-file’) and ‘M-}’ (‘compilation-previous-file’) to move to the next or previous error message for a different source file.
+
+	编译模式还定义了<spc> 和<del>键来全屏滚动；M-n’ (‘compilation-next-error’) and ‘M-p’ (‘compilation-previous-error’) 一刀下一个或钱一个错误信息，‘M-{’ (‘compilation-next-file’) and ‘M-}’ (‘compilation-previous-file’)移到不同文件中的下一个或前一个错误信息。
+
+	You can type ‘C-c C-f’ to toggle Next Error Follow mode.  In this minor mode, ordinary cursor motion in the compilation buffer automatically updates the source buffer, i.e., moving the cursor over an error message causes the locus of that error to be displayed.
+
+	输入‘C-c C-f’启用 Next Error Follow mode。在该辅助模式中，编译 buffer 中普通的鼠标移动自动更新源码 buffer，例如，移动 cursor 到错误信息将会显示该错误的轨迹。
+
+	The features of Compilation mode are also available in a minor mode called Compilation Minor mode.  This lets you parse error messages in any buffer, not just a normal compilation output buffer.  Type ‘M-x compilation-minor-mode’ to enable the minor mode.  For instance, in an Rlogin buffer (*note Remote Host::), Compilation minor mode automatically accesses remote source files by FTP (*note File Names::).
+
+	编译模式的功能也可以名为编译辅助模式的辅助模式中也是可以使用的。这牙膏可以在任意 buffer 中分析错误信息。输入‘M-x compilation-minor-mode’激活该辅助模式。例如，在 Rlogin fuffer 中，编译辅助模式自动使用 FTP 访问远程资源文件。
+
+** 27.3 Subshells for Compilation
+
+   The ‘M-x compile’ command uses a shell to run the compilation command, but specifies the option for a noninteractive shell.  This means, in particular, that the shell should start with no prompt.  If you find your usual shell prompt making an unsightly appearance in the ‘*compilation*’ buffer, it means you have made a mistake in your shell’s init file by setting the prompt unconditionally.  (This init file may be named ‘.bashrc’, ‘.profile’, ‘.cshrc’, ‘.shrc’, etc., depending on what shell you use.)  The shell init file should set the prompt only if there already is a prompt.  Here’s how to do it in bash:
+
+   命令‘M-x compile’使用一个 shell 执行编译命令，但是使用的非交互的选项。意味着，该 shell 特别的是不会有提示符。如果发现常用的 shell 提示符在‘*compilation*’ buffer 出现，意味着在 shell 的初始化文件中有个错误配置，无条件的设置提示符。（配置文件可能名为‘.bashrc’, ‘.profile’, ‘.cshrc’, ‘.shrc’, etc.,和使用的 shell 有关系。）这些 shell 初始化文件应该只有在有提示的情况下次啊设置提示符。下面是 bash 中应该如何设置：
+
+   #+BEGIN_SRC sh
+if [ "${PS1+set}" = set ]
+	then PS1=…
+fi
+   #+END_SRC
+
+   And here’s how to do it in csh:
+
+   csh 中如何设置：
+
+   #+BEGIN_SRC sh
+if ($?prompt) set prompt = …
+   #+END_SRC
+
+	Emacs does not expect a compiler process to launch asynchronous subprocesses; if it does, and they keep running after the main compiler process has terminated, Emacs may kill them or their output may not arrive in Emacs.  To avoid this problem, make the main compilation process wait for its subprocesses to finish.  In a shell script, you can do this using ‘$!’ and ‘wait’, like this:
+
+	Emacs 不会希望一个编译器进程启用异步的子进程；如果这样，子进程会在编译器主进程结束之后还继续运行，Emacs 可能会杀死它们或它们不会输出到 Emacs。为了避免这个问题，使主编译进程等待子进程玩何曾。在 shell 脚本中，可以使用‘$!’ and ‘wait’，像这样：
+
+	#+BEGIN_SRC sh
+(sleep 10; echo 2nd)& pid=$!  # Record pid of subprocess
+echo first message
+wait $pid                     # Wait for subprocess
+	#+END_SRC
+
+
+	If the background process does not output to the compilation buffer, so you only need to prevent it from being killed when the main compilation process terminates, this is sufficient:
+
+	如果后台进程没有输出到编译 buffer，所以必须主编译进程在结束时候它被杀死，下面这样就足够了：
+
+	#+BEGIN_SRC sh
+nohup COMMAND; sleep 1
+	#+END_SRC
+
+	On the MS-DOS “operating system”, asynchronous subprocesses are not supported, so ‘M-x compile’ runs the compilation command synchronously (i.e., you must wait until the command finishes before you can do anything else in Emacs).  *Note MS-DOS::.
+
+	MS-DOS 操作系统不支持异步子进程，所以‘M-x compile’同步执行编译命令（例如，等到命令执行完之后才能左其他事情。）
+
+** 27.4 Searching with Grep under Emacs
+
+   Just as you can run a compiler from Emacs and then visit the lines with compilation errors, you can also run ‘grep’ and then visit the lines on which matches were found.  This works by treating the matches reported by ‘grep’ as if they were “errors”.  The output buffer uses Grep mode, which is a variant of Compilation mode (*note Compilation Mode::).
+
+   如同可以从 Emacs 运行编译器并且查看编译错误一样，可以执行 grep 命令，然后查看找到的匹配行。原理是将 grep 报告的匹配项当作错误。输出 buffer 使用 Grep 模式，它是编译模式的变种
+
+   + ‘M-x grep’
+   + ‘M-x lgrep’
+
+	 Run ‘grep’ asynchronously under Emacs, listing matching lines in      the buffer named ‘*grep*’.
+
+   + ‘M-x grep-find’
+   + ‘M-x find-grep’
+   + ‘M-x rgrep’
+
+	 Run ‘grep’ via ‘find’, and collect output in the ‘*grep*’ buffer.
+
+   + ‘M-x zrgrep’
+
+	 Run ‘zgrep’ and collect output in the ‘*grep*’ buffer.
+
+   + ‘M-x kill-grep’
+
+      Kill the running ‘grep’ subprocess.
+
+	To run ‘grep’, type ‘M-x grep’, then enter a command line that specifies how to run ‘grep’.  Use the same arguments you would give ‘grep’ when running it normally: a ‘grep’-style regexp (usually in single-quotes to quote the shell’s special characters) followed by file names, which may use wildcards.  If you specify a prefix argument for ‘M-x grep’, it finds the tag (*note Tags::) in the buffer around point, and puts that into the default ‘grep’ command.
+
+	  输入‘M-x grep’执行 grep，然后输入一行命令指定如何运行 grep。使用正常运行 grep 时候同样地参数：文件名后跟 grep 风格的正则表达式（通常使用单引号将 shell 的特殊符号括起来），表达式可能使用通配符。如果为‘M-x grep’指定了前缀参数，它会在 buffer 中的 point 周围查找 tag，然后把它放入默认的 grep 命令。
+
+	Your command need not simply run ‘grep’; you can use any shell command that produces output in the same format.  For instance, you can chain ‘grep’ commands, like this:
+
+	 不是只能简单地运行 grep 命令；还可以使用产生相同格式输出的任何 shell 命令。例如，可以像下面一下把 grep 命令链接起来：
+
+	#+BEGIN_SRC sh
+grep -nH -e foo *.el | grep bar | grep toto
+	#+END_SRC
+
+	The output from ‘grep’ goes in the ‘*grep*’ buffer.  You can find the corresponding lines in the original files using ‘C-x `’, <RET>, and so forth, just like compilation errors.
+
+	grep 产生的输出进入到‘*grep*’ buffer，可以使用‘C-x `’, <RET>找到源文件中对应的行，就像编译错误一样。
+
+	Some grep programs accept a ‘--color’ option to output special markers around matches for the purpose of highlighting.  You can make use of this feature by setting ‘grep-highlight-matches’ to ‘t’.  When displaying a match in the source buffer, the exact match will be highlighted, instead of the entire source line.
+
+	一些 grep 程序接受‘--color’选项，为了高亮匹配项在它们周围产生特殊的标记。可以将‘grep-highlight-matches’设置为 t 来使用该项。当显示源码 buffer 中的匹配项是，准确匹配被高亮，而不是 整行代码。
+
+	The command ‘M-x grep-find’ (also available as ‘M-x find-grep’) is similar to ‘M-x grep’, but it supplies a different initial default for the command—one that runs both ‘find’ and ‘grep’, so as to search every file in a directory tree.  See also the ‘find-grep-dired’ command, in *note Dired and Find::.
+
+	‘M-x grep-find’ (also available as ‘M-x find-grep’)命令和‘M-x grep’类似，但该命令支持不同的初始化部分---它同时运行 find 和 grep，所以会搜索目录树中的每个文件。
+
+	The commands ‘M-x lgrep’ (local grep) and ‘M-x rgrep’ (recursive grep) are more user-friendly versions of ‘grep’ and ‘grep-find’, which prompt separately for the regular expression to match, the files to search, and the base directory for the search.  Case sensitivity of the search is controlled by the current value of ‘case-fold-search’.  The command ‘M-x zrgrep’ is similar to ‘M-x rgrep’, but it calls ‘zgrep’ instead of ‘grep’ to search the contents of gzipped files.
+
+	‘M-x lgrep’ (local grep) and ‘M-x rgrep’ (recursive grep)命令是更友好的‘grep’ and ‘grep-find’版本，会针对要匹配的正则表达式，搜索的文件和搜索的根目录进行单独提示。‘case-fold-search’的值控制搜索是否区分大小写。命令 ‘M-x zrgrep’类似‘M-x rgrep’, 但是它调用 ‘zgrep’ 而不是 ‘grep’来搜索 gzip 压缩的文件。
+
+
+	These commands build the shell commands based on the variables ‘grep-template’ (for ‘lgrep’) and ‘grep-find-template’ (for ‘rgrep’). The files to search can use aliases defined in the variable ‘grep-files-aliases’.
+
+	这些命令基于‘grep-template’ (for ‘lgrep’) and ‘grep-find-template’ (for ‘rgrep’)构建 shell 命令。要搜索的文件可以使用变量‘grep-files-aliases’定义的别名。
+
+	Directories listed in the variable ‘grep-find-ignored-directories’ are automatically skipped by ‘M-x rgrep’.  The default value includes the data directories used by various version control systems.
+
+	变量‘grep-find-ignored-directories’中的目录会在执行‘M-x rgrep’的时候自动跳过。默认值是各种版本控制系统的数据目录。
+
+** 27.5 Finding Syntax Errors On The Fly
+
+   Flymake mode is a minor mode that performs on-the-fly syntax checking for many programming and markup languages, including C, C++, Perl, HTML, and TeX/LaTeX.  It is somewhat analogous to Flyspell mode, which performs spell checking for ordinary human languages in a similar fashion (*note Spelling::).  As you edit a file, Flymake mode runs an appropriate syntax checking tool in the background, using a temporary copy of the buffer.  It then parses the error and warning messages, and highlights the erroneous lines in the buffer.  The syntax checking tool used depends on the language; for example, for C/C++ files this is usually the C compiler.  Flymake can also use build tools such as ‘make’ for checking complicated projects.
+
+   Flymake 模式是一个辅助模式，可以为多种语言执行动态语法检查，包括 C, C++, Perl, HTML, and TeX/LaTeX。它有点类似 Flyspell 模式，后者以类似的方式对普通人类语言进行拼写检查。编辑文件的时候，flymake 模式在后台运行合适的语法检查工具，使用当前 buffer 的一个拷贝。然后分析错误和警告信息，并且高亮 buffer 中错误的行。该语法检查工具依赖语言，例如，C/C++文件通常是 c 编译器。Flymake 也使用类似的 make 的构建工具检查复杂的项目。
+
+	To enable Flymake mode, type ‘M-x flymake-mode’.  You can jump to the errors that it finds by using ‘M-x flymake-goto-next-error’ and ‘M-x flymake-goto-prev-error’.  To display any error messages associated with the current line, type ‘M-x flymake-display-err-menu-for-current-line’.
+
+	使用‘M-x flymake-mode’开启 Flymake 模式。可以使用‘M-x flymake-goto-next-error’ and ‘M-x flymake-goto-prev-error’跳到它找到的错误。使用‘M-x flymake-display-err-menu-for-current-line’显示和当前行相关的错误。
+
+	For more details about using Flymake, see *note Flymake: (flymake)Top.
+
+** 27.6 Running Debuggers Under Emacs
+
+   The GUD (Grand Unified Debugger) library provides an Emacs interface to a wide variety of symbolic debuggers.  It can run the GNU Debugger (GDB), as well as DBX, SDB, XDB, Perl’s debugging mode, the Python debugger PDB, and the Java Debugger JDB.
+
+   GUD 库为各种符号调试器提供了一个 Emacs 接口。它可以运行 GDB，DBX，SDB，XDB，Prel 语言调试模式，Python 调试器 PDB，和 Java 调试器 JDB。
+
+	Emacs provides a special interface to GDB, which uses extra Emacs windows to display the state of the debugged program.  *Note GDB Graphical Interface。
+
+	Emacs 针对 GDB 提供了一个特殊接口，该接口使用额外的 Emacs windows 显示被调试的程序的状态，
+
+	Emacs also has a built-in debugger for Emacs Lisp programs.  *NoteThe Lisp Debugger in the Emacs Lisp Reference Manual.
+
+	Emacs 也为 Emacs Lisp 程序提供了一个内建的调试器。
+
+	+ Starting GUD: How to start a debugger subprocess.
+
+	  开始使用 GUD：如何启动一个调试器进程。
+
+	+ Debugger Operation::  Connection between the debugger and source buffers.
+
+	  调试操作：调试器和源码 buffer 之间的联系。
+
+	+ Commands of GUD::     Key bindings for common commands.
+
+	  GUD 命令： 常用命令的键绑定。
+
+	+ GUD Customization::   Defining your own commands for GUD.
+
+	  GUD 定制：定制自己的 GUD 命令。
+
+	+ GDB Graphical Interface::  An enhanced mode that uses GDB features to
+
+	  GDB 图形接口，使用 GDB 功能的加强模式。
+
+*** 27.6.1 Starting GUD
+
+	There are several commands for starting a debugger subprocess, each corresponding to a particular debugger program.
+
+	有一些命令可以用于启动调试子进程，每个命令对应一个特殊的调试程序。
+
+	+ ‘M-x gdb’
+
+	  Run GDB as a subprocess, and interact with it via an IDE-like Emacs interface.  *Note GDB Graphical Interface::, for more information about this command.
+
+	  启动 gdb 作为子进程，通过类似 IDE 的 Emacs 接口与其交互。
+
+	+ ‘M-x gud-gdb’
+
+	  Run GDB, using a GUD interaction buffer for input and output to the GDB subprocess (*note Debugger Operation::).  If such a buffer already exists, switch to it; otherwise, create the buffer and switch to it.
+
+	  运行 GDB，使用 GUD 交互 buffer 作为 GDB 子进程的输入和输出，如果已经存在这样的 buffer，就切换过去，否则创建该 buffer，并切换过去。
+
+      The other commands in this list do the same, for other debugger programs.
+
+	  该列表中的其他命令为其他调试程序做同样的事情。
+
+	+ ‘M-x perldb’
+
+	  Run the Perl interpreter in debug mode.
+
+	  以调试模式运行 Perl 解释器。
+
+	+ ‘M-x jdb’
+
+	  Run the Java debugger.
+
+	  运行 Java 调试器。
+
+	+ ‘M-x pdb’
+
+	  Run the Python debugger.
+
+	  运行 Python 调试器。
+
+	+ ‘M-x dbx’
+
+	  Run the DBX debugger.
+
+	+ ‘M-x xdb’
+
+	  Run the XDB debugger.
+
+	+ ‘M-x sdb’
+
+	  Run the SDB debugger.
+
+	Each of these commands reads a command line to invoke the debugger, using the minibuffer.  The minibuffer’s initial contents contain the standard executable name and options for the debugger, and sometimes also a guess for the name of the executable file you want to debug. Shell wildcards and variables are not allowed in this command line. Emacs assumes that the first command argument which does not start with a ‘-’ is the executable file name.
+
+	每个命令都使用 minibuffer 读取命令行来调用调试器。minibuffer 的初始内容包含调试器的可执行文件名称和调试器选项，有时也会猜测想要调试的可执行文件的名字。命令行中不允许使用 shell 通配符和 n 比啊两。Emacs 假设第一个不以‘-’开始的命令参数是可执行文件的名字。
+
+	Tramp provides a facility for remote debugging, whereby both the debugger and the program being debugged are on the same remote host. *Note (tramp)Running a debugger on a remote host::, for details.  This is separate from GDB’s remote debugging feature, where the program and the debugger run on different machines (*note Debugging Remote Programs: (gdb)Remote Debugging.).
+
+	Tramp 提供了远程调试的能力，调试器和被调试的程序都是在相同的远程主机上。折合 GDB 调试远程调试功能是分开的，后者程序和调试器运行在不同的机器上。
+
+*** 27.6.2 Debugger Operation
+
+	The "GUD interaction buffer" is an Emacs buffer which is used to send text commands to a debugger subprocess, and record its output.  This is the basic interface for interacting with a debugger, used by ‘M-x gud-gdb’ and other commands listed in *note Starting GUD::.  The ‘M-x gdb’ command extends this interface with additional specialized buffers for controlling breakpoints, stack frames, and other aspects of the debugger state (*note GDB Graphical Interface::).
+
+	GUD 交互 bufferz 是一种发送文本命令到调试器子进程并读取其输出的 Emacs buffer。这是和调试器交互的基本接口，使用‘M-x gud-gdb’命令 Starting GUD 中列出列出的其他命令。‘M-x gdb’命令使用其他专门的 buffer 扩展了该接口，用来控制断点，栈帧，和调试其状态的其他方面。
+
+	The GUD interaction buffer uses a variant of Shell mode, so the Emacs commands defined by Shell mode are available (*note Shell Mode::). Completion is available for most debugger commands (*note Completion::), and you can use the usual Shell mode history commands to repeat them. *Note Commands of GUD::, for special commands that can be used in the GUD interaction buffer.
+
+	GUD 交互 fbufer 使用 shell 模式的一个变种，所以 shell 模式定义的 Emacs 命令也是可用的，可以使用常用的 shell 模式历史命令重复执行。
+
+	As you debug a program, Emacs displays the relevant source files by visiting them in Emacs buffers, with an arrow in the left fringe indicating the current execution line.  (On a text terminal, the arrow appears as ‘=>’, overlaid on the first two text columns.)  Moving point in such a buffer does not move the arrow.  You are free to edit these source files, but note that inserting or deleting lines will throw off the arrow’s positioning, as Emacs has no way to figure out which edited source line corresponds to the line reported by the debugger subprocess. To update this information, you typically have to recompile and restart the program.
+
+	调试程序时，Emacs 在 buffer 中显示相关的 源码文件，在左边缘使用箭头指示当前执行的行。（在文本终端，箭头显示为‘=>’，覆盖在前两个文本列上）。在这样的 buffer 中移动 point 不会移动箭头。可以自由编辑这些源码文件，但请注意，插入和删除行将会使箭头的位置失效，这样，emacs 就没有办法指出调试器子进程报告的行 所对应的源码行。为了更新该信息，通常需要重新编译并重启程序。
+
+	GUD Tooltip mode is a global minor mode that adds tooltip support to GUD.  To toggle this mode, type ‘M-x gud-tooltip-mode’.  It is disabled by default.  If enabled, you can move the mouse cursor over a variable, a function, or a macro (collectively called "identifiers") to show their values in tooltips (*note Tooltips::).  Alternatively, mark an identifier or an expression by dragging the mouse over it, then leave the mouse in the marked area to have the value of the expression displayed in a tooltip.  The GUD Tooltip mode takes effect in the GUD interaction buffer, and in all source buffers with major modes listed in the variable ‘gud-tooltip-modes’.  If the variable ‘gud-tooltip-echo-area’ is non-‘nil’, or if you turned off the tooltip mode, values are shown in the echo area instead of a tooltip.
+
+	GUD 提示模式是一个全局辅助模式，该模式给 GUD 添加提示支持。输入‘M-x gud-tooltip-mode’开启该模式。默认是禁用，如果启用，通过提示显示光标移动下变量 、函数或者宏上的值。另外，拖动鼠标标识一个标识符或表达式区域，然后将光标放在区域之上也会让这些表达式的值通过提示显示出来。GUD 提示模式在 GUD 交互 buffer 和主模式在变量‘gud-tooltip-modes’列表中的源码 buffer 中生效。如果‘gud-tooltip-echo-area’变量非 nil，或者关闭了提示模式，值将显示在回显区而不是提示中
+
+     When using GUD Tooltip mode with ‘M-x gud-gdb’, displaying an expression’s value in GDB can sometimes expand a macro, potentially causing side effects in the debugged program.  For that reason, using tooltips in ‘gud-gdb’ is disabled.  If you use the ‘M-x gdb’ interface, this problem does not occur, as there is special code to avoid side-effects; furthermore, you can display macro definitions associated with an identifier when the program is not executing.
+	 当 GUD 提示模式同‘M-x gud-gdb’一起使用，用来在 GDB 中显示表达式的值，有时候会展开一个宏，这可能会在被调试程序用引起副作用。因此，在 gud-gdb 中禁止使用提示。如果使用‘M-x gdb’接口，就不会发生这个问题。因为有特殊代码避免副作用，此外，当没执行程序时，还可以显示和标识符相关的宏。
+
+*** 27.6.3 Commands of GUD
+
+	GUD provides commands for setting and clearing breakpoints, selecting stack frames, and stepping through the program.
+
+	GUD 提供了可以设置和清除断点，选择栈帧和步进程序的命令。
+
+	+ ‘C-x C-a C-b’
+
+      Set a breakpoint on the source line that point is on.
+
+	  在源码中 point 所在行设置断点。
+
+	‘C-x C-a C-b’ (‘gud-break’), when called in a source buffer, sets a debugger breakpoint on the current source line.  This command is available only after starting GUD.  If you call it in a buffer that is not associated with any debugger subprocess, it signals a error.
+
+	在源码 buffer 中调用‘C-x C-a C-b’ (‘gud-break’)会在当前源码行设置一个调试器断点。该命令只有在启动 GUD 之后才可用。如果调用时所在 buffer 没有关联一个调试进程，将出现一个错误信号。
+
+	The following commands are available both in the GUD interaction buffer and globally, but with different key bindings.  The keys starting with ‘C-c’ are available only in the GUD interaction buffer, while those starting with ‘C-x C-a’ are available globally.  Some of these commands are also available via the tool bar; some are not supported by certain debuggers.
+
+	下面的命令在 GUD 交互 buffer 是全局可用，但是有不同的键绑定。以‘C-c’开始的按键只有在 GUD 交互 buffer 中可用，以‘C-x C-a’开始的键是全局可用的。其中一些在工具栏时可用的，也有一些特定调试器不支持。
+
+	+ ‘C-c C-l’
+	+ ‘C-x C-a C-l’
+
+      Display, in another window, the last source line referred to in the GUD interaction buffer (‘gud-refresh’).
+
+	  在另一个 window 显示关联到 GUD 交互 buffer 的最后一行代码。
+
+	+ ‘C-c C-s’
+	+ ‘C-x C-a C-s’
+
+      Execute the next single line of code (‘gud-step’).  If the line contains a function call, execution stops after entering the called function.
+
+	  执行下一行代码(‘gud-step’)。如果当前代码包含函数调用，进入到被调函数后停止执行。
+
+	+ ‘C-c C-n’
+	+ ‘C-x C-a C-n’
+
+      Execute the next single line of code, stepping across function calls without stopping inside the functions (‘gud-next’).
+
+	  执行下一行代码，跳过函数调用，不进入函数中(‘gud-next’)。
+
+	+ ‘C-c C-i’
+	+ ‘C-x C-a C-i’
+
+      Execute a single machine instruction (‘gud-stepi’).
+
+	  执行单个机器指令。
+
+	+ ‘C-c C-p’
+	+ ‘C-x C-a C-p’
+
+      Evaluate the expression at point (‘gud-print’).  If Emacs does not print the exact expression that you want, mark it as a region first.
+
+	  对 point 所在处表达式求职。如果 Emacs 没有准确显示所想的表达式，先将其选中为一个选区。
+
+	+ ‘C-c C-r’
+	+ ‘C-x C-a C-r’
+
+      Continue execution without specifying any stopping point.  The program will run until it hits a breakpoint, terminates, or gets a signal that the debugger is checking for (‘gud-cont’).
+
+	  继续执行，直到程序遇到一个断点，终止或这得到一个调试器正在检查(‘gud-cont’)的信号。
+
+	+ ‘C-c C-d’
+	+ ‘C-x C-a C-d’
+
+      Delete the breakpoint(s) on the current source line, if any (‘gud-remove’).  If you use this command in the GUD interaction buffer, it applies to the line where the program last stopped.
+
+	  删除当前行上的断点。如果在 GUD 交互 buffer 中，将会用到程序上次停下来的行上。
+
+	+ ‘C-c C-t’
+	+ ‘C-x C-a C-t’
+
+      Set a temporary breakpoint on the current source line, if any (‘gud-tbreak’).  If you use this command in the GUD interaction buffer, it applies to the line where the program last stopped.
+
+	  在当前代码行设置临时断点。如果在 GUD 交互 buffer 中使用该命令，将用到程序上次停下来的地方。
+
+	+ ‘C-c <’
+	+ ‘C-x C-a <’
+
+      Select the next enclosing stack frame (‘gud-up’).  This is equivalent to the GDB command ‘up’.
+
+	 选择下一个封闭的栈帧。这个等于 GDB 命令‘up’。
+
+	+ ‘C-c >’
+	+ ‘C-x C-a >’
+
+      Select the next inner stack frame (‘gud-down’).  This is equivalent to the GDB command ‘down’.
+
+	  选择下一个内部栈帧。等于 GDB 命令‘down’。
+
+	+ ‘C-c C-u’
+	+ ‘C-x C-a C-u’
+
+      Continue execution to the current line (‘gud-until’).  The program will run until it hits a breakpoint, terminates, gets a signal that the debugger is checking for, or reaches the line on which the cursor currently sits.
+
+	  持续执行直到当前行。程序一直运行直到遇到断点或终止，得到调试器正在检查的信号，或者光标所在的行。
+
+	+ ‘C-c C-f’
+	+ ‘C-x C-a C-f’
+
+      Run the program until the selected stack frame returns or stops for some other reason (‘gud-finish’).
+
+	  执行程序直到选中的栈帧返回或者因为某些原因停下来。
+
+	If you are using GDB, these additional key bindings are available:
+
+	如果使用 GDB，还有下面这些键绑定可以使用：
+
+	+ ‘C-x C-a C-j’
+
+      Only useful in a source buffer, ‘gud-jump’ transfers the program’s execution point to the current line.  In other words, the next line that the program executes will be the one where you gave the command.  If the new execution line is in a different function from the previously one, GDB prompts for confirmation since the results may be bizarre.  See the GDB manual entry regarding ‘jump’ for details.
+
+	  只有在源码 buffer 中可用，‘gud-jump’将程序的执行点转移到当前行。或者说，程序下一个执行的地方就是给出命令的地方。如果新执行的行与之前不再同一个函数，GDB 将会提示确认信息，因为结果可能回很奇怪。查看 GDB 手册。
+
+	+ ‘<TAB>’
+
+      With GDB, complete a symbol name (‘gud-gdb-complete-command’). This key is available only in the GUD interaction buffer.
+
+	  使用 GDB 补全符号名字(‘gud-gdb-complete-command’)。该键在 GUD 交互 buffer 中可用。
+
+	These commands interpret a numeric argument as a repeat count, when that makes sense.
+
+	这些命令可以将将一个数字参数当作重复次数，如果是合理的话。
+
+	Because <TAB> serves as a completion command, you can’t use it to enter a tab as input to the program you are debugging with GDB. Instead, type ‘C-q <TAB>’ to enter a tab.
+
+	使用 GDB 进行调试的时候<TAB>被用作补全命令，因为不能使用它来插入 tab，使用‘C-q <TAB>’输入 tab。
+
+*** 27.6.4 GUD Customization
+
+	On startup, GUD runs one of the following hooks: ‘gdb-mode-hook’, if you are using GDB; ‘dbx-mode-hook’, if you are using DBX; ‘sdb-mode-hook’, if you are using SDB; ‘xdb-mode-hook’, if you are using XDB; ‘perldb-mode-hook’, for Perl debugging mode; ‘pdb-mode-hook’, for PDB; ‘jdb-mode-hook’, for JDB.  *Note Hooks::.
+
+	GUD 启动时运行下面的 hook 函数：
+
+	The ‘gud-def’ Lisp macro (*note (elisp)Defining Macros::) provides a convenient way to define an Emacs command that sends a particular command string to the debugger, and set up a key binding for in the GUD interaction buffer:
+
+	‘gud-def’lisp 宏提供了一个方便的方法定义 emacs 方法，可以发送命令字符串到调试器，并为 GUD 交互 buffer 建立键绑定。
+
+	#+BEGIN_SRC elisp
+(gud-def FUNCTION CMDSTRING BINDING DOCSTRING)
+	#+END_SRC
+
+	This defines a command named FUNCTION which sends CMDSTRING to the debugger process, and gives it the documentation string DOCSTRING.  You can then use the command FUNCTION in any buffer.  If BINDING is non-‘nil’, ‘gud-def’ also binds the command to ‘C-c BINDING’ in the GUD buffer’s mode and to ‘C-x C-a BINDING’ generally.
+
+	这定义了一个名为 FUNCTION 的命令发送 CMDSTRING 到调试器进程，然后给出了文档字符串 DOCSTRING。可以在任何 buffer 中使用 FUNCTION 命令。如果 BINDING 非 nil，‘gud-def’定义‘C-c BINDING’键绑定为 GUD buffer，‘C-x C-a BINDING’为通用键绑定。
+
+	The command string CMDSTRING may contain certain ‘%’-sequences that stand for data to be filled in at the time FUNCTION is called:
+
+	命令字符串可能包含特定的%序列，他们代表了运行 FUNCTION 时将会被替换的数据。
+
+	+ ‘%f’
+
+      The name of the current source file.  If the current buffer is the GUD buffer, then the “current source file” is the file that the program stopped in.
+
+	  当前源文件的名字。如果当前 buffer 是 GUD buffer，当前源码文件就是程序所停指出。
+
+	+ ‘%l’
+
+      The number of the current source line.  If the current buffer is the GUD buffer, then the “current source line” is the line that the program stopped in.
+
+	  当前源码行数字，如果当前 buffer 是 GUD buffer，当前源码行就是程序停止所指。
+
+	+ ‘%e’
+
+      In transient-mark-mode the text in the region, if it is active. Otherwise the text of the C lvalue or function-call expression at or adjacent to point.
+
+	  在 transient-mark-mode 模式中时选中区域的文本，在其他文本中时 point 所在或附近的 C 左值或函数调用表达式。
+
+	+ ‘%a’
+
+      The text of the hexadecimal address at or adjacent to point.
+
+	  point 所在或其附近文本的 16 进制地址。
+
+	+ ‘%p’
+
+      The numeric argument of the called function, as a decimal number. If the command is used without a numeric argument, ‘%p’ stands for the empty string.
+
+	  被调函数的数字参数，作为十进制数字。如果命令不适用数字参数，%p 代表空字符串。
+
+      If you don’t use ‘%p’ in the command string, the command you define ignores any numeric argument.
+
+	  如果不在命令字符串中使用%p，定义的命令忽略任何数字参数。
+
+	+ ‘%d’
+
+      The name of the directory of the current source file.
+
+	  当前源码文件在的目录。
+
+	+ ‘%c’
+
+      Fully qualified class name derived from the expression surrounding point (jdb only).
+
+	  从 point 周围表达式继承的完全限定的类名。
+
+*** 27.6.5 GDB Graphical Interface
+
+	The command ‘M-x gdb’ starts GDB in an IDE-like interface, with specialized buffers for controlling breakpoints, stack frames, and other aspects of the debugger state.  It also provides additional ways to control the debugging session with the mouse, such as clicking in the fringe of a source buffer to set a breakpoint there.
+
+	命令‘M-x gdb’在一个类似 IDE 的接口中启动 GDB，配合特殊的 buffer 来控制断点，栈帧和调试器状态的其他方面。它同样提供了额外方法来使用鼠标控制调试会话，比如在源码 buffer 边界上点击来设置断点。
+
+   To run GDB using just the GUD interaction buffer interface, without these additional features, use ‘M-x gud-gdb’ (*note Starting GUD::). You must use this if you want to debug multiple programs within one Emacs session, as that is currently unsupported by ‘M-x gdb’.
+
+   使用‘M-x gud-gdb’来启动没哟其他额外功能的 GUD 接口 buffer。如果想在一个 Emacs 会话中调试多个程序只能使用这个命令，‘M-x gdb’还不支持这样做。
+
+   Internally, ‘M-x gdb’ informs GDB that its “screen size” is unlimited; for correct operation, you must not change GDB’s screen height and width values during the debugging session.
+
+   在内部，‘M-x gdb’通知 GDB 他的窗口大小没有限制，对于当前操作，调试期间不能改变 GDB 的窗口高度和宽度值。
+
+   + GDB User Interface Layout::   Control the number of displayed buffers.
+
+	 GDB 用户接口布局： 控制显示 buffer 的数量。
+
+   + Source Buffers::              Use the mouse in the fringe/margin to  control your program.
+
+	 源码 buffer， 在 fringe/margin 使用鼠标来控制你的程序。
+
+   + Breakpoints Buffer::          A breakpoint control panel.
+
+	 断点 buffer： 断点控制 panel。
+
+   + Threads Buffer::              Displays your threads.
+
+	 线程 buffer：显示线程。
+
+   + Stack Buffer::                Select a frame from the call stack.
+
+	 栈 buffer：从调用栈中选择一个栈帧。
+
+   + Other GDB Buffers::           Other buffers for controlling the GDB state.
+
+	 其他 GDB buffer： 其他控制 GDB 状态的 buffer。
+
+   + Watch Expressions::           Monitor variable values in the speedbar.
+
+	 监视表达式：在 speedbar 中监控变量的值。
+
+   + Multithreaded Debugging::     Debugging programs with several threads.
+
+	 多线程调试：调试多线程程序。
+
+**** 27.6.5.1 GDB User Interface Layout
+
+	 If the variable ‘gdb-many-windows’ is ‘nil’ (the default), ‘M-x gdb’normally displays only the GUD interaction buffer.  However, if the variable ‘gdb-show-main’ is also non-‘nil’, it starts with two windows: one displaying the GUD interaction buffer, and the other showing the source for the ‘main’ function of the program you are debugging.
+
+	 如果变量‘gdb-many-windows’值为 nil，‘M-x gdb’通常只显示 GUD 交互 buffer。然而，如果‘gdb-show-main’也非 nil，将会启动两个 window，一个显示 GUD 交互 buffer，另一个显示正在调试的源程序的 main 函数源码。
+
+   If ‘gdb-many-windows’ is non-‘nil’, then ‘M-x gdb’ displays the following frame layout:
+
+   如果‘gdb-many-windows’非 nil，‘M-x gdb’显示下面的 frame 布局：
+
+     +--------------------------------+--------------------------------+
+     |   GUD interaction buffer       |   Locals/Registers buffer      |
+     |--------------------------------+--------------------------------+
+     |   Primary Source buffer        |   I/O buffer for debugged pgm  |
+     |--------------------------------+--------------------------------+
+     |   Stack buffer                 |   Breakpoints/Threads buffer   |
+     +--------------------------------+--------------------------------+
+
+   If you ever change the window layout, you can restore the “many windows” layout by typing ‘M-x gdb-restore-windows’.  To toggle between the many windows layout and a simple layout with just the GUD interaction buffer and a source file, type ‘M-x gdb-many-windows’.
+
+   如果改变了窗口布局，可以使用‘M-x gdb-restore-windows’存储该窗口布局。输入‘M-x gdb-many-windows’在多窗口布局和简单窗口布局之间进行切换。
+
+   You may also specify additional GDB-related buffers to display, either in the same frame or a different one.  Select the buffers you want by typing ‘M-x gdb-display-BUFFERTYPE-buffer’ or ‘M-x gdb-frame-BUFFERTYPE-buffer’, where BUFFERTYPE is the relevant buffer type, such as ‘breakpoints’.  You can do the same with the menu bar, with the ‘GDB-Windows’ and ‘GDB-Frames’ sub-menus of the ‘GUD’ menu.
+
+   可以指定在同一个 frame 或者不同的 frame 中显示额外的和 GDB 有关的 buffer。输入‘M-x gdb-display-BUFFERTYPE-buffer’ or ‘M-x gdb-frame-BUFFERTYPE-buffer’来选择想要的 buffer，BUFFERTYPE 代表相关的 buffer 类型，比如断点。也可以使用菜单栏中 GUD 菜单下的‘GDB-Windows’ and ‘GDB-Frames’子菜单做同样的事情。
+
+   When you finish debugging, kill the GUD interaction buffer with ‘C-x k’, which will also kill all the buffers associated with the session. However you need not do this if, after editing and re-compiling your source code within Emacs, you wish to continue debugging.  When you restart execution, GDB automatically finds the new executable.  Keeping the GUD interaction buffer has the advantage of keeping the shell history as well as GDB’s breakpoints.  You do need to check that the breakpoints in recently edited source files are still in the right places.
+
+   调试结束后，使用‘C-x k’关闭 GUD 交互 buffer，这也会关闭和当前会话有关的所有 buffer。然而，并不需要这么做，使用 Emacs 编辑和重新编译程序之后想要继续调试。当重新执行时，GDB 自动找到新的可执行文件。保持 GUD 交互 buffer 的一个用处时可以保持 shell 历史和 GDB 的断点。不需要检查断点，它们还在正确的地方。
+
+**** 27.6.5.2 Source Buffers
+
+	 + ‘Mouse-1’ (in fringe)
+
+	   Set or clear a breakpoint on that line.
+
+	   该行设置或清除断点。
+
+	 + ‘C-Mouse-1’ (in fringe)
+
+	   Enable or disable a breakpoint on that line.
+
+	   该行启用或禁用断点。
+
+	 + ‘Mouse-3’ (in fringe)
+
+	   Continue execution to that line.
+
+	   持续执行直到当前行。
+
+	 + ‘C-Mouse-3’ (in fringe)
+
+	   Jump to that line.
+
+	   跳转到该行。
+
+	 On a graphical display, you can click ‘Mouse-1’ in the fringe of a source buffer, to set a breakpoint on that line (*note Fringes::).  A red dot appears in the fringe, where you clicked.  If a breakpoint already exists there, the click removes it.  A ‘C-Mouse-1’ click enables or disables an existing breakpoint; a breakpoint that is disabled, but not unset, is indicated by a gray dot.
+
+	 图形显示中，可以在源码的 fringe 使用鼠标左键在行上设置断点，当点击的时候时候，一个红色远点将会出现在 fringe 撒谎功能。如果断点已经存在，点击将会移除它。‘C-Mouse-1’点击将会启用或禁用以存在的断点。禁用的断点并不会撤销，而是使用灰色的点号指示。
+
+	 On a text terminal, or when fringes are disabled, enabled breakpoints are indicated with a ‘B’ character in the left margin of the window. Disabled breakpoints are indicated with ‘b’.  (The margin is only displayed if a breakpoint is present.)
+
+	 在文本终端，或 fringe 禁用，启用断点后将会在 window 左边的 margin 显示 B 字符，禁用断点将会指示为 b。（只有在存在断点的时候 margin 才会显示。）
+
+	 A solid arrow in the left fringe of a source buffer indicates the line of the innermost frame where the debugged program has stopped.  A hollow arrow indicates the current execution line of a higher-level frame.  If you drag the arrow in the fringe with ‘Mouse-1’, that causes execution to advance to the line where you release the button. Alternatively, you can click ‘Mouse-3’ in the fringe to advance to that line.  You can click ‘C-Mouse-3’ in the fringe to jump to that line without executing the intermediate lines.  This command allows you to go backwards, which can be useful for running through code that has already executed, in order to examine its execution in more detail.
+
+	 当被调试程序终止的时候，一个实心的箭头将会出现在源码 buffer 左边的 fringe 指示当前最内层栈帧所在的行。空心箭头指示当前更高级别的栈帧所在的行。如果使用 Mouse-1 拖动箭头，当释放按键的时候将会导致继续执行。或者，可以在 fringe 点击 Mouse-3 执行到该行。可以在 fringe 点击‘C-Mouse-3’不立即执行而直接调到该行。该命令允许回退，这在运行已经执行的代码时有用，为了检查运行值更详细的信息。
+
+**** 27.6.5.3 Breakpoints Buffer
+
+	 The GDB Breakpoints buffer shows the breakpoints, watchpoints and catchpoints in the debugger session.  *Note (gdb)Breakpoints::.  It provides the following commands, which mostly apply to the "current breakpoint" (the breakpoint which point is on):
+
+	 GDB 断点 buffer 可以在调试器会话期间显示 breakpoints，watchpoint 和 catchpoints。它提供下面命令用于当前的断点（当前 point 所在的断点）：
+
+	 + ‘<SPC>’
+
+	   Enable/disable current breakpoint (‘gdb-toggle-breakpoint’).  On a graphical display, this changes the color of the dot in the fringe of the source buffer at that line.  The dot is red when the breakpoint is enabled, and gray when it is disabled.
+
+	   启用/禁用当前断点。图形界面中，这回改变源码 buffer 该行 fringe 侧圆点的颜色。
+
+	 + ‘D’
+
+	   Delete the current breakpoint (‘gdb-delete-breakpoint’).
+
+	   删除当前断点。
+
+	 + ‘<RET>’
+
+	   Visit the source line for the current breakpoint (‘gdb-goto-breakpoint’).
+
+	   查看当前断点对应的源码行。
+
+	 + ‘Mouse-2’
+
+	   Visit the source line for the breakpoint you click on.
+
+	   查看点击的断点对应的源码行。
+
+
+	 When ‘gdb-many-windows’ is non-‘nil’, the GDB Breakpoints buffer shares its window with the GDB Threads buffer.  To switch from one to the other click with ‘Mouse-1’ on the relevant button in the header line.  If ‘gdb-show-threads-by-default’ is non-‘nil’, the GDB Threads buffer is the one shown by default.
+
+	 如果‘gdb-many-windows’非 nil，GDB 断点 buffer 与 GDB 线程 buffer 共用 window。使用‘Mouse-1’在首行点击相关标题行来切换。如果‘gdb-show-threads-by-default’非 nil，GDB 线程 buffer 是默认显示的那个。
+
+**** 27.6.5.4 Threads Buffer
+
+	 The GDB Threads buffer displays a summary of the threads in the debugged program.  *Note Threads: (gdb)Threads.  To select a thread, move point there and press <RET> (‘gdb-select-thread’), or click on it with ‘Mouse-2’.  This also displays the associated source buffer, and updates the contents of the other GDB buffers.
+
+	 GDB 线程 buffer 显示被调试程序的线程摘要信息。将 point 移到线程信息上面按下回车可以选中该线程，或者在上面点击‘Mouse-2’。这也回显示相关的源码 buffer，更新其他 GDB buffer 的内容。
+
+   You can customize variables under ‘gdb-buffers’ group to select fields included in GDB Threads buffer.
+
+   可以订制‘gdb-buffers’group 下变量来选择 GDB 线程 buffer 包含的字段。
+
+   + ‘gdb-thread-buffer-verbose-names’
+
+	 Show long thread names like ‘Thread 0x4e2ab70 (LWP 1983)’.
+
+	 显示长线程名字。
+
+   + ‘gdb-thread-buffer-arguments’
+
+	 Show arguments of thread top frames.
+
+	 显示线程顶层 frame 的参数。
+
+   + ‘gdb-thread-buffer-locations’
+
+	 Show file information or library names.
+
+	 显示文件信息或库名。
+
+   + ‘gdb-thread-buffer-addresses’
+
+     Show addresses for thread frames in threads buffer.
+
+	 在线程 buffer 中显示线程 frame 的地址。
+
+   To view information for several threads simultaneously, use the following commands from the GDB Threads buffer.
+
+   在 GDB 线程 buffer 使用下面的命令可以同时显示几个线程的信息。
+
+   + ‘d’
+
+     Display disassembly buffer for the thread at current line (‘gdb-display-disassembly-for-thread’).
+
+	 显示当前行线程的折叠 buffer。
+
+   + ‘f’
+
+     Display the GDB Stack buffer for the thread at current line (‘gdb-display-stack-for-thread’).
+
+	 显示当前行线程 GDB 堆栈 buffer。
+
+   + ‘l’
+
+     Display the GDB Locals buffer for the thread at current line (‘gdb-display-locals-for-thread’).
+
+	 显示当前行线程 GDB 局部变量 buffer。
+
+   + ‘r’
+
+     Display the GDB Registers buffer for the thread at current line (‘gdb-display-registers-for-thread’).
+
+	 显示当前行线程的寄存器 buffer。
+
+   Their upper-case counterparts, ‘D’, ‘F’ ,‘L’ and ‘R’, display the corresponding buffer in a new frame.
+
+   这些字的大写形式，‘D’, ‘F’ ,‘L’ and ‘R’在新的 frame 中显示相应的 buffer。
+
+   When you create a buffer showing information about some specific thread, it becomes bound to that thread and keeps showing actual information while you debug your program.  The mode indicator for each GDB buffer shows the number of thread it is showing information about. The thread number is also included in the buffer name of bound buffers.
+
+   创建 buffer 显示一些特殊线程的信息，它会绑定到该线程，在调试的时候显示实际的信息。GDB buffer 的模式指示符显示相关信息的 buffer 数量。线程数量也会在绑定的 buffer 中。
+
+   Further commands are available in the GDB Threads buffer which depend on the mode of GDB that is used for controlling execution of your program.  *Note Multithreaded Debugging::.
+
+   GDB 线程 buffer 中的更多命令取决于控制程序执行的 GDB 模式。
+
+**** 27.6.5.5 Stack Buffer
+
+	 The GDB Stack buffer displays a "call stack", with one line for each of the nested subroutine calls ("stack frames") in the debugger session. *Note Backtraces: (gdb)Backtrace.
+
+	GDB 堆栈 buffer 显示调用堆栈，每行都代表嵌套的子程序调用。
+
+   On graphical displays, the selected stack frame is indicated by an arrow in the fringe.  On text terminals, or when fringes are disabled, the selected stack frame is displayed in reverse contrast.  To select a stack frame, move point in its line and type <RET> (‘gdb-frames-select’), or click ‘Mouse-2’ on it.  Doing so also updates the Locals buffer (*note Other GDB Buffers::).
+
+   图形显示中，会在 fringe 使用箭头指示选中的栈帧。图形终端中，或这该 fringe 禁用的时候，选中的栈帧会反向显示。将 point 放在行上，然后按下回车键，就可以选中栈帧，或者在上面点击‘Mouse-2’。这样做也会更新局部变量 buffer。
+
+**** 27.6.5.6 Other GDB Buffers
+
+	 + Locals Buffer
+
+	   This buffer displays the values of local variables of the current frame for simple data types (*note Frame Info: (gdb)Frame Info.). Press <RET> or click ‘Mouse-2’ on the value if you want to edit it.
+
+	   该 buffer 显示当前帧的简单数据类型的局部变量的值。如果要编辑它可以在值上按下回车或点击‘Mouse-2’。
+
+	   Arrays and structures display their type only.  With GDB 6.4 or later, you can examine the value of the local variable at point by typing <RET>, or with a ‘Mouse-2’ click.  With earlier versions of GDB, use <RET> or ‘Mouse-2’ on the type description (‘[struct/union]’ or ‘[array]’).  *Note Watch Expressions::.
+
+	   数据和结构只会显示他们的类型。GDB 6.4 以及以上，可以在 point 上按下回车键来检查局部变量的值，或者点击‘Mouse-2’。早期版本的 GDB，在类型描述上点击回车或‘Mouse-2’。
+
+	 + Registers Buffer
+
+	   This buffer displays the values held by the registers (*note(gdb)Registers::).  Press <RET> or click ‘Mouse-2’ on a register if you want to edit its value.  With GDB 6.4 or later, recently changed register values display with ‘font-lock-warning-face’.
+
+	   该 buffer 显示寄存器的值。如果想要编辑它的值，在寄存器上按下回车键或‘Mouse-2’。GDB 6.4 及以上，最近修改的寄存器值使用‘font-lock-warning-face’显示。
+
+	 + Assembler Buffer
+
+	   The assembler buffer displays the current frame as machine code. An arrow points to the current instruction, and you can set and remove breakpoints as in a source buffer.  Breakpoint icons also appear in the fringe or margin.
+
+	   汇编 buffer 显示当前 frame 的机器码。箭头指示当前指令，可以如同源码 buffer 一样设置和移除断点。
+
+	 + Memory Buffer
+
+	   The memory buffer lets you examine sections of program memory (*note Memory: (gdb)Memory.).  Click ‘Mouse-1’ on the appropriate part of the header line to change the starting address or number of data items that the buffer displays.  Alternatively, use ‘S’ or ‘N’respectively.  Click ‘Mouse-3’ on the header line to select the display format or unit size for these data items.
+
+	   内存 buffer 可以程序内存的小节。在标题行合适的部分点击‘Mouse-1’可以改变 bufffer 显示的起始地址或显示的数据项的数量。另外，还可以分别使用‘S’ or ‘N’。在首行点击‘Mouse-3’选择这些数据条目的显示的格式或者单位大小。
+
+   When ‘gdb-many-windows’ is non-‘nil’, the locals buffer shares its window with the registers buffer, just like breakpoints and threads buffers.  To switch from one to the other, click with ‘Mouse-1’ on the relevant button in the header line.
+
+   如果‘gdb-many-windows’非 nil，本地变量 buffer 和寄存器 buffer 共享 window，就和断点和线程 buffer 一样。点击首行的相关按钮点击‘Mouse-1’可以在两者之间进行切换。
+
+**** 27.6.5.7 Watch Expressions
+
+	 If you want to see how a variable changes each time your program stops, move point into the variable name and click on the watch icon in the tool bar (‘gud-watch’) or type ‘C-x C-a C-w’.  If you specify a prefix argument, you can enter the variable name in the minibuffer.
+
+	 如果想每次程序停止的时候变量的变化，将 point 移动到变量名，然后在工具栏点击监控图标，或输入‘C-x C-a C-w’。使用前缀参数可以在 minibuffer 输入变量名字。
+
+	 Each watch expression is displayed in the speedbar (*noteSpeedbar::).  Complex data types, such as arrays, structures and unions are represented in a tree format.  Leaves and simple data types show the name of the expression and its value and, when the speedbar frame is selected, display the type as a tooltip.  Higher levels show the name, type and address value for pointers and just the name and type otherwise.  Root expressions also display the frame address as a tooltip to help identify the frame in which they were defined.
+
+	 每个监控的表达式都会显示在 speedbar 中。复杂的数据类型，比如数字，结构体和联合都会使用树型表示。叶子节点或简单数据类型显示表示名字和数值，如果选中 speedbar frame，会用工具提示显示类型。更高级别显示名字，类型，指针的地址值，并且只显示名字和类型。根表达式还会用工具提示显示帧地址来帮助识别他们定义在哪个栈帧。
+
+	 To expand or contract a complex data type, click ‘Mouse-2’ or press <SPC> on the tag to the left of the expression.  Emacs asks for confirmation before expanding the expression if its number of immediate children exceeds the value of the variable ‘gdb-max-children’.
+
+	 扩展和收缩复杂数据类型，在表达式左侧使用‘Mouse-2’ or press <SPC>点击标签。如果表达式的直接孩子数量超过‘gdb-max-children’的值，Emacs 在扩展表达式之前会要求确认。
+
+	 To delete a complex watch expression, move point to the root expression in the speedbar and type ‘D’ (‘gdb-var-delete’).
+
+	 在 speedbar 中移动 point 到根表达式，然后输入‘D’可以删除复杂的监控表达式。
+
+	 To edit a variable with a simple data type, or a simple element of a complex data type, move point there in the speedbar and type <RET> (‘gdb-edit-value’).  Or you can click ‘Mouse-2’ on a value to edit it. Either way, this reads the new value using the minibuffer.
+
+	 删除简单数据类型的变量或者复杂数据类型的简单项，在 speedbar 移动 point 到那里，然后按下回车键。或者可以在上面点击‘Mouse-2’编辑它。无论那种方式，都会在 minibuffer 读取新的数值。
+
+	 If you set the variable ‘gdb-show-changed-values’ to non-‘nil’ (the default value), Emacs uses ‘font-lock-warning-face’ to highlight values that have recently changed and ‘shadow’ face to make variables which have gone out of scope less noticeable.  When a variable goes out of scope you can’t edit its value.
+
+	 如果变量‘gdb-show-changed-values’设置为非 nil，Emacs 使用‘font-lock-warning-face’高亮最近修改的值，‘shadow’显示已经超出作用域不再注意的变量。不能编辑超出作用域的变量的值。
+
+	 If the variable ‘gdb-delete-out-of-scope’ is non-‘nil’ (the default value), Emacs automatically deletes watch expressions which go out of scope.  Sometimes, when re-entering the same function, it may be useful to set this value to ‘nil’ so that you don’t need to recreate the watch expression.
+
+	 如果变量‘gdb-delete-out-of-scope’值非 nil（默认值），Emacs 自动删除超出作用域的监控的表达式。有时，设置该值为 nil 在重入相同函数的时候就不需要重新建立监控表达式。
+
+	 If the variable ‘gdb-use-colon-colon-notation’ is non-‘nil’, Emacs uses the ‘FUNCTION::VARIABLE’ format.  This allows the user to display watch expressions which share the same variable name.  The default value is ‘nil’.
+
+	 如果变量‘gdb-use-colon-colon-notation’非 nil，Emacs 使用‘FUNCTION::VARIABLE’格式。这允许用户显示具有相同变量名的监控表达式。默认值时 nil。
+
+	 To automatically raise the speedbar every time the display of watch expressions updates, set ‘gdb-speedbar-auto-raise’ to non-‘nil’.  This can be useful if you are debugging with a full screen Emacs frame.
+
+	 设置‘gdb-speedbar-auto-raise’为非 nil 可以监控表达式更新的时候自动产生 speedbar。如果调试的时候使用全屏的 Emacs frame 这可能有帮助。
+
+**** 27.6.5.8 Multithreaded Debugging
+
+	 In GDB’s "all-stop mode", whenever your program stops, all execution threads stop.  Likewise, whenever you restart the program, all threads start executing.  *Note All-Stop Mode: (gdb)All-Stop Mode.  For some multi-threaded targets, GDB supports a further mode of operation, called "non-stop mode", in which you can examine stopped program threads in the debugger while other threads continue to execute freely.  *Note Non-Stop Mode: (gdb)Non-Stop Mode.  Versions of GDB prior to 7.0 do not support non-stop mode, and it does not work on all targets.
+
+	 在 GDB 的"all-stop mode"中，只要程序停止，所有执行线程都会停止。同样的，只要重新启动程序，所有线程都会开始执行。对于一些多线程目标，GDB 支持进一步的操作模式称为"non-stop mode"，该模式中，可以在调试器中检查停止的程序线程，而其他线程继续执行。7.0 版本之前的 GDB 不支持 no-stop mode，他不会在所有目标上都工作。
+
+	 The variable ‘gdb-non-stop-setting’ determines whether Emacs runs GDB in all-stop mode or non-stop mode.  The default is ‘t’, which means it tries to use non-stop mode if that is available.  If you change the value to ‘nil’, or if non-stop mode is unavailable, Emacs runs GDB in all-stop mode.  The variable takes effect when Emacs begins a debugging session; if you change its value, you should restart any active debugging session.
+
+	 变量‘gdb-non-stop-setting’决定 Emacs 是否工作在 all-stop mode or non-stop mode。默认值是 t，意味着如果可用，它将尝试使用 non-stop mode。如果修改其值为 nil，或者 non-stop mode 不可用，Emacs 运行于 all-stop mode。该变量在 Emacs 开始调试会话的时候生；如果修改其值，应该重新启动所有活跃的调试进程。
+
+	 When a thread stops in non-stop mode, Emacs usually switches to that thread.  If you don’t want Emacs to do this switch if another stopped thread is already selected, change the variable ‘gdb-switch-when-another-stopped’ to ‘nil’.
+
+	 non-stop mode 中如果一个线程停止，通常 Emacs 会切换到该线程。如果已选中另一个线程，不希望 Emacs 作者样的切换，修改‘gdb-switch-when-another-stopped’变量值为 nil。
+
+	 Emacs can decide whether or not to switch to the stopped thread depending on the reason which caused the stop.  Customize the variable ‘gdb-switch-reasons’ to select the stop reasons which will cause a thread switch.
+
+	 Emacs 可以根据线程停止的原因决定是否切换到停止的线程。定义‘gdb-switch-reasons’来选择可以引起线程切换的停止原因。
+
+	 The variable ‘gdb-stopped-functions’ allows you to execute your functions whenever some thread stops.
+
+	 变量‘gdb-stopped-functions’允许停止线程的时候执行一些函数。
+
+	 In non-stop mode, you can switch between different modes for GUD execution control commands.
+
+	 non-stop mode 模式中，可以为 GUD 执行控制命令切换不同的模式。
+
+	 + "Non-stop/A"
+
+	   When ‘gdb-gud-control-all-threads’ is ‘t’ (the default value), interruption and continuation commands apply to all threads, so you can halt or continue all your threads with one command using ‘gud-stop-subjob’ and ‘gud-cont’, respectively.  The ‘Go’ button is shown on the toolbar when at least one thread is stopped, whereas ‘Stop’ button is shown when at least one thread is running.
+
+	   如果‘gdb-gud-control-all-threads’是‘t’（默认值），中断和继续命令会应用到所有的线程，这样可以通过‘gud-stop-subjob’ and ‘gud-cont’一条命令相应的挂起或继续所有线程，至少一个线程停止的时候，工具栏会显示 GO 按钮，当至少有一个线程正在执行的时候会显示 stop 按钮。
+
+	 + "Non-stop/T"
+
+	   When ‘gdb-gud-control-all-threads’ is ‘nil’, only the current thread is stopped/continued.‘Go’ and ‘Stop’ buttons on the GUD toolbar are shown depending on the state of current thread.
+
+	   当‘gdb-gud-control-all-threads’为 nil，只有当前线程停止/继续。基于当前线程的状态在 GUD 工具栏显示‘Go’ and ‘Stop’按钮。
+
+   You can change the current value of ‘gdb-gud-control-all-threads’from the tool bar or from ‘GUD->GDB-MI’ menu.
+
+   可以从工具栏或‘GUD->GDB-MI’菜单栏改变‘gdb-gud-control-all-threads’当前的值。
+
+   Stepping commands always apply to the current thread.
+
+   步进指令总适用于当前线程。
+
+   In non-stop mode, you can interrupt/continue your threads without selecting them.  Hitting ‘i’ in threads buffer interrupts thread under point, ‘c’ continues it, ‘s’ steps through.  More such commands may be added in the future.
+
+   non-stop mode 中，不选中线程也可以终端或继续执行。在线程 buffer 点击 i 中断 point 之下的线程，c 继续执行，s 进入。将来会有更多的命令添加到该功能。
+
+   Note that when you interrupt a thread, it stops with the ‘signal received’ reason.  If that reason is included in your ‘gdb-switch-reasons’ (it is by default), Emacs will switch to that thread.
+
+   庆祝，当中断一个线程，它会由于‘signal received’原因停止。如果这个原因包含在‘gdb-switch-reasons’（默认），Emacs 会切换到该进程。

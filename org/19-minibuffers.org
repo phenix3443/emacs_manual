@@ -1,0 +1,92 @@
+# -*- coding:utf-8-*-
+#+TITLE: 19 Minibuffers
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
+
+* 19 Minibuffers
+  A minibuffer is a special buffer that Emacs commands use to read arguments more complicated than the single numeric prefix argument. These arguments include file names, buffer names, and command names (as in M-x). The minibuffer is displayed on the bottom line of the frame, in the same place as the echo area (see The Echo Area), but only while it is in use for reading an argument.
+
+  minibuffer 是一个特殊的buffer，Emacs 命令用它来读取比单个数字前缀参数更加复杂的参数。这些参数包括文件名，buffer 名，以及命令名（如在 =M-x= 中）。minibuffer显示在frame的底部，echo area也在此处，但只有读取参数时此处才是minibuffer。
+
+** 19.6 Completion
+
+   Completion is a feature that fills in the rest of a name starting from an abbreviation for it. Completion works by comparing the user's input against a list of valid names and determining how much of the name is determined uniquely by what the user has typed. For example, when you type C-x b (switch-to-buffer) and then type the first few letters of the name of the buffer to which you wish to switch, and then type <TAB> (minibuffer-complete), Emacs extends the name as far as it can.
+
+   补全是指根据名称的简写，填补其剩余字符串的功能。补全是通过将用户输入与有效名称列表作对比做到的，有效名称的数据由用户输入唯一决定。例如，当输入 =C-x b(switch-to-buffer)= ，然后输入待切换buffer名字的前几个字母，然后输入<TAB> (minibuffer-complete)，emacs尽可能扩展名字。
+
+   Standard Emacs commands offer completion for names of symbols, files, buffers, and processes; with the functions in this section, you can implement completion for other kinds of names.
+   标准Emacs命令可以补全符号、文件、buffer，以及processes；通过本节中的函数，可以补全其他类型的名称。
+
+   The try-completion function is the basic primitive for completion: it returns the longest determined completion of a given initial string, with a given set of strings to match against.
+
+   =try-completion= 函数是补全的基本原语：它返回给定初始字符串的最长确定补全，以及相匹配的一组字符串。
+
+   The function completing-read provides a higher-level interface for completion. A call to completing-read specifies how to determine the list of valid names. The function then activates the minibuffer with a local keymap that binds a few keys to commands useful for completion. Other functions provide convenient simple interfaces for reading certain kinds of names with completion.
+
+   函数completing-read提供了补全的高级接口。 调用completing-read 指定如何确定有效名称的列表。该函数然后使用本地键映射来激活minibuffer，该映射绑定了有用的补全命令。其他函数提供了简单方便的接口，以读取特定类型名称和补全。
+
+*** 19.6.8 Completion in Ordinary Buffers
+    Although completion is usually done in the minibuffer, the completion facility can also be used on the text in ordinary Emacs buffers. In many major modes, in-buffer completion is performed by the C-M-i or M-<TAB> command, bound to completion-at-point. See Symbol Completion. This command uses the abnormal hook variable completion-at-point-functions:
+
+    + Variable: completion-at-point-functions
+
+      The value of this abnormal hook should be a list of functions, which are used to compute a completion table for completing the text at point. It can be used by major modes to provide mode-specific completion tables (see Major Mode Conventions).
+
+      这个特殊钩子的值应该是一个函数list，这些函数用来计算补全point处文本的补全列表。major mode可以用它来提供模式特定的补全表。
+
+      When the command completion-at-point runs, it calls the functions in the list one by one, without any argument. Each function should return nil if it is unable to produce a completion table for the text at point. Otherwise it should return a list of the form
+
+      当执行completion-at-point时，它逐个调用列表中的函数，而且不带参数。每个函数如果不能为point处文本生成补全表，返回nil。否则返回以下form构成的list。
+
+      #+BEGIN_EXAMPLE
+(start end collection . props)
+      #+END_EXAMPLE
+
+      start and end delimit the text to complete (which should enclose point). collection is a completion table for completing that text, in a form suitable for passing as the second argument to try-completion (see Basic Completion); completion alternatives will be generated from this completion table in the usual way, via the completion styles defined in completion-styles (see Completion Variables). props is a property list for additional information; any of the properties in completion-extra-properties are recognized (see Completion Variables), as well as the following additional ones:
+
+      start 和 end 分隔要补全的文本（应包括当前point）。collection 是用于补全文本的候补项列表，其格式适合做为try-completion 的第二个参数；补全候选项以正常方式从补全表中生成，也就是通过completion-style中定义的方式。props是提供额外其他信息的属性列表； =completion-extra-properties=  中的任何属性都可以识别，此外，还有下面这些：
+
+      + :predicate
+
+        The value should be a predicate that completion candidates need to satisfy.
+
+        该值是候选项必须要满足的谓词。
+
+      + :exclusive
+
+        If the value is no, then if the completion table fails to match the text at point, completion-at-point moves on to the next function in completion-at-point-functions instead of reporting a completion failure.
+
+        取值为 =no= 时，如果补全表不匹配当前point处文本，completion-at-point尝试completion-at-point-functions中的下一个函数，而不是报告补全失败。
+
+    Supplying a function for collection is strongly recommended if generating the list of completions is an expensive operation. Emacs may internally call functions in completion-at-point-functions many times, but care about the value of collection for only some of these calls. By supplying a function for collection, Emacs can defer generating completions until necessary. You can use completion-table-dynamic to create a wrapper function:
+
+    #+BEGIN_SRC elisp
+        ;; Avoid this pattern.
+        (let ((beg ...) (end ...) (my-completions (my-make-completions)))
+          (list beg end my-completions))
+
+        ;; Use this instead.
+        (let ((beg ...) (end ...))
+          (list beg
+                end
+                (completion-table-dynamic
+                  (lambda (_)
+                    (my-make-completions)))))
+    #+END_SRC
+
+
+    A function in completion-at-point-functions may also return a function instead of a list as described above. In that case, that returned function is called, with no argument, and it is entirely responsible for performing the completion. We discourage this usage; it is intended to help convert old code to using completion-at-point.
+
+    The first function in completion-at-point-functions to return a non-nil value is used by completion-at-point. The remaining functions are not called. The exception to this is when there is an :exclusive specification, as described above.
+
+    The following function provides a convenient way to perform completion on an arbitrary stretch of text in an Emacs buffer:
+
+    + Function: completion-in-region start end collection &optional predicate
+
+      This function completes the text in the current buffer between the positions start and end, using collection. The argument collection has the same meaning as in try-completion (see Basic Completion).
+
+      This function inserts the completion text directly into the current buffer. Unlike completing-read (see Minibuffer Completion), it does not activate the minibuffer.
+
+      For this function to work, point must be somewhere between start and end.

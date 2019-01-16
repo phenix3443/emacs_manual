@@ -1,0 +1,94 @@
+# -*- coding:utf-8; -*-
+#+title:47 Emacs Lisp Packages
+* 47 Emacs Lisp Packages
+  Emacs includes a facility that lets you easily download and install packages that implement additional features. Each package is a separate Emacs Lisp program, sometimes including other components such as an Info manual.
+
+  Emacs 有一种机制可以很容易的下载并安装实现额外功能的包。每个包都是一个单独 Emacs Lisp 程序，有时候还包括其他组件，比如 Info 手册。
+
+  M-x list-packages brings up a buffer named *Packages* with a list of all packages. You can install or uninstall packages via this buffer. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Package-Menu][Package Menua]].
+
+  M-x list-package 产生一个名叫 *Packages* 、包含所有包列表的 buffer。可以通过这个 buffer 安装或卸载包。参看 [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Package-Menu][Package Menua]]。
+
+  The command C-h P (describe-package) prompts for the name of a package, and displays a help buffer describing the attributes of the package and the features that it implements.
+
+  C-h P（describe-package）提示输入包的名字，然后用 help buffer 描述包的属性和它实现的特性。
+
+  By default, Emacs downloads packages from a package archive maintained by the Emacs developers and hosted by the GNU project. Optionally, you can also download packages from archives maintained by third parties. See Package Installation.
+
+  默认情况下，Emacs 从由 GNU project 主持、Emacs 开发者维护的包档案中下载包。也可以从第三方维护的档案中下载包。参看 Package Installation。
+
+  For information about turning an Emacs Lisp program into an installable package, See Packaging in The Emacs Lisp Reference Manual. For information about finding third-party packages and other Emacs Lisp extensions, See Packages that do not come with Emacs in GNU Emacs FAQ.
+
+  关于如何将 Emacs Lisp 程序转化为安装包的信息，参见 [[https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Packaging][Packaging]] in The Emacs Lisp Reference Manual。关于需找第三方包和其他 Emacs Lisp 扩展的信息，参见[[https://www.gnu.org/software/emacs/manual/html_mono/efaq.html#Packages-that-do-not-come-with-Emacs][Packages that do not come with Emacs]] in GNU Emacs FAQ.
+
+** 47.1 The Package Menu Buffer
+
+** 47.2 Package Installation
+   Packages are most conveniently installed using the package menu (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Package-Menu][Package Menu]]), but you can also use the command M-x package-install. This prompts for the name of a package with the ‘available’ status, then downloads and installs it.
+
+   安装包最方便的方法是使用 package menu(see Package Menu)，但是也可以使用 M-x package-install 命令。它会提示处于可用状态的包名字，然后下载并进行安装。
+
+   A package may require certain other packages to be installed, because it relies on functionality provided by them. When Emacs installs such a package, it also automatically downloads and installs any required package that is not already installed. (If a required package is somehow unavailable, Emacs signals an error and stops installation.) A package’s requirements list is shown in its help buffer.
+
+   一个包可能要求安装其他包，因为它需要这些包提供的功能。当 Emacs 安装这样的包时会自动下载没有安装的依赖包。（如果依赖的包由于某些原因不可用，Emacs 会给出错误信号并停止安装。）包的依赖列表会在它的 help buffer 中显示出来。
+
+   By default, packages are downloaded from a single package archive maintained by the Emacs developers. This is controlled by the variable package-archives, whose value is a list of package archives known to Emacs. Each list element must have the form (id . location), where id is the name of a package archive and location is the HTTP address or directory name of the package archive. You can alter this list if you wish to use third party package archives—but do so at your own risk, and use only third parties that you think you can trust!
+
+   默认情况下，包从单独的 Emacs 开发者维护的包档案中下载。这是由变量 package-archives 控制的，它的是 Emacs 了解的包档案列表。每个列表元素的格式必须是（id . location），id 是包档案的名字，location 是 HTTP 地址或包档案的目录名字。如果想要使用第三方的包档案的话可以改变该列表。---但这样做可能面临风险，请只使用觉得可以信赖的第三方。
+
+   The maintainers of package archives can increase the trust that you can have in their packages by signing them. They generate a private/public pair of cryptographic keys, and use the private key to create a signature file for each package. With the public key, you can use the signature files to verify who created the package, and that it has not been modified. A valid signature is not a cast-iron guarantee that a package is not malicious, so you should still exercise caution. Package archives should provide instructions on how you can obtain their public key. One way is to download the key from a server such as http://pgp.mit.edu/. Use M-x package-import-keyring to import the key into Emacs. Emacs stores package keys in the gnupg subdirectory of package-user-dir. The public key for the GNU package archive is distributed with Emacs, in the etc/package-keyring.gpg. Emacs uses it automatically.
+
+   包档案维护人员对包进行签名可以提高自己的信任度。他们生成一对私有/公有密钥对，使用私钥为每个包生成签名文件。可以通过公钥来确定包的创建者，包是否被修改。有效的签名并不能保证包是无害的，你仍然应该谨慎。包档案应该说明如何获得它们的密钥。一个方法是从服务器上下载，比如 http://gpg.mit.edu。使用 M-x package-import-keyring 将密钥导入 Emacs。Emacs 在 package-user-dir 的 gnupg 子目录存储包的密钥。GNU 包档案的公钥随 Emacs 发布，放在 etc/package-keyring.gpg。Emacs 自动使用它。
+
+   If the user option package-check-signature is non-nil, Emacs attempts to verify signatures when you install packages. If the option has the value allow-unsigned, you can still install a package that is not signed. If you use some archives that do not sign their packages, you can add them to the list package-unsigned-archives.
+
+   如果用户选项 package-check-signature 非 nil，Emacs 在安装包时会验证签名。如果选项值允许不用签名，仍然可以安装没有经过签名的包。所以如果使用没有签名包的包档案，可以将它们添加到 package-unsigned-archives 列表。
+
+   For more information on cryptographic keys and signing, see Top in The GNU Privacy Guard Manual. Emacs comes with an interface to GNU Privacy Guard, see [[http://www.gnu.org/software/emacs/manual/html_mono/epa.html#Top][EasyPG]] in Emacs EasyPG Assistant Manual.
+
+   更多关于密钥和签名的信息，参考上面关于 GNU Privacy Guard Manual 的信息。Emacs 针对 GNU 隐私保护有一个借口，see EasyPG in Emacs EasyPG Assistant Manual。
+
+   If you have more than one package archive enabled, and some of them offer different versions of the same package, you may find the option package-pinned-packages useful. You can add package/archive pairs to this list, to ensure that the specified package is only ever downloaded from the specified archive.
+
+   如果启用了不止一个包档案，它们有同一包有不同版本，这时选项 package-pinned-packages 就有用了。可以向该列表添加 package/archive 对，来确保指定的包只从指定管理器下载。
+
+   Once a package is downloaded and installed, it is loaded into the current Emacs session. Loading a package is not quite the same as loading a Lisp library (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Lisp-Libraries][Lisp Libraries]]); its effect varies from package to package. Most packages just make some new commands available, while others have more wide-ranging effects on the Emacs session. For such information, consult the package’s help buffer.
+
+   一旦下载和安装了包，它就会被加载到当前的 Emacs 会话中。加载包和加载 Lisp 库不太一样；它的效果因包而异。大多数的包只是提供一些新的可用命令，另一些则对 Emacs 会话有更广泛的影响。更多信息查看包的 help buffer。
+
+   By default, Emacs also automatically loads all installed packages in subsequent Emacs sessions. This happens at startup, after processing the init file (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Init-File][Init File]]). As an exception, Emacs does not load packages at startup if invoked with the ‘-q’ or ‘--no-init-file’ options (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Initial-Options][Initial Options]]).
+
+   默认情况下，Emacs 会在随后的会话中加载所有已经安装的包。这发生在启动时，处理完 init 文件之后。有个例外，如果使用‘-q' 或 '--no-init-file'启动 Emacs，就不会加载包。
+
+   To disable automatic package loading, change the variable package-enable-at-startup to nil.
+
+   将 package-enable-at-startup 设置为 nil 来关闭包的自动加载。
+
+   The reason automatic package loading occurs after loading the init file is that user options only receive their customized values after loading the init file, including user options which affect the packaging system. In some circumstances, you may want to load packages explicitly in your init file (usually because some other code in your init file depends on a package). In that case, your init file should call the function package-initialize. It is up to you to ensure that relevant user options, such as package-load-list (see below), are set up prior to the package-initialize call. You should also set package-enable-at-startup to nil, to avoid loading the packages again after processing the init file. Alternatively, you may choose to completely inhibit package loading at startup, and invoke the command M-x package-initialize to load your packages manually.
+
+   自动加载包发生在加载 init 文件之后是因为加载 init 文件后才知道用户选项的定制值，包括影响包管理系统的用户选项。在某些情况下，可能希望在 init 文件中显示加载某些包（通常是因为 init 代码中代码依赖这些包）。这种情况下，init 文件应该调用 package-initialize 函数。这时确定调用 package-initialize 调用之前设置了相关的用户选项，比如 package-load-list。应该将 package-enable-at-startup 设置为 nil，避免处理完 init 文件之后再次加载包。或者可以选择在启动的时候完全禁止包启动，通过调用 M-x package-initialize 来手动加载包。
+
+   For finer control over package loading, you can use the variable package-load-list. Its value should be a list. A list element of the form (name version) tells Emacs to load version version of the package named name. Here, version should be a version string (corresponding to a specific version of the package), or t (which means to load any installed version), or nil (which means no version; this “disables” the package, preventing it from being loaded). A list element can also be the symbol all, which means to load the latest installed version of any package not named by the other list elements. The default value is just '(all).
+
+   使用变量 package-load-list 可以更好的控制包加载的过程。它的值是一个列表。形式为（name version）的列表元素告诉 Emacs 要加载的包的名字和版本。这里 version 应该是版本字符串（对应于包的特定版本），或者 t（意味着加载任何已经安装的版本），或者 nil（意味着没有版本，这会禁用包，阻止加载）。一个列表元素也可以是符号 all，意味着加载任何没有被其他列表元素命令的包的已安装的最新版本。默认值就是'(all)。
+
+   For example, if you set package-load-list to '((muse "3.20") all), then Emacs only loads version 3.20 of the ‘muse’ package, plus any installed version of packages other than ‘muse’. Any other version of ‘muse’ that happens to be installed will be ignored. The ‘muse’ package will be listed in the package menu with the ‘held’ status.
+
+   例如，将 package-load-list 设置为'((muse "3.20") all)，Emacs 只会加载版本为 3.20 的‘muse'包，以及除了 muse 意外的任何已安装版本的包。muse 的其他已安装版本都会被忽略。muse 将会在报菜单中 held 状态。
+
+** 47.3 Package Files and Directory Layout
+   Each package is downloaded from the package archive in the form of a single package file—either an Emacs Lisp source file, or a tar file containing multiple Emacs Lisp source and other files. Package files are automatically retrieved, processed, and disposed of by the Emacs commands that install packages. Normally, you will not need to deal directly with them, unless you are making a package (see [[http://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Packaging][Packaging]] in The Emacs Lisp Reference Manual). Should you ever need to install a package directly from a package file, use the command M-x package-install-file.
+
+   每个从包档案下载的包要么是 Emacs Lisp 源码文件，要么是包含很多 Emacs Lisp 源码文件和其他文件的打包文件。包文件会被安装命令自动检索、处理和处置。通常，除了制作包不需要直接处理它们。绝对不要直接从包文件进行安装，应该使用 M-x package-install-file 命令。
+
+   Once installed, the contents of a package are placed in a subdirectory of ~/.emacs.d/elpa/ (you can change the name of that directory by changing the variable package-user-dir). The package subdirectory is named name-version, where name is the package name and version is its version string.
+
+   安装后，包的内容就会放在~/.emacs.d/elpa/下的子目录（可以改变变量 package-user-dir 来改变该目录的名字）。子目录的名字是 name-version，name 是包名，version 是版本。
+
+   In addition to package-user-dir, Emacs looks for installed packages in the directories listed in package-directory-list. These directories are meant for system administrators to make Emacs packages available system-wide; Emacs itself never installs packages there. The package subdirectories for package-directory-list are laid out in the same way as in package-user-dir.
+
+   除了 package-user-dir，Emacs 还在 package-directory-list 列出的目录中寻找已经安装的包的名字。系统管理员用这些目录来向整个系统提供可用的 Emacs package；Emacs 本身绝不会在那里安装软件包，package-directory-list 下面包的子目录布局和 package-user-dir 是一样的。
+
+   Deleting a package (see Package Menu) involves deleting the corresponding package subdirectory. This only works for packages installed in package-user-dir; if told to act on a package in a system-wide package directory, the deletion command signals an error.
+
+   删除包会删除相应的子目录，这只适用于 package-user-dir 中安装的包；如果用在系统范围的包目录上，删除命令会报错。

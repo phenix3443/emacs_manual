@@ -1,0 +1,874 @@
+# -*- coding:utf-8; -*-
+
+#+title: 26 Editing Programs
+* 26 Editing Programs
+
+  This chapter describes Emacs features for facilitating editing programs. Some of the things these features can do are:
+
+  本章描述便于编辑程序的 Emacs 功能。这些功能可以做的事情包括：
+
+  + Find or move over top-level definitions (see Defuns).
+
+	在顶层定义上查找或移动（see Defuns）
+
+  + Apply the usual indentation conventions of the language (see Program Indent).
+
+	使用语言的缩进约定（see Program Indent）。
+
+  + Balance parentheses (see Parentheses).
+
+	平衡括号（see Parentheses）
+
+  + Insert, kill or align comments (see Comments).
+
+	插入，kill 或对其注释（see Comments）。
+
+  + Highlight program syntax (see Font Lock).
+
+	高亮程序语法（see Font Lock）。
+
+** 26.1 Major Modes for Programming Languages
+
+   Emacs has specialized major modes (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Major-Modes][Major Modes]]) for many programming languages. A programming language mode typically specifies the syntax of expressions, the customary rules for indentation, how to do syntax highlighting for the language, and how to find the beginning or end of a function definition. It often has features for compiling and debugging programs as well. The major mode for each language is named after the language; for instance, the major mode for the C programming language is c-mode.
+
+   Emacs 针对很多编程语言都有专门的主模式（see Major Modes）。编程语言模式通常指定了表达式的语法，缩进的习惯规则，如何做语法高亮，如何查找函数定义的开始和结束。它通常也有便于编译和调试的功能。每个语言的主模式通常以该语言开头；例如 c 编程语言的主模式是 c-mode。
+
+   Emacs has programming language modes for Lisp, Scheme, the Scheme-based DSSSL expression language, Ada, ASM, AWK, C, C++, Fortran, Icon, IDL (CORBA), IDLWAVE, Java, Javascript, Metafont (TeX’s companion for font creation), Modula2, Object Pascal, Objective-C, Octave, Pascal, Perl, Pike, PostScript, Prolog, Python, Ruby, Simula, Tcl, and VHDL. An alternative mode for Perl is called CPerl mode. Modes are also available for the scripting languages of the common GNU and Unix shells, VMS DCL, and MS-DOS/MS-Windows ‘BAT’ files, and for makefiles, DNS master files, and various sorts of configuration files.
+
+   Ideally, Emacs should have a major mode for each programming language that you might want to edit. If it doesn’t have a mode for your favorite language, the mode might be implemented in a package not distributed with Emacs (see Packages); or you can contribute one.
+
+   理想情况下，针对每个想要编辑的编程语言,Emacs 都应该有一个对应的主模式。如果没有你喜欢语言的主模式，该模式可能在没有随 Emacs 分发的包中实现，或者你可以贡献一个。
+
+   In most programming languages, indentation should vary from line to line to illustrate the structure of the program. Therefore, in most programming language modes, typing TAB updates the indentation of the current line (see Program Indent). Furthermore, DEL is usually bound to backward-delete-char-untabify, which deletes backward treating each tab as if it were the equivalent number of spaces, so that you can delete one column of indentation without worrying whether the whitespace consists of spaces or tabs.
+
+   大多数的编程语言，缩进应该根据程序结构的不同各种不同。因而，在大多数编程语言模式中，输入 TAB 更新当前行的缩进。此外，DEL 通常绑定到 backward-delete-char-untabify，这将会向后删除，将每个 tab 当作等量的空格副，所以删除一列的缩进，而不需要担心空白符时空格还是制表符。
+
+   Entering a programming language mode runs the custom Lisp functions specified in the hook variable prog-mode-hook, followed by those specified in the mode’s own mode hook (see Major Modes). For instance, entering C mode runs the hooks prog-mode-hook and c-mode-hook. See Hooks, for information about hooks.
+
+   进入到编程语言模式同样会运行 hook 变量 prog-mode-hook 中定义的 Lisp 函数，然后运行各自模式 hook 中的那个以的函数。例如，进入 C mode 运行 prog-mode-hook 和 c-mode-hook。
+
+   Separate manuals are available for the modes for Ada (see Ada Mode in Ada Mode), C/C++/Objective C/Java/Corba IDL/Pike/AWK (see CC Mode in CC Mode), and IDLWAVE (see IDLWAVE in IDLWAVE User Manual).
+
+** 26.2 Top-Level Definitions, or Defuns
+
+*** 26.2.1 Left Margin Convention
+
+	Many programming-language modes assume by default that any opening delimiter found at the left margin is the start of a top-level definition, or defun. Therefore, don’t put an opening delimiter at the left margin unless it should have that significance. For instance, never put an open-parenthesis at the left margin in a Lisp file unless it is the start of a top-level list.
+
+	很多编程语言假定默认情况下在左边界找到的任何开分隔符时顶层定义的开始，或者 defin。因而，不要把开分隔符放在左边界，除非它是上面描述的意义。例如，Lisp 文件中不要将左括号放在左边界，除非它是顶层 list 的开始。
+
+	The convention speeds up many Emacs operations, which would otherwise have to scan back to the beginning of the buffer to analyze the syntax of the code.
+
+	这个约定加速很多 Emacs 操作，否则这些操作必须从 buffer 开始扫描来分析代码语法。
+
+	If you don’t follow this convention, not only will you have trouble when you explicitly use the commands for motion by defuns; other features that use them will also give you trouble. This includes the indentation commands (see Program Indent) and Font Lock mode (see Font Lock).
+
+	如果不遵寻该约定，不只是显式使用 defens 相关移动命令会出现问题；其他使用它们的命令也会有麻烦。包括缩进命令和 Font Lock mode。
+
+	The most likely problem case is when you want an opening delimiter at the start of a line inside a string. To avoid trouble, put an escape character (‘\’, in C and Emacs Lisp, ‘/’ in some other Lisp dialects) before the opening delimiter. This will not affect the contents of the string, but will prevent that opening delimiter from starting a defun. Here’s an example:
+
+	最可能的问题是想要出现在行开始处的开分隔符处在字符串内。为了避免麻烦，在开分隔符前放置转义字符（C 和 Emacs Lisp 是‘\’，其他 Lisp 方言中时‘/’）。这不会影响字符串内容，但会阻止开分隔符开始一个函数定义。这里有一个例子。
+	#+BEGIN_SRC emacs-lisp
+(insert "Foo:
+ \(bar)
+ ")
+	#+END_SRC
+
+
+ 	To help you catch violations of this convention, Font Lock mode highlights confusing opening delimiters (those that ought to be quoted) in bold red.
+
+	为了找到违反该约定的地方，Font Lock mode 使用红色高亮混淆的开分隔符（那些应该被转义）。
+
+	If you need to override this convention, you can do so by setting the variable open-paren-in-column-0-is-defun-start. If this user option is set to t (the default), opening parentheses or braces at column zero always start defuns. When it is nil, defuns are found by searching for parens or braces at the outermost level.
+
+	覆盖本约定需要设置 open-paren-in-column-0-is-defun-start。如果该用户选项设置为 t（默认），0 列的左括号或左大括号将开始一个函数定义。值为 nil 时，通过搜索最外层的小括号或中括号找到函数定义。
+
+	Usually, you should leave this option at its default value of t. If your buffer 	contains parentheses or braces in column zero which don’t start defuns, and it is somehow impractical to remove these parentheses or braces, it might be helpful to set the option to nil. Be aware that this might make scrolling and display in large buffers quite sluggish. Furthermore, the parentheses and braces must be correctly matched throughout the buffer for it to work properly.
+
+	通常，应该保留该变量为默认值 t。如果 buffer 中包含处于 0 列，但不是定义函数的小括号或大括号，而且移除这些括号是不切实际的，这可能需要将该选项设置为 nil。请注意，这可能会导致滚动和显示大的 buffer 会很缓慢。此外，buffer 中的小括号和大括号比需要正确匹配才能正常工作。
+
+*** 26.2.2 Moving by Defuns
+
+	These commands move point or set up the region based on top-level major definitions, also called defuns.
+
+	这些命令基于顶层的定义（也叫 defuns）移动 point 或设置区域。
+
+	+ C-M-a
+
+	  Move to beginning of current or preceding defun (beginning-of-defun).
+
+	  移动到当前或上一个函数定义开始处（beginning-of-defun）.
+
+	+ C-M-e
+
+	  Move to end of current or following defun (end-of-defun).
+
+	  移动到当前或下一个函数定义结尾处（end-of-defun）。
+
+	+ C-M-h
+
+	  Put region around whole current or following defun (mark-defun).
+
+	  在当前或下一个函数定义放入选区。（mark-defun）。
+
+	The commands to move to the beginning and end of the current defun are C-M-a (beginning-of-defun) and C-M-e (end-of-defun). If you repeat one of these commands, or use a positive numeric argument, each repetition moves to the next defun in the direction of motion.
+
+	移动到当前函数定义开始或结束的命令是 C-M-a (beginning-of-defun) and C-M-e (end-of-defun)。如果重复使用其中一个，或者使用正数参数，每次重复都会在该方向上移动到下一个函数定义。
+
+	C-M-a with a negative argument -n moves forward n times to the next beginning of a defun. This is not exactly the same place that C-M-e with argument n would move to; the end of this defun is not usually exactly the same place as the beginning of the following defun. (Whitespace, comments, and perhaps declarations can separate them.) Likewise, C-M-e with a negative argument moves back to an end of a defun, which is not quite the same as C-M-a with a positive argument.
+
+	负数作为参数的 C-M-a 向前移动 n 次，到下一个函数定义的开始处。这使用参数 n 调用 C-M-e 所处位置并不完全相同；函数定义结束的地方并不一定时下个函数定义开始的地方。（空白，注释，还有可能的函数声明都会分开它们。）同样，负数作为参数的 C-M-e 向后移动到函数定义的结尾处，也不一定和 C-M-a 使用整数作为参数移动的位置相同。
+
+	To operate on the current defun, use C-M-h (mark-defun), which sets the mark at the end of the current defun and puts point at its beginning. See Marking Objects. This is the easiest way to get ready to kill the defun in order to move it to a different place in the file. If you use the command while point is between defuns, it uses the following defun. If you use the command while the mark is already active, it sets the mark but does not move point; furthermore, each successive use of C-M-h extends the end of the region to include one more defun.
+
+	使用 C-M-h 操作当前函数定义，这将会在函数定义末尾左标记，然后将 point 置于开始处。为了将其移动到文件中不同位置而剪切它们，这是最简单地的方法。如果在两个函数定义之间使用该命令，它将会使用后面的函数定义。如果使用该命令的时候已经激活了标记，它将会设置标记，但不移动 point；也就是说，每个 C-M-h 成功使用扩展选区，此时可能包含一个或更多个函数定义。
+
+	In C mode, C-M-h runs the function c-mark-function, which is almost the same as mark-defun; the difference is that it backs up over the argument declarations, function name and returned data type so that the entire C function is inside the region. This is an example of how major modes adjust the standard key bindings so that they do their standard jobs in a way better fitting a particular language. Other major modes may replace any or all of these key bindings for that purpose.
+
+	C mode 中，C-M-h 运行函数 c-mark-function，和 mark-defun 基本相同；区别是它支持参数声明，函数名和返回值类型，这样整个 C 函数定义就都在选区里了。这是一个主模式如何调整键绑定 例子，这样它们就可以用符合特定语言的方法更好的工作。其他主模式为此可能替换全部或部分键绑定。
+
+*** 26.2.3 Imenu
+
+	The Imenu facility offers a way to find the major definitions in a file by name. It is also useful in text formatter major modes, where it treats each chapter, section, etc., as a definition. (See Tags, for a more powerful feature that handles multiple files together.)
+
+	Imenu 功能提供一种在文件中通过名字查找主要定义的方式。也可用于文本格式化主模式中，它将每个章节都当作定义。
+
+	If you type M-x imenu, it reads the name of a definition using the minibuffer, then moves point to that definition. You can use completion to specify the name; the command always displays the whole list of valid names.
+
+	输入 M-x imenu，它将从 minibuffer 中读入定义的名字，然后移动 point 到该定义处。指定名字时可以使用补全，该命令会显示可用名字的整个列表。
+
+	Alternatively, you can bind the command imenu to a mouse click. Then it displays mouse menus for you to select a definition name. You can also add the buffer’s index to the menu bar by calling imenu-add-menubar-index. If you want to have this menu bar item available for all buffers in a certain major mode, you can do this by adding imenu-add-menubar-index to its mode hook. But if you have done that, you will have to wait a little while each time you visit a file in that mode, while Emacs finds all the definitions in that buffer.
+
+	或者，可以将 imenu 命令绑定到鼠标点击。然后显示鼠标菜单来选择定义名字。通过调用 imenu-add-menubar-index 还可以将 buffer 索引添加到菜单栏。如果想要该菜单项对特定主模式的所有 buffer 都可用，需要将 imenu-add-menubar-index 添加到模式的 hook。但如果已经做了，每次浏览该模式的文件时需要等一会，因为 Emacs 需要找到该 buffer 中有的定义。
+
+	When you change the contents of a buffer, if you add or delete definitions, you can update the buffer’s index based on the new contents by invoking the ‘*Rescan*’ item in the menu. Rescanning happens automatically if you set imenu-auto-rescan to a non-nil value. There is no need to rescan because of small changes in the text.
+
+	当修改 buffer 内容时，如果添加或删除定义，可以通过调用菜单中‘*Rescan*’菜单项基于新内容更新 buffer 索引。如果将 imenu-auto-rescan 设置为非 nil 值，重新扫描会自动进行。文本中的小改变没有必要重新扫描。
+
+	You can customize the way the menus are sorted by setting the variable imenu-sort-function. By default, names are ordered as they occur in the buffer; if you want alphabetic sorting, use the symbol imenu--sort-by-name as the value. You can also define your own comparison function by writing Lisp code.
+
+	通过设置 imenu-sort-function 可以订制 menus 排序方式。默认名字按照 buffer 中的出现顺序排列；如果希望按照字母表排序，使用符号 imenu--sort-by-name 作为值。也可用通过编写 lisp 代码定义自己的比较函数。
+
+	Imenu provides the information to guide Which Function mode (see Which Function). The Speedbar can also use it (see Speedbar).
+
+	Imenu 为 Which Function mode 提供信息。Speedbar 也用到了它。
+*** 26.2.4 Which Function Mode
+	Which Function mode is a global minor mode (see Minor Modes) which displays the current function name in the mode line, updating it as you move around in a buffer.
+
+	Which Function mode 是一个全局辅助模式，可以在模式行显示当前函数的名字，并随 buffer 中移动而更新。
+
+	To either enable or disable Which Function mode, use the command M-x which-function-mode. Which Function mode is a global minor mode. By default, it takes effect in all major modes major modes that know how to support it (i.e., all the major modes that support Imenu). You can restrict it to a specific list of major modes by changing the value of the variable which-func-modes from t (which means to support all available major modes) to a list of major mode names.
+
+	使用命令 M-x which-function-mode 启用或禁用 Which Function mode。Which Function mode 是一个全局辅助模式。默认情况下，它会在所有支持它的主模式（例如，所有支持 Imenu 的主模式）中生效。可以修改变量 which-func-modes 值限定生效的主模式列表，如果设置为 t，表示在所有可用的主模式中生效。
+
+** 26.3 Indentation for Programs
+   The best way to keep a program properly indented is to use Emacs to reindent it as you change it. Emacs has commands to indent either a single line, a specified number of lines, or all of the lines inside a single parenthetical grouping.
+
+   保存程序正确缩进的最好方法是改变它的时候使用 Emacs 再次缩进。Emacs 有命令缩进单行、指定数目的行，和括号分组里的所有行。
+
+   See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Indentation][Indentation]], for general information about indentation. This section describes indentation features specific to programming language modes.
+
+   参见 Indentation，了解关于缩进的一般信息。本节描述针对编程语言模式的缩进特性。
+
+*** 26.3.1 Basic Program Indentation Commands
+   + TAB
+
+	 Adjust indentation of current line (indent-for-tab-command).
+
+	 调整当前行缩进（indent-for-tab-command）
+
+   + RET
+
+	 Insert a newline, then adjust indentation of following line (newline).
+
+	 插入新行，然后调整接下来的缩进（newline）。
+
+   The basic indentation command is TAB (indent-for-tab-command), which was documented in [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Indentation][Indentation]]. In programming language modes, TAB indents the current line, based on the indentation and syntactic content of the preceding lines; if the region is active, TAB indents each line within the region, not just the current line.
+
+   基本的缩进命令是 TAB（indent-for-tab-command），记录在 Indentation 中。在编程语言模式中，TAB 基于缩进和上一行的语法内容缩进当前行；如果激活区域，TAB 缩进当前区域中的每一行，而不仅是当前行。
+
+   The command RET (newline), which was documented in [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Inserting-Text][Inserting Text]], does the same as C-j followed by TAB: it inserts a new line, then adjusts the line’s indentation.
+
+   RET（newline）命令记录上 Inserting Text 中，和 C-j 后 TAB 做的事情一样：插入新行，然后调整该行的缩进。
+
+   When indenting a line that starts within a parenthetical grouping, Emacs usually places the start of the line under the preceding line within the group, or under the text after the parenthesis. If you manually give one of these lines a nonstandard indentation (e.g., for aesthetic purposes), the lines below will follow it.
+
+   当缩进括号分组内的一行时，Emacs 通常将该行开始放在分组的前一行之下，或者括号后面文本的喜爱满。如果手动这些行非标准的缩进（例如，为了审美目的），后面的行也会跟随缩进。
+
+   The indentation commands for most programming language modes assume that a open-parenthesis, open-brace or other opening delimiter at the left margin is the start of a function. If the code you are editing violates this assumption—even if the delimiters occur in strings or comments—you must set open-paren-in-column-0-is-defun-start to nil for indentation to work properly. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Left-Margin-Paren][Left Margin Paren]].
+
+   大多数编程语言模式的缩进命令假设左边界的开分隔符是函数的开始。如果正在编辑的额代码违法了这个假设---即使是出现在字符串或注释中---为了能正确的缩进，必须将 open-paren-in-column-0-is-defen-start 设置为 nil。参见 Left Margin Paren。
+
+*** 26.3.2 Indenting Several Lines
+   Sometimes, you may want to reindent several lines of code at a time. One way to do this is to use the mark; when the mark is active and the region is non-empty, TAB indents every line in the region. Alternatively, the command C-M-\ (indent-region) indents every line in the region, whether or not the mark is active (see Indentation Commands).
+
+   有时候你想要一次能缩进几行代码。要做到这一点其中一种方式是使用 mark；当激活 mark 并且区域非空时，TAB 会缩进区域中的每一行。另外，命令 C-M-\（indent-region）缩进区域中的每一行，不管 mark 是否激活（see Indentation Command）。
+
+   In addition, Emacs provides the following commands for indenting large chunks of code:
+
+   另外，Emacs 提供下面的代码来缩进大块代码：
+
+   + C-M-q
+
+	 Reindent all the lines within one parenthetical grouping.
+
+	 缩进括号分组中的所有行。
+
+   + C-u TAB
+
+	 Shift an entire parenthetical grouping rigidly sideways so that its first line is properly indented.
+
+	 这样它的第一行能正确缩进。
+
+   + M-x indent-code-rigidly
+
+	 Shift all the lines in the region rigidly sideways, but do not alter lines that start inside comments and strings.
+
+	 移动区域中的所有行移动到一遍，但是不改变注释和字符串中的行。
+
+   To reindent the contents of a single parenthetical grouping, position point before the beginning of the grouping and type C-M-q. This changes the relative indentation within the grouping, without affecting its overall indentation (i.e., the indentation of the line where the grouping starts). The function that C-M-q runs depends on the major mode; it is indent-pp-sexp in Lisp mode, c-indent-exp in C mode, etc. To correct the overall indentation as well, type TAB first.
+
+   为了重新缩进单个括号分组的内容，需要将 point 置于分组开始处之前，输入 C-M-q。这回改变分组内缩进关系，而对整体缩进没有影响（例如，分组开始处行的缩进）。C-M-运行的函数取决于主模式；Lisp 模式中是 indent-pp-sexp，c 模式中是 e--indent-exp 等。要正确的进行整体缩进，先使用 TAB 键。
+
+   If you like the relative indentation within a grouping but not the indentation of its first line, move point to that first line and type C-u TAB. In Lisp, C, and some other major modes, TAB with a numeric argument reindents the current line as usual, then reindents by the same amount all the lines in the parenthetical grouping starting on the current line. It is clever, though, and does not alter lines that start inside strings. Neither does it alter C preprocessor lines when in C mode, but it does reindent any continuation lines that may be attached to them.
+
+   如果喜欢分组中的相对缩进，但不喜欢第一行的缩进，将 point 移动到第一行，然手输入 C-u TAB。Lisp、C 以及一些其他主模式中，带哟偶数字参数的 TAB 像往常一样缩进当前行，然后将括号分组中当前行开始的的所有行执行相同的缩进。它是聪明的，然而，不会改变字符串内开始的行。不会改变 C 模式中的 C 预编译内容，而是重新缩进附加到它们的所有后续行。
+
+   The command M-x indent-code-rigidly rigidly shifts all the lines in the region sideways, like indent-rigidly does (see Indentation Commands). It doesn’t alter the indentation of lines that start inside a string, unless the region also starts inside that string. The prefix arg specifies the number of columns to indent.
+
+   命令 M-x indent-code-rigidly 强制将区域中的所有行移向一边，像 indent-rigidly 做的那样（参见 Indentation Commands）。它不会开始于字符串中的行，除非区域也是开始于字符串中。前缀参数指定了要缩进的列数。
+
+*** 26.3.3 Customizing Lisp Indentation
+	The indentation pattern for a Lisp expression can depend on the function called by the expression. For each Lisp function, you can choose among several predefined patterns of indentation, or define an arbitrary one with a Lisp program.
+
+	Lisp 表达式的缩进模式依赖于该表达式所调用的函数。对于每个 Lisp 函数，可以在一些预定义缩进模式中选择，或者使用 Lisp 程序定义任意一个。
+
+	The standard pattern of indentation is as follows: the second line of the expression is indented under the first argument, if that is on the same line as the beginning of the expression; otherwise, the second line is indented underneath the function name. Each following line is indented under the previous line whose nesting depth is the same.
+
+	标准缩进模式如下：如果表达式的第一个参数和表达式处于同一行，第二行缩进至第一个参数下面；否则，第二行缩进到函数名字之下。后面的每一行缩进到与前一行嵌套深度一致的行下。
+
+	If the variable lisp-indent-offset is non-nil, it overrides the usual indentation pattern for the second line of an expression, so that such lines are always indented lisp-indent-offset more columns than the containing list.
+
+	如果变量 lisp-indent-offset 非 nil，它会覆盖表达式第二行的缩进模式，所以这样的行总是比 containing list 多缩进 lisp-indent-offset 列。
+
+	Certain functions override the standard pattern. Functions whose names start with def treat the second lines as the start of a body, by indenting the second line lisp-body-indent additional columns beyond the open-parenthesis that starts the expression.
+
+	某些函数可以覆盖标准模式。名字以 def 开始的函数从函数开始的开分隔符第二行缩进 lisp-body-indent 列，从而将第二行当做函数体的开始。
+
+	You can override the standard pattern in various ways for individual functions, according to the lisp-indent-function property of the function name. This is normally done for macro definitions, using the declare construct. See [[https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Defining-Macros][Defining Macros]] in the Emacs Lisp Reference Manual.
+
+	可以根据函数名字的 lisp-indent-function 属性，用多种方法为单独的函数重写标准模式。通常使用声明结构用于宏定义。参见 Defining Macros in the Emacs Lisp Reference Manual。
+
+*** 26.3.4 Commands for C Indentation
+	Here are special features for indentation in C mode and related modes:
+
+	C 和相关模式中有一些与缩进相关的特性：
+
+	+ C-c C-q
+
+	  Reindent the current top-level function definition or aggregate type declaration (c-indent-defun).
+
+	  再次缩进当期顶级的函数定义或者聚合类型声明（c-indent-defun）。
+
+	+ C-M-q
+
+	  Reindent each line in the balanced expression that follows point (c-indent-exp). A prefix argument inhibits warning messages about invalid syntax.
+
+	  缩进 point 后面平衡表达式中的每一行（c-indent-exp）。前缀参数阻止和无效语法有关的警告消息。
+
+	+ TAB
+
+	  Reindent the current line, and/or in some cases insert a tab character (c-indent-command).
+
+	  重新缩进当前行，在某些情况下插入制表符（c-indent-command）。
+
+	  If c-tab-always-indent is t, this command always reindents the current line and does nothing else. This is the default.
+
+	  如果 c-tab-always-indent 为 t，该命令总是缩进当前行，不做其他事情，这是默认值。
+
+	  If that variable is nil, this command reindents the current line only if point is at the left margin or in the line’s indentation; otherwise, it inserts a tab (or the equivalent number of spaces, if indent-tabs-mode is nil).
+
+	  如果该变量为 nil，只有 point 在左边界或者当前行的缩进中时，才会缩进当前行；否则插入一个制表符（如果 indent-tabs-mode 为 nil 插入相同数量的空格符）。
+
+	  Any other value (not nil or t) means always reindent the line, and also insert a tab if within a comment or a string.
+
+	  任何其他值（非 nil 或 t）意味着总是重新缩进该行，如果在注释或字符串中的话插入制表符。
+
+	To reindent the whole current buffer, type C-x h C-M-\. This first selects the whole buffer as the region, then reindents that region.
+
+	输入 C-x h C-M-\重新缩进当前整个 buffer。这先将整个 buffer 选择为区域，然后重新缩进整个区域。
+
+	To reindent the current block, use C-M-u C-M-q. This moves to the front of the block and then reindents it all.
+
+	使用 C-M-u C-M-q 缩进当前代码块。这将会先移动到代码块之前，然后缩进整个代码块。
+
+*** 26.3.5 Customizing C Indentation
+	C mode and related modes use a flexible mechanism for customizing indentation. C mode indents a source line in two steps: first it classifies the line syntactically according to its contents and context; second, it determines the indentation offset associated by your selected style with the syntactic construct and adds this onto the indentation of the anchor statement.
+
+	C 模式和相关模式使用灵活的机制来定制缩进解决机制。C 模式通过两步缩进代码行：首先通过内容和上下文将行进行语法归类；然后，它根据选择的语法构造决定缩进偏移，并将其添加到语句的缩进上。
+
+	+ C-c . style RET
+
+	  Select a predefined style style (c-set-style).
+
+	  选择预定义的风格（c-set-style）。
+
+	A style is a named collection of customizations that can be used in C mode and the related modes. Styles in The CC Mode Manual, for a complete description. Emacs comes with several predefined styles, including gnu, k&r, bsd, stroustrup, linux, python, java, whitesmith, ellemtel, and awk. Some of these styles are primarily intended for one language, but any of them can be used with any of the languages supported by these modes. To find out what a style looks like, select it and reindent some code, e.g., by typing C-M-q at the start of a function definition.
+
+	风格是一个命名的自定义集合，可以用在 C 模式或相关模式中。CC Mode Manual 中有关于风格的详细描述。Emacs 内置了一些预定义的风格包括 gnu, k&r, bsd, stroustrup, linux, python, java, whitesmith, ellemtel, and awk。这些风格中有一些主要针对一种语言，但是任何风格都可用于这些模式支持的语言。选中他们，然后格式化当前代码就可以看到它们到底是什么样子，例如，在函数定义开始处输入 C-M-q。
+
+	To choose a style for the current buffer, use the command C-c .. Specify a style name as an argument (case is not significant). This command affects the current buffer only, and it affects only future invocations of the indentation commands; it does not reindent the code already in the buffer. To reindent the whole buffer in the new style, you can type C-x h C-M-\.
+
+	使用命令 C-c .为当前 buffer 选择风格。指定风格名字作为参数（大小写不重要）。该命令只影响当前 buffer，只对将来调用的缩进命令有影响；他不会重新缩进 buffer 中的已有代码。输入 C-x h C-M-\使用新风格缩进整个 buffer。
+
+	You can also set the variable c-default-style to specify the default style for various major modes. Its value should be either the style’s name (a string) or an alist, in which each element specifies one major mode and which indentation style to use for it. For example,
+
+	可以设置变量 c-default-style 来为不同的主模式指定默认风格。它的值应该是风格的名字（字符串）或是一个 alist，alist 中每个原色指定一个主模式以及对应使用的缩进风格。例如：
+
+	#+BEGIN_SRC elisp
+(setq c-default-style
+	  '((java-mode . "java")
+		(awk-mode . "awk")
+		(other . "gnu")))
+	#+END_SRC
+
+	specifies explicit choices for Java and AWK modes, and the default ‘gnu’ style for the other C-like modes. (These settings are actually the defaults.) This variable takes effect when you select one of the C-like major modes; thus, if you specify a new default style for Java mode, you can make it take effect in an existing Java mode buffer by typing M-x java-mode there.
+
+	为 Java 和 AWK 模式指定了明确的选择模式，其他 C-like 模式使用默认的 Gnu 风格。（这些设置实际上就是默认值。）当选择一个 c-like 主模式时该变量生效；因而，如果为 Java 模式指定新的默认风格，应该在已存在的 Java 模式中输入 M-x java-mode 来让其生效。
+
+	The gnu style specifies the formatting recommended by the GNU Project for C; it is the default, so as to encourage use of our recommended style.
+
+	gnu 风格为 C 使用 GNU Project 推荐的格式；它是默认值，所以鼓励使用推荐的模式。
+
+	See [[https://www.gnu.org/software/emacs/manual/html_mono/ccmode.html#Indentation-Engine-Basics][Indentation Engine Basics]] in the CC Mode Manual, and [[https://www.gnu.org/software/emacs/manual/html_mono/ccmode.html#Customizing-Indentation][Customizing Indentation]] in the CC Mode Manual, for more information on customizing indentation for C and related modes, including how to override parts of an existing style and how to define your own styles.
+	参看 CC Mode Manual 中的 Indentation Engine Basics 和 Customizing Indentation 了解关于为 C 和相关模式定制缩进的更多信息，包括如何改写已有风格的部分，如何定义自己的风格。
+
+	As an alternative to specifying a style, you can tell Emacs to guess a style by typing M-x c-guess in a sample code buffer. You can then apply the guessed style to other buffers with M-x c-guess-install. See [[https://www.gnu.org/software/emacs/manual/html_mono/ccmode.html#Guessing-the-Style][Guessing the Style]] in the CC Mode Manual, for details.
+
+	除了指定风格，还可以在代码 buffer 中输入 M-x c-guess 来猜测风格。然后使用 M-x c-guess-install 将猜测的风格应用到其他 buffer。参见 CC Mode Manual 中的 Guessing the Style 了解更多细节。
+** 26.4 Commands for Editing with Parentheses
+   This section describes the commands and features that take advantage of the parenthesis structure in a program, or help you keep it balanced.
+
+  本节描述的命令和特性勇于程序中的括号结构，或者帮你保持它们的平衡。
+
+  When talking about these facilities, the term “parenthesis” also includes braces, brackets, or whatever delimiters are defined to match in pairs. The major mode controls which delimiters are significant, through the syntax table (see Syntax Tables in The Emacs Lisp Reference Manual). In Lisp, only parentheses count; in C, these commands apply to braces and brackets too.
+
+  当谈到这些功能时，术语”parenthesis“包括大括号、中括号和其他任何可以配对的分隔符。主模式通过语法表（see The Emacs Lisp Reference Manual 中的 Syntax Tables）控制了哪些分隔符是重要的。Lisp 中，只有小括号算；C 模式中，这些命令用于大括号和中括号。
+
+  You can use M-x check-parens to find any unbalanced parentheses and unbalanced string quotes in the buffer.
+
+  可以使用 M-x check-parents 来查找 buffer 中任何不平衡的括号和字符串引号。
+
+*** 26.4.1 Expressions with Balanced Parentheses
+	Each programming language mode has its own definition of a balanced expression. Balanced expressions typically include individual symbols, numbers, and string constants, as well as pieces of code enclosed in a matching pair of delimiters. The following commands deal with balanced expressions (in Emacs, such expressions are referred to internally as sexps11).
+
+	每个编程语言模式关于平衡表达式都有自己的定义。平衡表达式通常包括单独的符号，数字和字符串内容，一级包裹在匹配的分隔符中的代码段。下面的命令用于处理平衡表达式（这样的表达式作为 sexp 引入到 Emacs 内部）。
+
+	+ C-M-f
+
+	  Move forward over a balanced expression (forward-sexp).
+
+	  向前移动一个平衡表达式（forward-sexp）。
+
+	+ C-M-b
+
+	  Move backward over a balanced expression (backward-sexp).
+
+	  向后移动一个平衡表达式（backward-sexp）。
+
+	+ C-M-k
+
+	  Kill balanced expression forward (kill-sexp).
+
+	  向前删除一个平衡表达式（kill-sexp）。
+
+	+ C-M-t
+
+	  Transpose expressions (transpose-sexps).
+
+	  交换表达式位置（transpose-sexps）。
+
+	+ C-M-@
+
+	+ C-M-SPC
+
+	  Put mark after following expression (mark-sexp).
+
+	  在表达式之后设置 mark（mark-sexp）。
+
+	To move forward over a balanced expression, use C-M-f (forward-sexp). If the first significant character after point is an opening delimiter (e.g., ‘(’, ‘[’ or ‘{’ in C), this command moves past the matching closing delimiter. If the character begins a symbol, string, or number, the command moves over that.
+
+	使用 C-M-f 向前移动一个平衡表达式。如果 point 之后的第一个重要字母是一个打开分隔符（例如，C 语言中的‘(’, ‘[’ or ‘{’），该命令移动到关闭分隔符之后。如果该字母是符号、字符串或数字的开始，该命令直接越过这些。
+
+	The command C-M-b (backward-sexp) moves backward over a balanced expression—like C-M-f, but in the reverse direction. If the expression is preceded by any prefix characters (single-quote, backquote and comma, in Lisp), the command moves back over them as well.
+
+	命令 C-M-b（backword-sexp）向后移动一个平衡表达式---类似 C-M-f，但是方向相反。如果表达式前有任何前缀字符（Lisp 中的单引号，反引号和逗号），该命令也会向后越过它们。
+
+	C-M-f or C-M-b with an argument repeats that operation the specified number of times; with a negative argument means to move in the opposite direction. In most modes, these two commands move across comments as if they were whitespace. Note that their keys, C-M-f and C-M-b, are analogous to C-f and C-b, which move by characters (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Moving-Point][Moving Point]]), and M-f and M-b, which move by words (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Words][Words]]).
+
+	带有参数的 C-M-f 或 C-M-b 会重复指定次数多的操作。使用负值参数表明向相反方向移动。大多数模式中，这两个命令移动中将注释当做空白符。注意它们的按键，C-M-f 和 C-M-b 类似移动字符的 C-f 和 C-b（see Moving Point），和移动单词的 M-f 和 M-b（see Words）。
+
+	To kill a whole balanced expression, type C-M-k (kill-sexp). This kills the text that C-M-f would move over.
+
+	使用 C-M-k（kill-sexp）来 kill 整个平衡表达式。这将会 kill C-M-f 覆盖的文本。
+
+	C-M-t (transpose-sexps) switches the positions of the previous balanced expression and the next one. It is analogous to the C-t command, which transposes characters (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Transpose][Transpose]]). An argument to C-M-t serves as a repeat count, moving the previous expression over that many following ones. A negative argument moves the previous balanced expression backwards across those before it. An argument of zero, rather than doing nothing, transposes the balanced expressions ending at or after point and the mark.
+
+	C-M-t（transpose-sepx）交换前后平衡表达式的位置。类似交换字符的 c-t 命令（see Transpose）。C-M-t 的参数代表重复次数，将前一个表达式向后移动很多次。负数表示将表达式向前移动。参数 0 表示什么都不做，只是将 mark 和 point 处或其后的平衡表达式的结束位置进行交换。
+
+	To operate on balanced expressions with a command which acts on the region, type C-M-SPC (mark-sexp). This sets the mark where C-M-f would move to. While the mark is active, each successive call to this command extends the region by shifting the mark by one expression. Positive or negative numeric arguments move the mark forward or backward by the specified number of expressions. The alias C-M-@ is equivalent to C-M-SPC. See Marking Objects, for more information about this and related commands.
+
+	输入 C-M-SPC 可将操作平衡表达式的命令和操作区域的命令一起使用。这将会设置 C-M-f 将会移动到的标记。当激活 mark 时，该命令的每次后续调用都会通过将 mark 移动一个表达式来扩展区域。正负数字参数将向前或向后移动 mark 指定数量的表达式。别名 C-M-@等于 C-M-SPC。参见 Marking Objects，了解关于这个和相关命令的更多信息。
+
+	In languages that use infix operators, such as C, it is not possible to recognize all balanced expressions because there can be multiple possibilities at a given position. For example, C mode does not treat ‘foo + bar’ as a single expression, even though it is one C expression; instead, it recognizes ‘foo’ as one expression and ‘bar’ as another, with the ‘+’ as punctuation between them. However, C mode recognizes ‘(foo + bar)’ as a single expression, because of the parentheses.
+
+	在使用中缀操作符的语言中，比如 c，是不可能认出所有平衡表达式的，因为在一个给定的位置可能有多种可能性。例如，c 模式不会将‘foo+bar’作为单独的表达式，即使它是一个 c 表达式；相反，它将 foo 当做一个表达式，bar 当做另一个，+作为它们间的标点符号。然而，c 模式将‘（foo+bar）'当做一个表达式，因为有空号。
+
+*** 26.4.2 Moving in the Parenthesis Structure
+	The following commands move over groupings delimited by parentheses (or whatever else serves as delimiters in the language you are working with). They ignore strings and comments, including any parentheses within them, and also ignore parentheses that are “quoted” with an escape character. These commands are mainly intended for editing programs, but can be useful for editing any text containing parentheses. They are referred to internally as “list” commands because in Lisp these groupings are lists.
+
+	下面的命令越过由括号分开的分组，（或者你使用的语言中其他任何可以当做分隔符的东西）。它们忽略字符串和注释，包括它们中的任何括号，也会忽略由转义字符引用的括号。这些命令主要用来编辑程序，但是对于编写任何包含括号的文本也是有用的。它们在内部被称为”list“命令，因为在 Lisp 中这些分组是列表。
+
+	These commands assume that the starting point is not inside a string or a comment. If you invoke them from inside a string or comment, the results are unreliable.
+
+	这些命令假设开始 point 不在字符串或注释中。如果从字符串或注释中，结果是不确定的。
+
+	+ C-M-n
+
+	  Move forward over a parenthetical group (forward-list).
+
+	  前进一个括号组（forward-list）
+
+	+ C-M-p
+
+	  Move backward over a parenthetical group (backward-list).
+
+	  后退一个括号组（backword-list）
+
+	+ C-M-u
+
+	  Move up in parenthesis structure (backward-up-list).
+
+	  上移一个括号组（backword-up-list）
+
+	+ C-M-d
+
+	  Move down in parenthesis structure (down-list).
+
+	  下移一个括号组（down-list）
+
+	The “list” commands C-M-n (forward-list) and C-M-p (backward-list) move forward or backward over one (or n) parenthetical groupings.
+
+	list 命令 C-M-n 和 C-M-p 前移或后移一个（或 n 个）括号组。
+
+	C-M-n and C-M-p try to stay at the same level in the parenthesis structure. To move up one (or n) levels, use C-M-u (backward-up-list). C-M-u moves backward up past one unmatched opening delimiter. A positive argument serves as a repeat count; a negative argument reverses the direction of motion, so that the command moves forward and up one or more levels.
+
+	C-M-n 和 C-M-p 尝试待在括号结构的统一等级。上移一个（或 n）个等级，使用 C-M-u（backword-up-list）。C-M-u 向后上移一个不匹配的开分隔符。正数参数执行重复次数，负值参数反向执行，所以该命令向前上移一个或更多层级。
+
+	To move down in the parenthesis structure, use C-M-d (down-list). In Lisp mode, where ‘(’ is the only opening delimiter, this is nearly the same as searching for a ‘(’. An argument specifies the number of levels to go down.
+
+	在括号结构中下移，使用 C-M-d（down-list）。Lisp 模式中，”(“是唯一的可分隔符，这几乎和查找’（‘一样。参数表明下移的层次。
+
+*** 26.4.3 Matching Parentheses
+	Emacs has a number of parenthesis matching features, which make it easy to see how and whether parentheses (or other delimiters) match up.
+
+	Emacs 有很多括号匹配的功能，这样很容易查看括号（或其他分隔符）如何匹配以及是否匹配。
+
+	Whenever you type a self-inserting character that is a closing delimiter, Emacs briefly indicates the location of the matching opening delimiter, provided that is on the screen. If it is not on the screen, Emacs displays some of the text near it in the echo area. Either way, you can tell which grouping you are closing off. If the opening delimiter and closing delimiter are mismatched—such as in ‘[x)’—a warning message is displayed in the echo area.
+
+	当输入一个自插入字符是关闭分隔符，只要开分隔符在屏幕上，Emacs 会短暂显示其位置，如果不在屏幕上，Emacs 会在回显区显示它附近的一些文本。无论哪种方式，可以知道正在关闭那个分组。如果开分隔符和关分隔符不匹配，例如[x),回显区会显示警告消息。
+
+	Three variables control the display of matching parentheses:
+
+	三个变量控制匹配的括号的显示：
+
+	+ blink-matching-paren turns the feature on or off: nil disables it, but the default is t to enable it. Set it to jump to make indication work by momentarily moving the cursor to the matching opening delimiter.
+
+	  blink-matching-paren 开启或关闭该功能：nil 关闭它，但默认是启动它。将它设置为 jump 可以让光标暂时移动到匹配的分隔符。
+
+	+ blink-matching-delay says how many seconds to keep indicating the matching opening delimiter. This may be an integer or floating-point number; the default is 1.
+
+	  blink-matching-delay 表明保持指示匹配的开分隔符多少秒。可以时整数或浮点数，默认值是 1.
+
+	+ blink-matching-paren-distance specifies how many characters back to search to find the matching opening delimiter. If the match is not found in that distance, Emacs stops scanning and nothing is displayed. The default is 102400.
+
+	  blink-matching-paren-distance 指示为了查找匹配的开分隔符向后搜索的字符数量。如果这段距离没有找到匹配，Emasc 停止扫描，不显示任何东西。默认值是 102400.
+
+	Show Paren mode, a global minor mode, provides a more powerful kind of automatic matching. Whenever point is before an opening delimiter or after a closing delimiter, both that delimiter and its opposite delimiter are highlighted. To toggle Show Paren mode, type M-x show-paren-mode.
+
+	Show Paren mode 是一个提供更强大的自动匹配的全局副模式。不论 point 实在开分隔符之前还是关分隔符之后，两种分隔符及对应的分隔符都会高亮显示。输入 M-x show-paren-mode 切换该模式。
+
+	Electric Pair mode, a global minor mode, provides a way to easily insert matching delimiters. Whenever you insert an opening delimiter, the matching closing delimiter is automatically inserted as well, leaving point between the two. Conversely, when you insert a closing delimiter over an existing one, no inserting takes places and that position is simply skipped over. These variables control additional features of Electric Pair mode:
+
+	Electric Pair 模式，是一个全局辅助模式，提供一种可以方便插入匹配分隔符的方法。插入开分隔符的时候也会自动插入匹配的关分隔符，将 point 留在两个中间。相反，当关分隔符已经存在继续插入时会直接跳过该位置。控制 Electric Pair 模式附加属性的变量如下：
+
+	+ electric-pair-preserve-balance, when non-nil, makes the default pairing logic balance out the number of opening and closing delimiters.
+
+	  electric-pair-preserve-balance，如果非 nil，使用默认的配对逻辑平衡开关分隔符的数量。（插入开分割符的时候会插入匹配的关分隔符，先插入关分隔符不会插入开分隔符）
+
+	+ electric-pair-delete-adjacent-pairs, when non-nil, makes backspacing between two adjacent delimiters also automatically delete the closing delimiter.
+
+	  electric-pair-delete-adjacent-pairs，非 nil 时，在相邻的一对分隔符间（这对分隔符间没有其他字符）使用 backspace（也就是删除开分隔符）会自动删除匹配的关分隔符。
+
+	+ electric-pair-open-newline-between-pairs, when non-nil, makes inserting a newline between two adjacent pairs also automatically open and extra newline after point.
+
+	  electric-pair-open-newline-between-pairs，非 nil 值时，在两个相邻匹配分隔符之间（这对分隔符中间没有其他字符）插入新行，会自动在 point 之后再开一个新行（最终效果：开分隔符，空行，关分隔符，总共三行）。
+
+	+ electric-pair-skip-whitespace, when non-nil, causes the minor mode to skip whitespace forward before deciding whether to skip over the closing delimiter.
+
+	  electric-pair-skip-whitespace，非 nil 时，副模式在决定是否跳过关分隔符之前向前跳过空白符（并不会删除空白符）。
+
+	To toggle Electric Pair mode, type M-x electric-pair-mode.
+
+	输入 M-x electric-pair-mode 切换 Electric Pair 模式。
+** 26.5 Manipulating Comments
+   Because comments are such an important part of programming, Emacs provides special commands for editing and inserting comments. It can also do spell checking on comments with Flyspell Prog mode (see Spelling).
+
+   因为注释是编程中重要的一部分，Emacs 提供专门的命令来编辑和插入注释。还可以通过 Flyspell Prog 模式来对注释进行语法检查（see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Spelling][Spelling]]）。
+
+   Some major modes have special rules for indenting different kinds of comments. For example, in Lisp code, comments starting with two semicolons are indented as if they were lines of code, while those starting with three semicolons are supposed to be aligned to the left margin and are often used for sectioning purposes. Emacs understand these conventions; for instance, typing TAB on a comment line will indent the comment to the appropriate position.
+
+   一些主模式使用特定规则来缩进不同类型的注释。例如，Lisp 代码中，两个分号开始的注释当做代码缩进，三个分号开始的注释对齐到左边界，经常用于分割目的。Emacs 了解这些惯例；例如，在注释行入输 TAB 会将其缩进到适当的位置。
+
+   #+BEGIN_SRC elisp
+;; This function is just an example.
+;;; Here either two or three semicolons are appropriate.
+(defun foo (x)
+;;;  And now, the first part of the function:
+  ;; The following line adds one.
+  (1+ x))           ; This line adds one.
+   #+END_SRC
+
+*** 26.5.1 Comment Commands
+	The following commands operate on comments:
+
+	下面的命令用来操作注释：
+
+	+ M-;
+
+	  Insert or realign comment on current line; if the region is active, comment or uncomment the region instead (comment-dwim).
+
+	  插入或调整当前行的注释；如果激活区域，切换区域的注释状态（comment-dwim）。
+
+	+ C-u M-;
+
+	  Kill comment on current line (comment-kill).
+
+	  删除当前行上的注释（comment-kill）。
+
+	+ C-x ;
+
+	  Set comment column (comment-set-column).
+
+	  设置注释列（comment-set-column）。
+
+	+ C-M-j
+
+	+ M-j
+
+	  Like RET followed by inserting and aligning a comment (comment-indent-new-line). See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Multi_002dLine-Comments][Multi-Line Comments]].
+
+	  回车之后紧接着插入和对齐注释（comment-indent-new-line）。see Multi-line comments。
+
+	+ M-x comment-region
+
+	+ C-c C-c (in C-like modes)
+
+	  Add comment delimiters to all the lines in the region.
+
+	  在区域的所有行添加注释分隔符。
+
+	The command to create or align a comment is M-; (comment-dwim). The word “dwim” is an acronym for “Do What I Mean”; it indicates that this command can be used for many different jobs relating to comments, depending on the situation where you use it.
+
+	创建和对齐注释的命令是 M-;（comment-dwim）。“dwim”一词是”Do What I Mean“的缩写；它表明该命令可以用于很多和注释相关的工作，这取决于使用该命令时的情况。
+
+	When a region is active (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Mark][Mark]]), M-; either adds comment delimiters to the region, or removes them. If every line in the region is already a comment, it “uncomments” each of those lines by removing their comment delimiters. Otherwise, it adds comment delimiters to enclose the text in the region.
+
+	当激活区域时，M-;要么添加注释分隔符，要么删除他们。如果该区域的每行都已经是注释。就通过删除它们的注释分隔符来取消注释。否则添加注释分隔符结束区域中的文字。
+
+	If you supply a prefix argument to M-; when a region is active, that specifies the number of comment delimiters to add or delete. A positive argument n adds n delimiters, while a negative argument -n removes n delimiters.
+
+	如果针对激活的区域使用带有前缀参数的 M-;，就制定了要添加或删除的注释分隔符的数量。正数参数 n 表示添加 n 个分隔符，负数参数-n 表示删除 n 个分隔符。
+
+	If the region is not active, and there is no existing comment on the current line, M-; adds a new comment to the current line. If the line is blank (i.e., empty or containing only whitespace characters), the comment is indented to the same position where TAB would indent to (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Basic-Indent][Basic Indent]]). If the line is non-blank, the comment is placed after the last non-whitespace character on the line; normally, Emacs tries putting it at the column specified by the variable comment-column (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Options-for-Comments][Options for Comments]]), but if the line already extends past that column, it puts the comment at some suitable position, usually separated from the non-comment text by at least one space. In each case, Emacs places point after the comment’s starting delimiter, so that you can start typing the comment text right away.
+
+	如果区域没有激活，当前行也没有注释，M-;会在当前行添加新注释。如果当前行是空白行（例如，空行或只包含空白符），注释会缩进到 TAB 键缩进的位置。（see Basic Indent）。如果当前行非空白航，注释放在行上最后一个非空白字符后面；通常，Emacs 尝试把注释放在变量 comment-column 指定的列上。（see Options for Comments），但如果行已经超过该列，它会把注释放在合适的位置，至少用一个空格符将其与非注释文本分开。每种情况下，Emacs 将 point 置于注释的开始分隔符后，这样就可以开始输入注释文本了。
+
+	You can also use M-; to align an existing comment. If a line already contains the comment-start string, M-; realigns it to the conventional alignment and moves point after the comment’s starting delimiter. As an exception, comments starting in column 0 are not moved. Even when an existing comment is properly aligned, M-; is still useful for moving directly to the start of the comment text.
+
+	还可以使用 M-;对齐已经存在的注释。如果行包含 comment-start 字符串，M-;对齐该行到传统位置并将 point 移动到注释开始的分隔符之后。作为例外，在 0 列开始的注释不会移动。即使已经存在的注释已经对齐，M-;也是有用的，它可以直接移动 point 大注释文本开始处。
+
+	C-u M-; (comment-dwim with a prefix argument) kills any comment on the current line, along with the whitespace before it. Since the comment is saved to the kill ring, you can reinsert it on another line by moving to the end of that line, doing C-y, and then M-; to realign the comment. You can achieve the same effect as C-u M-; by typing M-x comment-kill (comment-dwim actually calls comment-kill as a subroutine when it is given a prefix argument).
+
+	C-u M-;（带有前置参数的 comment-dwim）会删除当前行上的任何注释及其前面的空白符。移动到另一行结尾后通过 C-y 直接插入保存在 kill 环中的注释，然后 M-;调整注释。输入 M-x comment-kill 可以达到 C-u M-;同样的效果（当 comment-dwim 伴随前缀参数的时候，它实际上将 comment-kill 作为子程序调用）。
+
+	The command M-x comment-region is equivalent to calling M-; on an active region, except that it always acts on the region, even if the mark is inactive. In C mode and related modes, this command is bound to C-c C-c. The command M-x uncomment-region uncomments each line in the region; a numeric prefix argument specifies the number of comment delimiters to remove (negative arguments specify the number of comment to delimiters to add).
+
+	命令 M-x comment-region 等同于在激活区域上调用 M-;，除了它使用作用在区域上，及时 mark 没有激活。在 c 模式和相关模式中，该命令绑定到 C-c C-c。命令 M-x uncomment-region 反注释区域中的每一行；数字类型的前缀参数指明删除的注释分隔符的数量（负数参数指明要添加的注释分隔符的数量）。
+
+	For C-like modes, you can configure the exact effect of M-; by setting the variables c-indent-comment-alist and c-indent-comments-syntactically-p. For example, on a line ending in a closing brace, M-; puts the comment one space after the brace rather than at comment-column. For full details see [[https://www.gnu.org/software/emacs/manual/html_mono/ccmode.html#Comment-Commands][Comment Commands]] in The CC Mode Manual.
+
+	设置变量 c-indnet-comment-alist 和 c-indent-comments-syntactically-p 配置 C-like 模式中 M-; 的确切效果。例如，在以比括号结束的行尾，M-;将注释放在括号后面一个空格符之后而不是 comment-column 处。关于细节参看 cc-mode Manual 中的注释命令。
+
+*** 26.5.2 Multiple Lines of Comments
+	If you are typing a comment and wish to continue it to another line, type M-j or C-M-j (comment-indent-new-line). This breaks the current line, and inserts the necessary comment delimiters and indentation to continue the comment.
+
+	如果正在编写注释，但希望能够在下一行继续输入，可以输入 M-j 或 C-M-j（comment-indent-new-line）。这会截断当前行，在下一行中插入必要的注释分隔符，执行缩进，这样就可以继续写注释了。
+
+	For languages with closing comment delimiters (e.g., ‘*/’ in C), the exact behavior of M-j depends on the value of the variable comment-multi-line. If the value is nil, the command closes the comment on the old line and starts a new comment on the new line. Otherwise, it opens a new line within the current comment delimiters.
+
+	对于存在关闭注释分隔符的语言（例如，C 中的‘*/’），M-j 的确切行为取决于变量 comment-multi-line 的值。如果该值为 nil，该命令关闭旧行上的注释，并在新行开始新的注释。否则，在当前注释分隔符内打开新行。
+
+	When Auto Fill mode is on, going past the fill column while typing a comment also continues the comment, in the same way as an explicit invocation of M-j.
+
+	如果开启 Auto Fill 模式，如果输入注释时候超过了 fill column，注释还会继续，正如显示调用 M-j 一样。
+
+	To turn existing lines into comment lines, use M-; with the region active, or use M-x comment-region as described in the preceding section.
+
+	使用 M-;将已经存在的行变为注释；使用前面章节描述的 M-x comment-region 将激活的区域变为注释。
+
+	You can configure C Mode such that when you type a ‘/’ at the start of a line in a multi-line block comment, this closes the comment. Enable the comment-close-slash clean-up for this. See [[https://www.gnu.org/software/emacs/manual/html_mono/ccmode.html#Clean_002dups][Clean-ups]] in The CC Mode Manual.
+
+	可以配置 C 模式，当在多行注释中的一行开始处输入‘/‘时关闭注释。为此启用 comment-close-slash 清理。参见 CC Mode Manual 中的 Clean-ups 章节。
+
+*** 26.5.3 Options Controlling Comments
+	As mentioned in Comment Commands, when the M-j command adds a comment to a line, it tries to place the comment at the column specified by the buffer-local variable comment-column. You can set either the local value or the default value of this buffer-local variable in the usual way (see Locals). Alternatively, you can type C-x ; (comment-set-column) to set the value of comment-column in the current buffer to the column where point is currently located. C-u C-x ; sets the comment column to match the last comment before point in the buffer, and then does a M-; to align the current line’s comment under the previous one.
+
+	正如在注释命令中提到的，M-j 命令添加注释到一行，它尝试将注释放在 buffer-local 变量 comment-column 指定的列上。可以使用常见的方式设置该 buffer-local 变量的 local 值和默认值。（see Locals）。或者，可以输入 C-x；（comment-set-column）来将当前 buffer 中的 comment-column 设置为 point 当前所在的列。C-u C-x ; 将 comment column 匹配为 point 之前的上一个 comment，然后执行 M-;来调整当前行的注释。
+
+	The comment commands recognize comments based on the regular expression that is the value of the variable comment-start-skip. Make sure this regexp does not match the null string. It may match more than the comment starting delimiter in the strictest sense of the word; for example, in C mode the value of the variable is "\\(//+\\|/\\*+\\)\\s *", which matches extra stars and spaces after the ‘/*’ itself, and accepts C++ style comments also. (Note that ‘\\’ is needed in Lisp syntax to include a ‘\’ in the string, which is needed to deny the first star its special meaning in regexp syntax. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Regexp-Backslash][Regexp Backslash]].)
+
+	注释命令通过正则表达式识别注释，该表达式就是变量 comment-start-skip 的值。确保该表达式不会匹配到空字符串。可能会匹配不止一个严格意义上的注释开始分隔符；例如 c 模式中该变量的值是”\\(//+\\|/\\*+\\)\\s *“，会匹配到’/*‘自身之后多余的星号和空格符，也接受 C++格式注释。（注意在 Lisp 语法中如果字符串中包含要包含‘\’需要写为’\\‘，用来做转义，参见 Regexp Backslash。）
+
+	When a comment command makes a new comment, it inserts the value of comment-start as an opening comment delimiter. It also inserts the value of comment-end after point, as a closing comment delimiter. For example, in Lisp mode, comment-start is ‘";"’ and comment-end is "" (the empty string). In C mode, comment-start is "/* " and comment-end is " */".
+
+	当注释命令产生新注释时，它会将 comment-start 的值作为开始注释分隔符插入。还会在 point 之后将 comment-end 的值作为关闭注释分隔符插入。例如，在 Lisp 模式中，comment-start 是”；“，comment-end 是”“（空字符串）。C 模式中，comment-start 是”/*“，comment-end 是”*/“。
+
+	The variable comment-padding specifies a string that the commenting commands should insert between the comment delimiter(s) and the comment text. The default, ‘" "’, specifies a single space. Alternatively, the value can be a number, which specifies that number of spaces, or nil, which means no spaces at all.
+
+	变量 comment-padding 指定了注释命令在注释分隔符和注释文本间插入的字符串。默认是”“，也就是一个空格符。或者，该值还可以是一个数字，指定空格符的数量，或者是 nil，意味着根本不插入空格符。
+
+	The variable comment-multi-line controls how M-j and Auto Fill mode continue comments over multiple lines. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Multi_002dLine-Comments][Multi-Line Comments]].
+
+	变量 comment-multi-line 控制 M-j 和 Auto Fill 模式如何继续超过多行的注释。参见 Multi-Line Comments。
+
+	The variable comment-indent-function should contain a function that will be called to compute the alignment for a newly inserted comment or for aligning an existing comment. It is set differently by various major modes. The function is called with no arguments, but with point at the beginning of the comment, or at the end of a line if a new comment is to be inserted. It should return the column in which the comment ought to start. For example, in Lisp mode, the indent hook function bases its decision on how many semicolons begin an existing comment, and on the code in the preceding lines.
+
+	变量 comment-indent-function 应该包含一个函数，调用该函数来计算新插入的注释和调整现有的注释。模式不同，该值也不同。调用该函数不需要参数，但是需要 point 在注释的开始处，或者要插入新注释的行尾。它返回注释应该开始的列。例如，Lisp 模式中，缩进钩子函数基于已经存在的注释开始处有多少分号和前一行的代码。
+** 26.6 Documentation Lookup
+   Emacs provides several features you can use to look up the documentation of functions, variables and commands that you plan to use in your program.
+
+   可以使用 Emacs 提供的一些特性来查找打算在程序中使用的函数、符号和命令的文档。
+
+*** 26.6.1 Info Documentation Lookup
+	For major modes that apply to languages which have documentation in Info, you can use C-h S (info-lookup-symbol) to view the Info documentation for a symbol used in the program. You specify the symbol with the minibuffer; the default is the symbol appearing in the buffer at point. For example, in C mode this looks for the symbol in the C Library Manual. The command only works if the appropriate manual’s Info files are installed.
+
+	如果编程语言在 Info 中有文档，那么在对应的主模式中可以使用 C-h S（info-lookup-symbol）来查看程序中使用使用的符号的文档。符号在 minibuffer 中指定；默认的是 buffer 中 point 处的符号。例如，c 模式下会在 C Library Manual 中查找符号。该命令只有在适当的手册 Info 文件安装后才有用。
+
+	The major mode determines where to look for documentation for the symbol—which Info files to look in, and which indices to search. You can also use M-x info-lookup-file to look for documentation for a file name.
+
+	主模式决定了去哪里查找符号的文档---查找哪个 Info files，和搜索哪个索引。也可以使用 M-x info-lookup-file 查找文件名对应的文档。
+
+	If you use C-h S in a major mode that does not support it, it asks you to specify the “symbol help mode”. You should enter a command such as c-mode that would select a major mode which C-h S does support.
+
+	如果在不支持 C-h S 的主模式中使用该命令，它会让你指定“符号帮助模式”。此时应该属于一个命令，比如 c-mode，该命令将会选择一个 C-h S 支持的主模式。
+
+*** 26.6.2 Man Page Lookup
+	On Unix, the main form of on-line documentation was the manual page or man page. In the GNU operating system, we aim to replace man pages with better-organized manuals that you can browse with Info (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Misc-Help][Misc Help]]). This process is not finished, so it is still useful to read manual pages.
+
+	unix 上，在线文档的主要形式是 manual page 或者 man page。在 GNU 操作系统中，我们目标是使用更有效组织的手册来取代 man pages，这样就可以浏览 Info（参见 Misc Help）。这个过程还没有完成，所以阅读手册也还是有用的。
+
+	You can read the man page for an operating system command, library function, or system call, with the M-x man command. This prompts for a topic, with completion (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Completion][Completion]]), and runs the man program to format the corresponding man page. If the system permits, it runs man asynchronously, so that you can keep on editing while the page is being formatted. The result goes in a buffer named *Man topic*. These buffers use a special major mode, Man mode, that facilitates scrolling and jumping to other manual pages. For details, type C-h m while in a Man mode buffer.
+
+	可以使用 M-x man 命令来阅读 man page 了解操作系统命令，库函数或系统调用。这会提示输入主题，还会补全（see Completion），执行 man 程序来格式化相应的 man page。如果系统允许，会异步运行 man 程序，这样就可以在格式化 man page 的时候继续编辑。结果会在出现在名为 *Man topic* 的 buffer 中。盖帽是使用特别的模式，Man 模式，可以滚动和跳转到其他 manual page。当在 man mode buffer 时候输入 C-h m 了解细节。
+
+	Each man page belongs to one of ten or more sections, each named by a digit or by a digit and a letter. Sometimes there are man pages with the same name in different sections. To read a man page from a specific section, type ‘topic(section)’ or ‘section topic’ when M-x manual-entry prompts for the topic. For example, the man page for the C library function chmod is in section 2, but there is a shell command of the same name, whose man page is in section 1; to view the former, type M-x manual-entry RET chmod(2) RET.
+
+	每个 man page 都属于十个节中的一个或更多。 每个都使用数字，或一个数字加一个字母命名。有时候在不同的节中有相同名字的 man page。阅读属于特定节的 man page，在使用 M-x  manual-entry 提示输入主题时输入‘topic（section）’或‘section tip'。例如，C 库函数 chmod 的 man page 在 2 节中，但是同名 shell 命令的 man page 在 1 节中，要想看前者，输入 M-x manual-entry RET chmod(2) RET。
+
+	If you do not specify a section, M-x man normally displays only the first man page found. On some systems, the man program accepts a ‘-a’ command-line option, which tells it to display all the man pages for the specified topic. To make use of this, change the value of the variable Man-switches to ‘"-a"’. Then, in the Man mode buffer, you can type M-n and M-p to switch between man pages in different sections. The mode line shows how many manual pages are available.
+
+	如果没有指定节，M-x man 通常只显示第一个找到的 man page。一些系统中，man 程序接受命令行参数‘-a’，用来显示指定主题的所有 man page。使用这一点需要将变量 Man-switchs 的值修改为‘-a'。之后，在 Man 模式 buffer 中，可以使用 M-n 和 M-p 来在不同的节中切换。模式行显示有多少 manual page 可用。
+
+	An alternative way of reading manual pages is the M-x woman command. Unlike M-x man, it does not run any external programs to format and display the man pages; the formatting is done by Emacs, so it works on systems such as MS-Windows where the man program may be unavailable. It prompts for a man page, and displays it in a buffer named *WoMan section topic.
+
+	阅读 manual page 另一种方式是 M-x woman 命令。与 M-x man 不同，它不会运行任何外部命令格式化和显示 man page；格式化由 Emasc 完成，所以可以在诸如 MS-windows 等 man 程序不可用的系统中使用。它提示输入 man page，在名为 *WoMan section topic 的 buffer 中显示。
+
+	M-x woman computes the completion list for manpages the first time you invoke the command. With a numeric argument, it recomputes this list; this is useful if you add or delete manual pages.
+
+	M-x woman 会在第一次调用时计算 manpage 的补全列表。使用数字参数，它会重新计算该列表；如果添加和删除 manual page 会用到这个。
+
+	If you type a name of a manual page and M-x woman finds that several manual pages by the same name exist in different sections, it pops up a window with possible candidates asking you to choose one of them.
+
+	如果输入 manual page 名字后，M-x woman 在不同节中找到相同名字的 manual page，这时会弹出包含候选项的窗口让你选择一个。
+
+	For more information about setting up and using M-x woman, see the WoMan Info manual, which is distributed with Emacs.
+
+	关于更多设置和使用 M-x woman 信息，参看随 Emacs 发行的 WoMan Info manual.
+
+*** 26.6.3 Emacs Lisp Documentation Lookup
+	When editing Emacs Lisp code, you can use the commands C-h f (describe-function) and C-h v (describe-variable) to view the built-in documentation for the Lisp functions and variables that you want to use. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Name-Help][Name Help]].
+
+	当编辑 Emacs Lisp 代码时，可以使用命令 C-h f（describe-function）和 C-h v（describe-variable）来查看想要使用的 Lisp 函数和变量的内置文档。参见 Name Help。
+
+	Eldoc is a buffer-local minor mode that helps with looking up Lisp documentation. When it is enabled, the echo area displays some useful information whenever there is a Lisp function or variable at point; for a function, it shows the argument list, and for a variable it shows the first line of the variable’s documentation string. To toggle Eldoc mode, type M-x eldoc-mode. Eldoc mode can be used with the Emacs Lisp and Lisp Interaction major modes.
+
+	Eldoc 是一个 buffer-local 辅助模式，有助于查找 Lisp 文档。当启用后，回显区会显示当前 buffer 中 point 处 Lisp 函数和变量的一些有用信息；函数显示参数列表，变量显示变量文档字符串的第一行。使用 M-x eldoc-mode 切换 Eldoc mode。Eldoc mode 可以嗯好 Emasc Lisp 和 Lisp 交互模式一块使用。
+
+** 26.7 Hideshow minor mode
+   Hideshow mode is a buffer-local minor mode that allows you to selectively display portions of a program, which are referred to as blocks. Type M-x hs-minor-mode to toggle this minor mode (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Minor-Modes][Minor Modes]]).
+
+   Hideshow 模式是 buffer-local 类型的副模式，可以有选择的显示程序的一部分，也就是常说的代码块。输入 M-x hs-minor-mode 切换该辅助模式。
+
+   When you use Hideshow mode to hide a block, the block disappears from the screen, to be replaced by an ellipsis (three periods in a row). Just what constitutes a block depends on the major mode. In C mode and related modes, blocks are delimited by braces, while in Lisp mode they are delimited by parentheses. Multi-line comments also count as blocks.
+
+   当使用 Hideshow 隐藏时，代码块会从屏幕上消失，取而代之的一个省略号。什么可作为代码块取决于主模式。在 c 模式和相关模式中，代码块由大括号分割，Lisp mode 中由小括号分割。多行注释也算代码块。
+
+   Hideshow mode provides the following commands:
+
+   Hideshow 模式提供以下命令：
+
+   + C-c @ C-h
+
+	 Hide the current block (hs-hide-block).
+
+   + C-c @ C-s
+
+	 Show the current block (hs-show-block).
+
+   + C-c @ C-c
+
+	 Either hide or show the current block (hs-toggle-hiding).
+
+   + S-Mouse-2
+
+	 Toggle hiding for the block you click on (hs-mouse-toggle-hiding).
+
+   + C-c @ C-M-h
+
+	 Hide all top-level blocks (hs-hide-all).
+
+   + C-c @ C-M-s
+
+	 Show all blocks in the buffer (hs-show-all).
+
+   + C-c @ C-l
+
+	 Hide all blocks n levels below this block (hs-hide-level).
+
+   These variables can be used to customize Hideshow mode:
+
+   下面这些变量可以用来定制 Hideshow 模式：
+
+   + hs-hide-comments-when-hiding-all
+
+	 If non-nil, C-c @ C-M-h (hs-hide-all) hides comments too.
+
+   + hs-isearch-open
+
+	 This variable specifies the conditions under which incremental search should unhide a hidden block when matching text occurs within the block. Its value should be either code (unhide only code blocks), comment (unhide only comments), t (unhide both code blocks and comments), or nil (unhide neither code blocks nor comments). The default value is code.
+
+	 该变量说明如果递增搜索过程中如果匹配的文本出现在块中，应该如何显示隐藏的块。它的值应该是 code（只显示代码块），t（代码块和注释都显示），nil（代码块和注释都不显示）。默认值是 code。
+** 26.8 Completion for Symbol Names
+   Completion is normally done in the minibuffer (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Completion][Completion]]), but you can also complete symbol names in ordinary Emacs buffers.
+
+   通常补全在 minibuffer 中完成。（see Completion），但也可以在普通的的 Emacs buffer 中补全符号名。
+
+   In programming language modes, type C-M-i or M-TAB to complete the partial symbol before point. On graphical displays, the M-TAB key is usually reserved by the window manager for switching graphical windows, so you should type C-M-i or ESC TAB instead.
+
+   在编程语言模式中，输入 C-M-i 或 M-TAB 补全 point 之前的符号部分。图形现实中，M-TAB 键通常被窗口管理器保留用来切换图形窗口，所以应该输入 C-M-i 或 ESC TAB 来进行补全。
+
+   In most programming language modes, C-M-i (or M-TAB) invokes the command completion-at-point, which generates its completion list in a flexible way. If Semantic mode is enabled, it tries to use the Semantic parser data for completion (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Semantic][Semantic]]). If Semantic mode is not enabled or fails at performing completion, it tries to complete using the selected tags table (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Tags][Tags]]). If in Emacs Lisp mode, it performs completion using the function, variable, or property names defined in the current Emacs session.
+
+   大多数程序语言模式，C-M-i（或 M-TAB）调用命令 completion-at-point 以灵活的方式生成补全列表。如果启用 Semantic 模式，它尝试使用 Semantic 分析数据以供补全。（see Semantic）。如果 Semantic 没有启用，或执行补全失败，它尝试 使用选中的 tag 表（see Tags）进行补全。Emacs Lisp 模式中，会使用当前 Emacs 会话中定义的函数、变量、属性名进行补全。
+
+   In all other respects, in-buffer symbol completion behaves like minibuffer completion. For instance, if Emacs cannot complete to a unique symbol, it displays a list of completion alternatives in another window. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Completion][Completion]].
+
+   其他所有方面，buffer 中的符号补全和 minibuffer 中补全行为类似。例如，如果 Emacs 不能使用唯一的符号进行补全，会在另外一个窗口中显示补全候选列表。See Completion.
+
+   In Text mode and related modes, M-TAB completes words based on the spell-checker’s dictionary. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Spelling][Spelling]].
+
+   Text 模式或相关模式中，M-TAB 基于拼写检查器字典补全单词。See Spelling。
+** 26.9 MixedCase Words
+   Some programming styles make use of mixed-case (or “CamelCase”) symbols like ‘unReadableSymbol’. (In the GNU project, we recommend using underscores to separate words within an identifier, rather than using case distinctions.) Emacs has various features to make it easier to deal with such symbols.
+
+   一些编程风格使用大小写混合（比如“CamelCase”）的符号，例如‘unReadableSymbol’。（GNU 项目中，推荐使用下划线来分割标识符中的单词，而不是使用大小写。）Emacs 有不同的特性可以更简单地处理这些符号。
+
+   Glasses mode is a buffer-local minor mode that makes it easier to read such symbols, by altering how they are displayed. By default, it displays extra underscores between each lower-case letter and the following capital letter. This does not alter the buffer text, only how it is displayed.
+
+   Glasses 模式是一个 buffer-local 类型的辅助模式，通过改变这种符号的显示方式可以更容易的读取它们。默认情况下，它在每个小写字母和紧跟的大写字母之间显示额外的下划线。这不会改变 buffer 文本，只是改变显示方式。
+
+   To toggle Glasses mode, type M-x glasses-mode (see Minor Modes). When Glasses mode is enabled, the minor mode indicator ‘o^o’ appears in the mode line. For more information about Glasses mode, type C-h P glasses RET.
+
+   使用 M-x glasses-mode 切换 Glasses 模式。启用 Glasses 模式后，模式行中会出现辅助模式指示符‘o^o’。更多 Glasses 模式的信息，输入 C-h P glasses RET 了解。
+
+   Subword mode is another buffer-local minor mode. In subword mode, Emacs’s word commands recognize upper case letters in ‘StudlyCapsIdentifiers’ as word boundaries. When Subword mode is enabled, the minor mode indicator ‘,’ appears in the mode line. See also the similar superword-mode (see Misc for Programs).
+
+   Subword mode 也是一种 buffer-local 辅助模式。subword 模式中，Emacs 单词命令将大写字母识别为单词边界。启用 subword 模式时，在模式行显示辅助模式指示符‘，’。类似的还有 superword-mode。
+** 26.10 Semantic
+   Semantic is a package that provides language-aware editing commands based on source code parsers. This section provides a brief description of Semantic; for full details, see [[https://www.gnu.org/software/emacs/manual/html_mono/semantic.html#Top][Semantic]] in Semantic.
+
+   Semantic 是一个基于源码分析器来提供对语言敏感的编辑命令的包。本节简短描述 Semantic；更多细节参看 Semantic。
+
+   Most of the “language aware” features in Emacs, such as Font Lock mode (see Font Lock), rely on “rules of thumb”12 that usually give good results but are never completely exact. In contrast, the parsers used by Semantic have an exact understanding of programming language syntax. This allows Semantic to provide search, navigation, and completion commands that are powerful and precise.
+
+   Emacs 中大多数语言敏感的特性，比如 Font Lock 模式（see Font Lock），依赖于经验法则，通常这会给出一个好的结果但不完全准确。相比之下，Semantic 使用的解析器对编程语言语法有准确的理解。这样 Semantic 就能提供搜索、浏览以及强大和精确的补全命令。
+
+   To begin using Semantic, type M-x semantic-mode or click on the menu item named ‘Source Code Parsers (Semantic)’ in the ‘Tools’ menu. This enables Semantic mode, a global minor mode.
+
+   When Semantic mode is enabled, Emacs automatically attempts to parse each file you visit. Currently, Semantic understands C, C++, Scheme, Javascript, Java, HTML, and Make. Within each parsed buffer, the following commands are available:
+
+   启用 Semantic 模式后，Emacs 自动尝试分析每个访问的文件。目前，Semantic 理解 C, C++, Scheme, Javascript, Java, HTML, and Make。每个分析过的 buffer 中下列命令都是可用的：
+
+   + C-c , j
+
+	 Prompt for the name of a function defined in the current file, and move point there (semantic-complete-jump-local).
+
+	 提示当前文件中定义个的函数名，并进行跳转（semantic-complete-jump-local）。
+
+   + C-c , J
+
+	 Prompt for the name of a function defined in any file Emacs has parsed, and move point there (semantic-complete-jump).
+
+	 提示 Emacs 已经分析过得任何文件中定义的函数名并跳转（semantic-complete-jump）。
+
+   + C-c , SPC
+
+	 Display a list of possible completions for the symbol at point (semantic-complete-analyze-inline). This also activates a set of special key bindings for choosing a completion: RET accepts the current completion, M-n and M-p cycle through possible completions, TAB completes as far as possible and then cycles, and C-g or any other key aborts completion.
+
+	 显示当前 point 处符号可能补全的列表（semantic-complete-analyze-inline）。这也会激活一组为了选择补全绑定的特殊键：RET 接受当前补全，M-n 和 M-p 轮换可用的不全选项，TAB 尽可能的补全然后循环，C-g 或其他任何键中断补全。
+
+   + C-c , l
+
+	 Display a list of the possible completions of the symbol at point, in another window (semantic-analyze-possible-completions).
+
+	 在另外的窗口中显示当前 point 处符号可能的补全列表。(semantic-analyze-possible-completions)
+
+   In addition to the above commands, the Semantic package provides a variety of other ways to make use of parser information. For instance, you can use it to display a list of completions when Emacs is idle. See Semantic in Semantic, for details.
+
+   除了上面的命令，Semantic 包提供了各种方法使用解析器信息。例如可以使用在 Emacs 空闲时显示补全信息。
+
+** 26.11 Other Features Useful for Editing Programs
+   Some Emacs commands that aren’t designed specifically for editing programs are useful for that nonetheless.
+
+   一些 Emacs 命令不是专门为编辑程序设定，但仍然是有用的。
+
+   The Emacs commands that operate on words, sentences and paragraphs are useful for editing code. Most symbols names contain words (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Words][Words]]), while sentences can be found in strings and comments (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Sentences][Sentences]]). As for paragraphs, they are defined in most programming language modes to begin and end at blank lines (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Paragraphs][Paragraphs]]). Therefore, judicious use of blank lines to make the program clearer will also provide useful chunks of text for the paragraph commands to work on. Auto Fill mode, if enabled in a programming language major mode, indents the new lines which it creates.
+
+   操作单词，句子和段落的 Emasc 命令也可用于编写代码。大多数符号名字包含单词（see words），字符串和注释中也包含句子（see sentences）。至于段落，编程语言模式中被定义为以空白行开始和结束。因而，明智的使用空白行不仅能使程序更清晰，还能提供有用的文本块来供段落命令操作。如果编程语言主模式中启用了 Auto fill 模式，它会缩进它创建的新行。
+
+   Superword mode is a buffer-local minor mode that causes editing and motion commands to treat symbols (e.g., ‘this_is_a_symbol’) as words. When Superword mode is enabled, the minor mode indicator ‘²’ appears in the mode line. See also the similar subword-mode (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#MixedCase-Words][MixedCase Words]]).
+
+   Superword 模式是 buffer-local 副模式，可以让编辑和移动命令把符号（例如，‘this_is_a_symbol'）当做是单词操作。当启动 superword 模式时，模式行中显示辅助模式指示符‘²’。同样的还有 subword-mode（see MixCase words）。
+
+   Electric Layout mode (M-x electric-layout-mode) is a global minor mode that automatically inserts newlines when you type certain characters; for example, ‘{’, ‘}’ and ‘;’ in Javascript mode.
+
+   Electric Layout 模式（M-x electric-layout-mode）是一个全局副模式，当输入特定字符的时候会插入新行，比如，Javsscript 模式中的‘{’，‘}’和‘;’。
+
+   Apart from Hideshow mode (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Hideshow][Hideshow]]), another way to selectively display parts of a program is to use the selective display feature (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Selective-Displayhttps://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Selective-Display][Selective Display]]). Programming modes often also support Outline minor mode (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Outline-Mode][Outline Mode]]), which can be used with the Foldout package (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Foldout][Foldout]]).
+
+   除了 Hideshow 模式（see Hideshow），选择性显示部分程序还可以使用选择性显示功能（see Selective Display）。编程模式通常也支持 outline 辅助模式（see outline mode），该模式可以用来折叠包。（see Foldout）。
+
+   Prettify Symbols mode is a buffer-local minor mode that replaces certain strings with more “attractive” versions for display purposes. For example, in Emacs Lisp mode, it replaces the string “lambda” with the Greek lambda character. You may wish to use this in non-programming modes as well. You can customize the mode by adding more entries to prettify-symbols-alist. There is also a global version, global-prettify-symbols-mode, which enables the mode in all buffers that support it.
+
+   Prettify Symbol 模式是一个 buffer-local 辅助模式，为了显示目的可以将指定字符串替换为更“有吸引力”的版本。例如，Emacs Lisp 模式中，它会将字符串“lambda”替换为希腊字母“λ”。可能希望在非编程模式中也使用它。通过向 prettify-symbos-alist 中添加更多条目来进行定制。还有一个全局版本，global-prettify-symbols-mode，可以在支持它的所有 buffer 中启用该模式。

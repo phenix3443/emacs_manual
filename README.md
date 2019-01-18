@@ -1,4 +1,1 @@
-emacs_translation
-============
-
-Emacs相关资料翻译 
+[Emacs manual](https://www.gnu.org/software/emacs/manual/html_mono/emacs.html)中文翻译

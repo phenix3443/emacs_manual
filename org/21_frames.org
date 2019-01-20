@@ -1,0 +1,63 @@
+# -*- coding:utf-8-*-
+#+TITLE: 21 Frames and Graphical Displays
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
+
+* 21 Frames and Graphical Displays
+** 21.5 Mode Line Mouse Commands
+   You can use mouse clicks on window mode lines to select and manipulate windows.
+
+   可以使用鼠标单击窗口的模式行来选择和操作窗口。
+
+   Some areas of the mode line, such as the buffer name, and major and minor mode names, have their own special mouse bindings. These areas are highlighted when you hold the mouse over them, and information about the special bindings will be displayed (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Tooltips.html#Tooltips][Tooltips]]). This section's commands do not apply in those areas.
+
+   模式行的某些区域（例如 buffer 名称以及 major 和 minor mode 名称）具有自己的特殊鼠标绑定。将鼠标悬停在这些区域时会突出显示这些区域，并显示有关特殊绑定的信息（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Tooltips.html#Tooltips][Tooltips]]）。本节的命令不适用于这些区域。
+
+   + mouse-1
+
+     mouse-1 on a mode line selects the window it belongs to. By dragging mouse-1 on the mode line, you can move it, thus changing the height of the windows above and below. Changing heights with the mouse in this way never deletes windows, it just refuses to make any window smaller than the minimum height.
+
+     模式行上 mouse-1 选择它所属的窗口。通过在模式行上拖动 mouse-1 进行移动，从而更改窗口上方和下方的高度。用这种方式用鼠标改变高度永远不会删除窗口，它只是拒绝使任何窗口小于最小高度。
+
+   + mouse-2
+
+     mouse-2 on a mode line expands that window to fill its frame.
+
+     模式行上的 mouse-2 展开该窗口以填充其框架。
+
+   + mouse-3
+
+     mouse-3 on a mode line deletes the window it belongs to. If the frame has only one window, it does nothing.
+
+     模式行上的 mouse-3 删除它所属的窗口。如果框架只有一个窗口，它什么都不做。
+
+   + C-mouse-2
+
+     C-mouse-2 on a mode line splits that window, producing two side-by-side windows with the boundary running through the click position (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Split-Window.html#Split-Window][Split Window]]).
+
+     模式线上的 C-mouse-2 分割该窗口，产生两个并排的窗口，边界位于点击位置（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Split-Window.html#Split-Window][Split Window]]）。
+   此外，通过在两个并排模式线之间的分隔线上单击并拖动鼠标 1，可以向左或向右移动垂直边界。
+
+   Furthermore, by clicking and dragging mouse-1 on the divider between two side-by-side mode lines, you can move the vertical boundary to the left or right.
+
+   此外，通过在两个并排模式线之间的分隔线上单击并拖动鼠标 1，可以向左或向右移动垂直边界。
+
+   Note that resizing windows is affected by the value of window-resize-pixelwise, see  [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Split-Window.html#Split-Window][Split Window]].
+
+   请注意，调整窗口大小会受窗口调整大小 - 像素值的影响，请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Split-Window.html#Split-Window][Split Window]]。
+
+** 21.14 Menu Bars
+
+   You can toggle the use of menu bars with M-x menu-bar-mode. With no argument, this command toggles Menu Bar mode, a global minor mode. With an argument, the command turns Menu Bar mode on if the argument is positive, off if the argument is not positive. To control the use of menu bars at startup, customize the variable menu-bar-mode.
+
+   可使用 M-x menu-bar-mode 切换菜单栏的使用。没有参数，该命令将切换菜单栏，这是全局 minor mode。使用参数，如果参数为正，显示菜单栏，否则关闭。自定义 menu-bar-mode 变量可以在启动的时候控制菜单栏的使用。
+
+   Expert users often turn off the menu bar, especially on text terminals, where this makes one additional line available for text. If the menu bar is off, you can still pop up a menu of its contents with C-Mouse-3 on a display which supports pop-up menus. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Menu-Mouse-Clicks.html#Menu-Mouse-Clicks][Menu Mouse Clicks]].
+
+   专家用户经常关闭菜单栏，特别是在文本终端，这样文本就多一行可用。如果关闭菜单栏，在支持弹出菜单的显示中仍然可以使用 C-Mouse-3 弹出菜单项。参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Menu-Mouse-Clicks.html#Menu-Mouse-Clicks][Menu Mouse Clicks]].
+
+   See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Menu-Bar.html#Menu-Bar][Menu Bar]], for information on how to invoke commands with the menu bar. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/X-Resources.html#X-Resources][X Resources]], for how to customize the menu bar menus’ visual appearance
+
+   有关如何使用菜单栏调用命令的信息，请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Menu-Bar.html#Menu-Bar][Menu Bar]]。 有关如何自定义菜单栏菜单的可视外观，请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/X-Resources.html#X-Resources][X Resources]]。

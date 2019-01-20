@@ -2,6 +2,8 @@
 #+title:14 Controlling the Display
 #+author:刘尚亮
 #+email：phenix3443@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
 
 * 14 Controlling the Display
 ** 14.5 Narrowing
@@ -155,7 +157,7 @@
 
    The buffer percentage POS indicates the percentage of the buffer above the top of the window.  You can additionally display the size of the buffer by typing ‘M-x size-indication-mode’ to turn on Size Indication mode.  The size will be displayed immediately following the buffer percentage like this:
 
-   POS 指示的 buffer 百分比表示 window 顶部之上所占的百分比。可以键入‘M-x size-indication-mode’另外开启 Size Indication mode 显示 buffer 大小。大小将紧跟 buffer 百分比立刻这样显示：
+    buffer 百分比 POS 表示 window 顶部上方所占的百分比。还可以键入‘M-x size-indication-mode’开启 Size Indication mode 显示 buffer 大小。大小将立即显示在缓冲区百分比之后，如下所示：
 
    #+BEGIN_EXAMPLE
 POS of SIZE
@@ -163,18 +165,19 @@ POS of SIZE
 
    Here SIZE is the human readable representation of the number of characters in the buffer, which means that ‘k’ for 10^3, ‘M’ for 10^6, ‘G’ for 10^9, etc., are used to abbreviate.
 
-   这里 SIZE 是 buffer 中字符数量个人类可读的表示，也就是使用缩写表示的‘k’ for 10^3, ‘M’ for 10^6, ‘G’ for 10^9,等。
+   此处 SIZE 是 buffer 中字符数量的人类可读表示，也意味着缩写的‘k’ 代表 10^3, ‘M’ 代表 10^6, ‘G’代表 10^9 等。
 
    The current line number of point appears in the mode line when Line Number mode is enabled.  Use the command ‘M-x line-number-mode’ to turn this mode on and off; normally it is on.  The line number appears after the buffer percentage POS, with the letter ‘L’ to indicate what it is.
 
-   启用 Line Number Mode 后 point 所在的当前行号显示在模式行中。使用‘M-x line-number-mode’启用或禁用该模式。通常是开启的。行号显示值 buffer 百分比 POS 之后，以字母‘L’表示它是什么。
+   启用 Line Number Mode 后 ，point 所在行号显示在模式行中。使用‘M-x line-number-mode’启用或关闭该模式。通常是开启的。行号显示在 buffer 百分比 POS 之后，以字母‘L’表示。
 
    Similarly, you can display the current column number by turning on Column number mode with ‘M-x column-number-mode’.  The column number is indicated by the letter ‘C’.  However, when both of these modes are enabled, the line and column numbers are displayed in parentheses, the line number first, rather than with ‘L’ and ‘C’.  For example: ‘(561,2)’.  *Note Minor Modes::, for more information about minor modes and about how to use these commands.
-   类似，使用‘M-x column-number-mode’启用 Column number mode 之后，也可以显示当前列号。列号使用字母‘C’指示。然而，当两种模式都启用后，行号和列号将会显示在口号中，行号在前，而不是‘L’ 和 ‘C’。例如，‘(561,2)’。
 
-   If you have narrowed the buffer (*note Narrowing::), the displayed line number is relative to the accessible portion of the buffer.  Thus, it isn’t suitable as an argument to ‘goto-line’.  (Use ‘what-line’command to see the line number relative to the whole file.)
+   同样，使用 =M-x column-number-mode= 开启 Column number mode 显示当前列号。列号使用字母‘C’指示。然而，当两种模式都启用后，行号和列号将会显示在酷跑号中，行号在前，而不是‘L’ 和 ‘C’。例如，‘(561,2)’。
 
-   如果 narrowed 了 buffer，显示的行号是相对 buffer 可访问部分的。因而，它不适合做‘goto-line’的参数。（使用‘what-line’命令查看相对于整个文件的行号。）
+   If you have narrowed the buffer (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html#Narrowing][Narrowing]]), the displayed line number is relative to the accessible portion of the buffer. Thus, it isn't suitable as an argument to goto-line. (Use what-line command to see the line number relative to the whole file.)
+
+   如果 narrow 了 buffer（参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html#Narrowing][Narrowing]]），显示的行号与 buffer 可访问部分相关。因而，它不适合做‘goto-line’的参数。（使用‘what-line’命令查看相对于整个文件的行号。）
 
    If the buffer is very large (larger than the value of ‘line-number-display-limit’), Emacs won’t compute the line number, because that would be too slow; therefore, the line number won’t appear on the mode-line.  To remove this limit, set ‘line-number-display-limit’to ‘nil’.
 
@@ -182,11 +185,11 @@ POS of SIZE
 
    Line-number computation can also be slow if the lines in the buffer are too long.  For this reason, Emacs doesn’t display line numbers if the average width, in characters, of lines near point is larger than the value of ‘line-number-display-limit-width’.  The default value is 200 characters.
 
-   如果 buffer 中行太多，行号计算也会很慢。处于这个原因，如果按字符算 point 处行的平均宽度超过了 line-number-display-limit-width 的值也不会显示行号。默认值是 200 个字符。
+   如果 buffer 中行太多，行数计算也会很慢。因此如果 point 所在行的平均宽度（以字符为单位）超过了 line-number-display-limit-width 的值，也不会显示行号。默认值是 200 个字符。
 
    Emacs can optionally display the time and system load in all mode lines.  To enable this feature, type ‘M-x display-time’ or customize the option ‘display-time-mode’.  The information added to the mode line looks like this:
 
-   Emacs 可以在所有模式行显示时间和系统负载。键入‘M-x display-time’或设置选项‘display-time-mode’启用该功能。添加到模式行的显示如下：
+   可选择在 Emacs 所有 mode line 显示时间和系统负载。键入‘M-x display-time’或设置选项‘display-time-mode’启用该功能。添加到模式行的信息如下：
 
    #+BEGIN_EXAMPLE
 HH:MMpm L.LL
@@ -194,31 +197,32 @@ HH:MMpm L.LL
 
    Here HH and MM are the hour and minute, followed always by ‘am’ or ‘pm’. L.LL is the average number, collected for the last few minutes, of processes in the whole system that were either running or ready to run (i.e., were waiting for an available processor).  (Some fields may be missing if your operating system cannot support them.)  If you prefer time display in 24-hour format, set the variable ‘display-time-24hr-format’ to ‘t’.
 
-   这里，HH 和 MM 表示小时和分钟，后面紧跟‘am’ or ‘pm’，L.LL 是最近几分钟搜集真个系统正在运行或等待运行的进程的平均数。（例如，等待可用的处理器）。（如果操作系统不支持，有些字段可能丢失。）如果更喜欢用 24 小时制显示时间，将变量‘display-time-24hr-format’设置为 t。
+   此处 HH 和 MM 表示小时和分钟，后面总跟‘am’ or ‘pm’，L.LL 是最近几分钟搜集整个系统正在运行或准备运行（例如等待可用处理器）的进程的平均数。（如果操作系统不支持，有些字段可能丢失。）如果希望以 24 小时制显示时间，将变量‘display-time-24hr-format’设置为 t。
 
    The word ‘Mail’ appears after the load level if there is mail for you that you have not read yet.  On graphical displays, you can use an icon instead of ‘Mail’ by customizing ‘display-time-use-mail-icon’; this may save some space on the mode line.  You can customize ‘display-time-mail-face’ to make the mail indicator prominent.  Use ‘display-time-mail-file’ to specify the mail file to check, or set ‘display-time-mail-directory’ to specify the directory to check for incoming mail (any nonempty regular file in the directory is considered as “newly arrived mail”).
 
-   如果有未读邮件，单词‘Mail’会显示在载入等级之后。在图形界面中，通过订制‘display-time-use-mail-icon’可以使用图标代替‘Mail’。可以订制‘display-time-mail-face’突出显示邮件指示。使用‘display-time-mail-file’指定检查的邮件文件，或设置‘display-time-mail-directory’指定检查的到来邮件的目录（目录中任何非空常规文件被认为是新到达的邮件）。
+   如果有未读邮件，加载级别后会显示‘Mail’。图形显示中，通过订制‘display-time-use-mail-icon’可以使用图标代替‘Mail’，这可能会节省 mode line 一些空间。可以订制‘display-time-mail-face’突显示邮件指示。使用‘display-time-mail-file’指定要检查的邮件文件，或设置‘display-time-mail-directory’指定检查的到来邮件的目录（目录中任何非空常规文件被认为是新到达的邮件）。
 
    When running Emacs on a laptop computer, you can display the battery charge on the mode-line, by using the command ‘display-battery-mode’ or customizing the variable ‘display-battery-mode’.  The variable ‘battery-mode-line-format’ determines the way the battery charge is displayed; the exact mode-line message depends on the operating system, and it usually shows the current battery charge as a percentage of the total charge.
 
-   在笔记本上运行 Emacs，使用命令‘display-battery-mode’ 或订制变量‘display-battery-mode’还可以在模式行显示电池电量。变量‘battery-mode-line-format’指定哪个显示电池电量的方式；确切的模式行信息依赖于操作系统，通常显示当前电池电量的百分比。
+   在笔记本上运行 Emacs，还可使用‘display-battery-mode’命令 或自定义‘display-battery-mode’变量在 mode line 显示电池电量。‘battery-mode-line-format’指定显示电池电量的方式；确切的模式行信息依赖操作系统，通常显示当前电池电量的百分比。
 
-   On graphical displays, the mode line is drawn as a 3D box.  If you don’t like ‘mode-line’ face and setting its ‘box’ attribute to ‘nil’.  *Note Face Customization::.
 
-   图形界面上，模式话使用 3D 盒子绘制。如果不喜欢‘mode-line’ face，可以将它的‘box’设置为 nil。
+   On graphical displays, the mode line is drawn as a 3D box. If you don't like this effect, you can disable it by customizing the mode-line face and setting its box attribute to nil. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Face-Customization.html#Face-Customization][Face Customization]].
+
+   图形界面上，mode line 绘制为 3D 框。如果您不喜欢此效果，可以通过自定义 mode-line face 并将其 box 属性设置为 nil 来禁用它。请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Face-Customization.html#Face-Customization][Face Customization]]。
 
    By default, the mode line of nonselected windows is displayed in a different face, called ‘mode-line-inactive’.  Only the selected window is displayed in the ‘mode-line’ face.  This helps show which window is selected.  When the minibuffer is selected, since it has no mode line, the window from which you activated the minibuffer has its mode line displayed using ‘mode-line’; as a result, ordinary entry to the minibuffer does not change any mode lines.
 
-   默认情况下，非选中窗口的模式行显示为不同的 face，其称作‘mode-line-inactive’。只有选中的 window 使用‘mode-line’face 显示。这有助于凸显选中的 windows。选中 minibuffer 后，因为它没有模式行，从 minibuffer 激活的 buffer 将会使用‘mode-line’显示它的模式行；因此，普通进入 minibuffer 不会修改任何模式行。
+   默认情况下，未选中窗口的模式行显示为不同的 face，其称作‘mode-line-inactive’。只有选中的 window 使用‘mode-line’face 显示。这有助于凸显选中的 windows。选中 minibuffer 后，因为它没有模式行，激活 minibuffer 的 buffer 将会使用‘mode-line’显示它的模式行；因此，普通进入 minibuffer 不会修改任何模式行。
 
    You can disable use of ‘mode-line-inactive’ by setting variable ‘mode-line-in-non-selected-windows’ to ‘nil’; then all mode lines are displayed in the ‘mode-line’ face.
 
-   通过将变量‘mode-line-in-non-selected-windows’ 设置诶‘nil’可以关闭‘mode-line-inactive’的使用；之后所有模式使用‘mode-line’ face 显示。
+   通过将变量‘mode-line-in-non-selected-windows’ 设置为‘nil’可以禁用‘mode-line-inactive’；之后所有模式使用‘mode-line’ face 显示。
 
    You can customize the mode line display for each of the end-of-line formats by setting each of the variables ‘eol-mnemonic-unix’, ‘eol-mnemonic-dos’, ‘eol-mnemonic-mac’, and ‘eol-mnemonic-undecided’ to the strings you prefer.
 
-   通过将变量变量‘eol-mnemonic-unix’, ‘eol-mnemonic-dos’, ‘eol-mnemonic-mac’, and ‘eol-mnemonic-undecided’设置为你喜欢的字符串，可以为每个行尾格式定制模式行显示。
+   通过将变量‘eol-mnemonic-unix’, ‘eol-mnemonic-dos’, ‘eol-mnemonic-mac’, and ‘eol-mnemonic-undecided’设置为喜欢的字符串来自定义每种行尾格式的 mode line 显示。
 
 ** 14.20 Displaying the Cursor
 

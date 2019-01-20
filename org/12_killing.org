@@ -1,5 +1,10 @@
-# -*- coding:utf-8; -*-
-#+title:12 Killing and Moving Text
+# -*- coding:utf-8-*-
+#+TITLE: 12 Killing and Moving Text
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
+
 
 * 12 Killing and Moving Text
 

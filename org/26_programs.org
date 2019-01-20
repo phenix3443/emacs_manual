@@ -1,6 +1,10 @@
-# -*- coding:utf-8; -*-
+# -*- coding:utf-8-*-
+#+TITLE: 26 Editing Programs
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
 
-#+title: 26 Editing Programs
 * 26 Editing Programs
 
   This chapter describes Emacs features for facilitating editing programs. Some of the things these features can do are:

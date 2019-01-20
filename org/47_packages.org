@@ -1,5 +1,10 @@
-# -*- coding:utf-8; -*-
-#+title:47 Emacs Lisp Packages
+# -*- coding:utf-8-*-
+#+TITLE: 47 Emacs Lisp Packages
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
+
 * 47 Emacs Lisp Packages
   Emacs includes a facility that lets you easily download and install packages that implement additional features. Each package is a separate Emacs Lisp program, sometimes including other components such as an Info manual.
 

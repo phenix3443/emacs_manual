@@ -1,6 +1,10 @@
-# -*- coding:utf-8; -*-
+# -*- coding:utf-8-*-
+#+TITLE: 22 International character set support
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
 
-#+title:22 International character set support
 * 22 International character set support
 ** 22.5 Coding Systems
    Users of various languages have established many more-or-less standard coding systems for representing them. Emacs does not use these coding systems internally; instead, it converts from various coding systems to its own system when reading data, and converts the internal coding system to other coding systems when writing data. Conversion is possible in reading or writing files, in sending or receiving from the terminal, and in exchanging data with subprocesses.

@@ -1,0 +1,8 @@
+# -*- coding:utf-8-*-
+#+TITLE: 25 Commands for Human Languages
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
+
+* 25 Commands for Human Languages

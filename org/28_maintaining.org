@@ -2,6 +2,8 @@
 #+TITLE: 28 Maintaining Large Programs
 #+AUTHOR: liushangliang
 #+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
 
 * 28 Maintaining Large Programs
 

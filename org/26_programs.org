@@ -793,22 +793,26 @@
    In Text mode and related modes, M-TAB completes words based on the spell-checker’s dictionary. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Spelling][Spelling]].
 
    Text 模式或相关模式中，M-TAB 基于拼写检查器字典补全单词。See Spelling。
+
 ** 26.9 MixedCase Words
    Some programming styles make use of mixed-case (or “CamelCase”) symbols like ‘unReadableSymbol’. (In the GNU project, we recommend using underscores to separate words within an identifier, rather than using case distinctions.) Emacs has various features to make it easier to deal with such symbols.
 
-   一些编程风格使用大小写混合（比如“CamelCase”）的符号，例如‘unReadableSymbol’。（GNU 项目中，推荐使用下划线来分割标识符中的单词，而不是使用大小写。）Emacs 有不同的特性可以更简单地处理这些符号。
+   一些编程风格使用混合大小符号（比如“CamelCase”），例如‘unReadableSymbol’。（GNU 项目中，推荐使用下划线来分割标识符中的单词，而不是使用大小写。）Emacs 有很多特性可以更简单地处理这些符号。
 
    Glasses mode is a buffer-local minor mode that makes it easier to read such symbols, by altering how they are displayed. By default, it displays extra underscores between each lower-case letter and the following capital letter. This does not alter the buffer text, only how it is displayed.
 
    Glasses 模式是一个 buffer-local 类型的辅助模式，通过改变这种符号的显示方式可以更容易的读取它们。默认情况下，它在每个小写字母和紧跟的大写字母之间显示额外的下划线。这不会改变 buffer 文本，只是改变显示方式。
 
-   To toggle Glasses mode, type M-x glasses-mode (see Minor Modes). When Glasses mode is enabled, the minor mode indicator ‘o^o’ appears in the mode line. For more information about Glasses mode, type C-h P glasses RET.
+   To toggle Glasses mode, type M-x glasses-mode (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Minor-Modes.html#Minor-Modes][Minor Modes]]). When Glasses mode is enabled, the minor mode indicator ‘o^o’ appears in the mode line. For more information about Glasses mode, type C-h P glasses RET.
 
-   使用 M-x glasses-mode 切换 Glasses 模式。启用 Glasses 模式后，模式行中会出现辅助模式指示符‘o^o’。更多 Glasses 模式的信息，输入 C-h P glasses RET 了解。
+   使用 M-x glasses-mode（参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Minor-Modes.html#Minor-Modes][Minor Modes]]）切换 Glasses 模式。启用 Glasses 模式后，mode line 中会显示指示符‘o^o’。使用 =C-h P glasses RET= 了解更多 Glasses 模式的信息。
 
-   Subword mode is another buffer-local minor mode. In subword mode, Emacs’s word commands recognize upper case letters in ‘StudlyCapsIdentifiers’ as word boundaries. When Subword mode is enabled, the minor mode indicator ‘,’ appears in the mode line. See also the similar superword-mode (see Misc for Programs).
+   Subword mode is another buffer-local minor mode. In subword mode, Emacs’s word commands recognize upper case letters in ‘StudlyCapsIdentifiers’ as word boundaries. When Subword mode is enabled, the minor mode indicator ‘,’ appears in the mode line. See also the similar superword-mode (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Misc-for-Programs.html#Misc-for-Programs][Misc for Programs]]).
 
-   Subword mode 也是一种 buffer-local 辅助模式。subword 模式中，Emacs 单词命令将大写字母识别为单词边界。启用 subword 模式时，在模式行显示辅助模式指示符‘，’。类似的还有 superword-mode。
+   Subword mode 也是一种 buffer-local minor mode。subword mode 中，Emacs 单词命令将大写字母识别为单词边界。启用 subword mode 时，在模式行显示辅助模式指示符‘,’。类似的还有 superword-mode（）。
+
+   译注：superword-mode 中连字符（“_”）连接的单词作为一个单词，例如“this_is_a_symbol”算作一个单词。
+
 ** 26.10 Semantic
    Semantic is a package that provides language-aware editing commands based on source code parsers. This section provides a brief description of Semantic; for full details, see [[https://www.gnu.org/software/emacs/manual/html_mono/semantic.html#Top][Semantic]] in Semantic.
 

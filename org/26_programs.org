@@ -713,11 +713,11 @@
 *** 26.6.3 Emacs Lisp Documentation Lookup
 	When editing Emacs Lisp code, you can use the commands C-h f (describe-function) and C-h v (describe-variable) to view the built-in documentation for the Lisp functions and variables that you want to use. See [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Name-Help][Name Help]].
 
-	当编辑 Emacs Lisp 代码时，可以使用命令 C-h f（describe-function）和 C-h v（describe-variable）来查看想要使用的 Lisp 函数和变量的内置文档。参见 Name Help。
+	当编辑 Emacs Lisp 代码时，可以使用命令 C-h f（describe-function）和 C-h v（describe-variable）来查看想要使用的 Lisp 函数和变量的内置文档。参见  [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Name-Help][Name Help]] 。
 
 	Eldoc is a buffer-local minor mode that helps with looking up Lisp documentation. When it is enabled, the echo area displays some useful information whenever there is a Lisp function or variable at point; for a function, it shows the argument list, and for a variable it shows the first line of the variable’s documentation string. To toggle Eldoc mode, type M-x eldoc-mode. Eldoc mode can be used with the Emacs Lisp and Lisp Interaction major modes.
 
-	Eldoc 是一个 buffer-local 辅助模式，有助于查找 Lisp 文档。当启用后，回显区会显示当前 buffer 中 point 处 Lisp 函数和变量的一些有用信息；函数显示参数列表，变量显示变量文档字符串的第一行。使用 M-x eldoc-mode 切换 Eldoc mode。Eldoc mode 可以嗯好 Emasc Lisp 和 Lisp 交互模式一块使用。
+	Eldoc 是一个 buffer-local 辅助模式，有助于查找 Lisp 文档。当启用后，回显区会显示当前 buffer 中 point 处 Lisp 函数和变量的一些有用信息；函数显示参数列表，变量显示变量文档字符串的第一行。使用 M-x eldoc-mode 切换 Eldoc mode。Eldoc mode 可以和 Emasc Lisp 和 Lisp 交互模式一块使用。
 
 ** 26.7 Hideshow minor mode
    Hideshow mode is a buffer-local minor mode that allows you to selectively display portions of a program, which are referred to as blocks. Type M-x hs-minor-mode to toggle this minor mode (see [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Minor-Modes][Minor Modes]]).

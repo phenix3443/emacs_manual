@@ -1,0 +1,111 @@
+# -*- coding:utf-8-*-
+#+TITLE: 1 Screen
+#+AUTHOR: liushangliang
+#+EMAIL: phenix3443+github@gmail.com
+#+STARTUP: overview
+#+OPTIONS: num:nil
+* 1 The Organization of the Screen
+** 1.3 The Mode Line
+
+   At the bottom of each window is a "mode line", which describes what is going on in the current buffer.  When there is only one window, the mode line appears right above the echo area; it is the next-to-last line in the frame.  On a graphical display, the mode line is drawn with a 3D box appearance.  Emacs also usually draws the mode line of the selected window with a different color than that of unselected windows, in order to make it stand out.
+
+   每个 window 底部都有一个“mode line”，它描述当前 buffer 正在发生的事情。当只有一个 window 时，mode line 正好处于 echo area 上方，是 frame 中的倒数第二行。图形化显示中，mode line 使用 3D 框绘制。Emacs 中为了突出显示，选中 window 的 mode line 通常与未被选中的颜色不同。
+
+   The text displayed in the mode line has the following format:
+
+   mode line 显示的文本具有以下格式：
+
+   #+BEGIN_EXAMPLE
+CS:CH-FR  BUF      POS LINE   (MAJOR MINOR)
+   #+END_EXAMPLE
+
+   On a text terminal, this text is followed by a series of dashes extending to the right edge of the window.  These dashes are omitted on a graphical display.
+
+   在文本终端，此文本后面是一直延伸到 window 右边缘的的破折号。图形显示省略了这些破折号。
+
+   The CS string and the colon character after it describe the character set and newline convention used for the current buffer.  Normally, Emacs automatically handles these settings for you, but it is sometimes useful to have this information.
+
+   CS 和后面的冒号描述当前 buffer 的字符集以及换行约定。通常，Emacs 自动处理这些，但有时这些信息很有用。
+
+   cs describes the character set of the text in the buffer (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Coding-Systems.html#Coding-Systems][Coding Systems]]). If it is a dash (‘-’), that indicates no special character set handling (with the possible exception of end-of-line conventions, described in the next paragraph). ‘=’ means no conversion whatsoever, and is usually used for files containing non-textual data. Other characters represent various coding systems—for example, ‘1’ represents ISO Latin-1.
+
+   CS 描述了 buffer 中文本的字符集（参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Coding-Systems.html#Coding-Systems][Coding Systems]]）。如果它是一个破折号(‘-’)，表示没有特殊字符集处理（除了可能有的换行符约定，下段描述）。‘=’表示没有任何转换，通常用于包含非文本数据的文件。其他字符代表不同的“编码系统”---例如，‘1’表示 ISO Latin-1。
+
+   on a text terminal, cs is preceded by two additional characters that describe the coding systems for keyboard input and terminal output. furthermore, if you are using an input method, cs is preceded by a string that identifies the input method (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Input-Methods.html#Input-Methods][Input Methods]]).
+
+   在文本终端上，cs 前面有两个附加字符，用于描述键盘输入和终端输出的编码系统。此外，如果使用的是输入法，则 cs 前面会有一个标识输入法的字符串（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Input-Methods.html#Input-Methods][Input Methods]]）。
+
+   The character after CS is usually a colon.  If a different string is displayed, that indicates a nontrivial end-of-line convention for encoding a file.  Usually, lines of text are separated by "newline characters" in a file, but two other conventions are sometimes used. The MS-DOS convention uses a “carriage-return” character followed by a “linefeed” character; when editing such files, the colon changes to either a backslash (‘\’) or ‘(DOS)’, depending on the operating system. Another convention, employed by older Macintosh systems, uses a “carriage-return” character instead of a newline; when editing such files, the colon changes to either a forward slash (‘/’) or ‘(Mac)’.  On some systems, Emacs displays ‘(Unix)’ instead of the colon for files that use newline as the line separator.
+
+   cs 后的字符通常是冒号。如果显示不同的字符串，则表示用异常的行尾约定编码文件。通常，文本行由文件中的换行符分隔，但有时会使用其他两种约定。MS-DOS 约定使用回车字符，后跟换行符; 编辑此类文件时，冒号变为反斜杠（'\'）或'（DOS）'，具体取决于操作系统。旧版 Macintosh 系统采用的另一种约定：使用回车符而不是换行符; 编辑此类文件时，冒号变为正斜杠（'/'）或'（Mac）'。在某些系统上，对于使用换行作为行分隔符的文件，Emacs 显示 “（Unix）” 而不是冒号。
+
+   On frames created for emacsclient (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Invoking-emacsclient.html#Invoking-emacsclient][Invoking emacsclient]]), the next character is ‘@’. This indication is typical for frames of an Emacs process running as a daemon (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html#Emacs-Server][Emacs Server]]).
+
+   在为 emacsclient 创建的 frame 上（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Invoking-emacsclient.html#Invoking-emacsclient][Invoking emacsclient]]），下一个字符为 “@”。此指示通常用于作为守护程序运行的 Emacs 进程的 frame（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html#Emacs-Server][Emacs Server]]）。
+
+
+   The next element on the mode line is the string indicated by ch. This shows two dashes (‘--’) if the buffer displayed in the window has the same contents as the corresponding file on the disk; i.e., if the buffer is unmodified. If the buffer is modified, it shows two stars (‘**’). For a read-only buffer, it shows ‘%*’ if the buffer is modified, and ‘%%’ otherwise.
+   模式行上的下一个元素是 ch 表示的字符串。如果窗口中显示的缓冲区与磁盘上的相应文件具有相同的内容，则显示两个破折号（'-'）; 即，如果缓冲区未被修改。如果缓冲区被修改，它会显示两颗星（'**'）。对于只读缓冲区，如果缓冲区被修改则显示 =％*= ，否则显示'%%'。
+
+   The character after ch is normally a dash (‘-’). However, if default-directory (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/File-Names.html#File-Names][File Names]]) for the current buffer is on a remote machine, ‘@’ is displayed instead.
+
+   ch 之后的字符通常是破折号（'-'）。但是，如果当前缓冲区的 default-directory（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/File-Names.html#File-Names][File Names]]）位于远程计算机上，则会显示 “@”。
+
+   fr gives the selected frame name (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Frames.html#Frames][Frames]]). It appears only on text terminals. The initial frame's name is ‘F1’.
+
+   fr 给出所选的 frame 名称（参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Frames.html#Frames][Frames]]）。它只出现在文本终端上。初始 frame 的名称是 “F1”。
+
+   buf is the name of the buffer displayed in the window. Usually, this is the same as the name of a file you are editing. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Buffers.html#Buffers][Buffers]].
+
+   buf 是窗口中显示的缓冲区的名称。通常，这与您正在编辑的文件的名称相同。请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Buffers.html#Buffers][Buffers]]。
+
+   pos tells you whether there is additional text above the top of the window, or below the bottom. If your buffer is small and all of it is visible in the window, pos is ‘All’. Otherwise, it is ‘Top’ if you are looking at the beginning of the buffer, ‘Bot’ if you are looking at the end of the buffer, or ‘nn%’, where nn is the percentage of the buffer above the top of the window. With Size Indication mode, you can display the size of the buffer as well. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Optional-Mode-Line.html#Optional-Mode-Line][Optional Mode Line]].
+
+   pos 说明窗口顶部或底部下方是否有其他文本。如缓冲区很小并且所有缓冲区都在窗口中可见，则 pos 为 “All”。否则，如果正在查看缓冲区的开头，则为 “Top”; 如果正在查看缓冲区的末尾，则为 “Bot”，或者为 “nn％”，其中 nn 是缓冲区顶部之上占缓冲区的百分比。使用 Size Indication mode，也可以显示 buffer 的大小。请参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Optional-Mode-Line.html#Optional-Mode-Line][Optional Mode Line]]。
+
+   line is the character ‘L’ followed by the line number at point. (You can display the current column number too, by turning on Column Number mode. See Optional Mode Line.)
+
+   line 是字符'L'，后跟 point 所在的行号。（也可以通过开启 Column Number mode 显示当前列号。请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Optional-Mode-Line.html#Optional-Mode-Line][Optional Mode Line]]。）
+
+   major is the name of the major mode used in the buffer. A major mode is a principal editing mode for the buffer, such as Text mode, Lisp mode, C mode, and so forth. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Major-Modes.html#Major-Modes][Major Modes]]. Some major modes display additional information after the major mode name. For example, Compilation buffers and Shell buffers display the status of the subprocess.
+
+   major 是缓冲区中使用的 major modme 的名称。major mode 是缓冲区的主要编辑模式，例如 Text mode，Lisp mode，C mode 等。请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Major-Modes.html#Major-Modes][Major Modes]]。某些 major mode 在名称后显示附加信息。例如，Compile mode 和 Shell buffers 显示子进程的状态。
+
+   minor is a list of some of the enabled minor modes, which are optional editing modes that provide additional features on top of the major mode. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Minor-Modes.html#Minor-Modes][Minor Modes]].
+
+   minor 是一些启用的 minor mode 的列表，这些模式是可选的编辑模式，可在主要模式之上提供附加功能。请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Minor-Modes.html#Minor-Modes][Minor Modes]]。
+
+   Some features are listed together with the minor modes whenever they are turned on, even though they are not really minor modes. ‘Narrow’ means that the buffer being displayed has editing restricted to only a portion of its text (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html#Narrowing][Narrowing]]). ‘Def’ means that a keyboard macro is currently being defined (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Keyboard-Macros.html#Keyboard-Macros][Keyboard Macros]]).
+
+   有些功能在 minor mode 打开时会一起列出，即使它们不是真正的 minor mode。 'Narrow'表示正在显示的缓冲区的编辑仅限于其文本的一部分（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html#Narrowing][Narrowing]]）。 'Def'表示当前正在定义键盘宏（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Keyboard-Macros.html#Keyboard-Macros][Keyboard Macros]]）。
+
+   In addition, if Emacs is inside a recursive editing level, square brackets (‘[...]’) appear around the parentheses that surround the modes. If Emacs is in one recursive editing level within another, double square brackets appear, and so on. Since recursive editing levels affect Emacs globally, such square brackets appear in the mode line of every window. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Recursive-Edit.html#Recursive-Edit][Recursive Edit]].
+
+   此外，如果 Emacs 位于递归编辑级别内，则围绕模式的括号周围会出现方括号（'[...]'）。如果 Emacs 处于一个递归编辑级别内部，则会出现双方括号，依此类推。由于递归编辑级别全局影响 Emacs，因此这些方括号出现在每个窗口的模式行中。请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/recursive-edit.html#recursive-edit][recursive edit]]。
+
+   you can change the appearance of the mode line as well as the format of its contents. see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Optional-Mode-Line.html#Optional-Mode-Line][Optional Mode Line]]. In addition, the mode line is mouse-sensitive; clicking on different parts of the mode line performs various commands. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mode-Line-Mouse.html#Mode-Line-Mouse][Mode Line Mouse]]. Also, hovering the mouse pointer above mouse-sensitive portions of the mode line shows tooltips (see [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Tooltips.html#Tooltips][Tooltips]]) with information about commands you can invoke by clicking on the mode line.
+
+   可以更改 mode line 的外观以及其内容的格式。请参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Optional-Mode-Line.html#Optional-Mode-Line][Optional Mode Line]]。此外，mode line 可感知鼠标; 单击 mode line 的不同部分可执行各种命令。请参见 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Mode-Line-Mouse.html#Mode-Line-Mouse][Mode Line Mouse]]。此外，将鼠标指针悬停在 mode line 的鼠标敏感部分上方会显示工具提示（请参阅 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Tooltips.html#Tooltips][Tooltips]]），其中包含有关可通过单击模式行调用的命令的信息。
+
+** 1.4 The Menu Bar
+
+   Each Emacs frame normally has a "menu bar" at the top which you can use to perform common operations.  There’s no need to list them here, as you can more easily see them yourself.
+
+   通常每个 Emacs Frame 在顶部有一个可以用来执行常见操作的菜单栏。没必要在这里列出来，可以很容易看到它们。
+
+   On a display that supports a mouse, you can use the mouse to choose a command from the menu bar.  An arrow on the right edge of a menu item means it leads to a subsidiary menu, or "submenu".  A ‘...’ at the end of a menu item means that the command will prompt you for further input before it actually does anything.
+
+   在支持鼠标的显示中，可以使用鼠标从菜单栏选择命令。菜单项右侧出现的箭头意味着它还有子菜单，菜单项底部的“...”意味着命令执行前会提示进一步的输入。
+
+   Some of the commands in the menu bar have ordinary key bindings as well; if so, a key binding is shown in parentheses after the item itself.  To view the full command name and documentation for a menu item, type ‘C-h k’, and then select the menu bar with the mouse in the
+   usual way (*note Key Help::).
+
+   菜单栏中的一些命令也有常见的键绑定；如果是这样，键绑定会显示在菜单项右侧的括号中。使用‘C-h k’查看菜单项的完整命令名字和文档，然后使用鼠标选择菜单栏。
+
+   Instead of using the mouse, you can also invoke the first menu bar item by pressing <F10> (to run the command ‘menu-bar-open’).  You can then navigate the menus with the arrow keys.  To activate a selected menu item, press <RET>; to cancel menu navigation, press ‘C-g’ or ‘<ESC> <ESC> <ESC>’.
+
+   除了使用鼠标，还可以按下<F10>来调用菜单栏第一个条目（使用‘menu-bar-open’运行命令）。然后可以使用方向键浏览菜单。按下<RET>激活选中的菜单，按下‘C-g’ 或 ‘<ESC> <ESC> <ESC>’取消菜单浏览。
+
+   On a text terminal, you can optionally access the menu-bar menus in the echo area.  To this end, customize the variable ‘tty-menu-open-use-tmm’ to a non-‘nil’ value.  Then typing <F10> will run the command ‘tmm-menubar’ instead of dropping down the menu.  (You can also type ‘M-`’, which always invokes ‘tmm-menubar’.)  ‘tmm-menubar’lets you select a menu item with the keyboard.  A provisional choice appears in the echo area.  You can use the up and down arrow keys to move through the menu to different items, and then you can type <RET> to select the item.  Each menu item is also designated by a letter or digit (usually the initial of some word in the item’s name).  This letter or digit is separated from the item name by ‘==>’.  You can type the item’s letter or digit to select the item.
+
+   在文本中断，可以选择在回显区访问菜单栏项目。为此，将变量‘tty-menu-open-use-tmm’赋值为非 nil 值。然后按下<F10>将会运行命令‘tmm-menubar’而不是陷入到菜单中。（也可以输入‘M-`’，它总是调用‘tmm-menubar’。）使用‘tmm-menubar’可以使用键盘选择菜单项。回显区会出现一个临时选择。可以使用上下箭头选择菜单中不同的项目，然后按下<RET>选中菜单项。为每个菜单项设置了一个字母或数字（通常是菜单项名字的首字母）。该字母或数字与菜单项名字使用‘==>’分割。可以键入菜单项的字母或数字来选中它。
